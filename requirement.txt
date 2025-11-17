@@ -1,6 +1,16 @@
 fastapi
 uvicorn
-langchain
+langchain==1.0.5
 chromadb
 streamlit
 dotenv
+sentence-transformers
+pdfplumber
+python-dotenv
+langchain-community
+PyPDF2
+pdfplumber 
+pymupdf
+langchain-chroma
+langchain-core
+langchain-text-splitters

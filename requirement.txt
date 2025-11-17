@@ -8,9 +8,10 @@ sentence-transformers
 pdfplumber
 python-dotenv
 langchain-community
-PyPDF2
+pypdf
 pdfplumber 
 pymupdf
 langchain-chroma
 langchain-core
 langchain-text-splitters
+tqdm

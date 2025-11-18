@@ -15,3 +15,5 @@ langchain-chroma
 langchain-core
 langchain-text-splitters
 tqdm
+google-generativeai
+faiss-cpu

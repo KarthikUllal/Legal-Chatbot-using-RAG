@@ -2,3 +2,6 @@ venv/
 .env
 __pycache__/
 *.pyc
+notebooks/faiss_store/metadata.pkl
+notebooks/faiss_store/*.pkl
+notebooks/faiss_store/chunks.pkl

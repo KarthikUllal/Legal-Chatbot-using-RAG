@@ -17,3 +17,4 @@ langchain-text-splitters
 tqdm
 google-generativeai
 faiss-cpu
+beautifulsoup4

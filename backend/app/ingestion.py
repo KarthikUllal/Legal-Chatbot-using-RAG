@@ -5,8 +5,12 @@ from bs4 import BeautifulSoup
 import requests
 from typing import List
 import concurrent.futures
-from .config import settings
-from .utils import clean_text
+try:
+    from .config import settings
+    from .utils import clean_text
+except ImportError:
+    from config import settings
+    from utils import clean_text
 
 
 def load_pdf_text(path: Path) -> str:

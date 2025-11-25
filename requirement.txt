@@ -23,3 +23,15 @@ google-generativeai
 langchain-google-genai 
 langchain-openai 
 langchain-huggingface
+python-multipart
+
+
+
+now i have frontend code 
+it is an web application ..
+which is wriitten using html tailwind 
+which contains .. beautifull ui ... when i upload it .. please donot go to change the ui  designs.. 
+but you need connect my backend code with frontend 
+and i need admin dashboard where i can upload documents... chcck status .. and many more ..
+and the things is my chat app must also support multilingual .. and voice search  feature.. 
+currently no backend code is wrriten for these two feature .. but provide ui .. so that it can implement it once i completely test my chat bot with online llm api

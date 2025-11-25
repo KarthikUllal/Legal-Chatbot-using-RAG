@@ -164,11 +164,3 @@ def get_processing_stats(chunks: List[str]) -> dict:
             else "0-0"
         ),
     }
-
-#testing
-if __name__ == "__main__":
-    print("Ingestion module loaded successfully!")
-    print("Available functions:")
-    print(" - load_pdf_text(path)")
-    print(" - fetch_html_text(url)") 
-    print(" - split_into_chunks(text)")

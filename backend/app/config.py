@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     CHUNK_OVERLAP: int = 200
     BATCH_SIZE: int = 64
     ALLOW_ORIGINS: list = ["*"]
+    OLLAMA_MODEL: str ="llama3.2:3b"
 
     class Config:
         env_file = ".env"

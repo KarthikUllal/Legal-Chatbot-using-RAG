@@ -42,7 +42,11 @@ class LocalProvider(ProviderClient):
                 )
 
         self.model_name = cfg_name
+        self.llm_model = "llama3.2:3b"  # Your Ollama model
+        self.ollama_base_url = "http://localhost:11434"
+
         logger.info(f"Loading local model with LangChain: {self.model_name}")
+        logger.info(f"Ollama LLM model: {self.llm_model}")
         logger.info("Local model loaded successfully with LangChain!")
 
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
@@ -52,8 +56,126 @@ class LocalProvider(ProviderClient):
         return embs
 
     def generate(self, prompt: str, max_tokens: int = 512, **kwargs) -> str:
-        truncated_prompt = prompt[:200] + "..." if len(prompt) > 200 else prompt
-        return f"[LOCAL MODEL] This is a simulated response to: '{truncated_prompt}'. For actual text generation, you would need to load a local LLM."
+            """Generate text using Ollama local LLM with structured formatting"""
+            try:
+                import requests
+
+                # Enhanced prompt with strict formatting instructions for legal responses
+                enhanced_prompt = f"""You are a legal expert specializing in Indian law. Provide a CLEAN, STRUCTURED answer based ONLY on the context.
+
+        CONTEXT: {prompt}
+
+        RESPONSE FORMATTING RULES - FOLLOW EXACTLY:
+        1. STRUCTURE:
+        - Start with 1-2 sentence overview
+        - Use **bold headings** for main sections
+        - Use • bullet points for lists (not * or -)
+        - Keep paragraphs short (2-3 lines maximum)
+        - End with "**Legal References:**" section
+
+        2. CONTENT:
+        - Use ONLY information from provided context
+        - Cite specific sections (Section 302, Section 304, etc.)
+        - Be precise and factual
+        - If context is insufficient, state this clearly
+
+        3. FORMAT EXAMPLE:
+        **Overview**
+        Brief introduction here.
+
+        **Key Definitions**
+        • Definition 1 with section reference
+        • Definition 2 with section reference
+
+        **Main Differences**
+        • Difference 1
+        • Difference 2
+
+        **Legal Provisions**
+        • Provision 1
+        • Provision 2
+
+        **Legal References:**
+        Sections XXX, YYY of Relevant Act
+
+        STRICTLY FOLLOW THIS FORMAT. DO NOT USE MARKDOWN TABLES OR COMPLEX FORMATTING.
+
+        ANSWER:"""
+
+                response = requests.post(
+                    f"{self.ollama_base_url}/api/generate",
+                    json={
+                        "model": self.llm_model,
+                        "prompt": enhanced_prompt,
+                        "stream": False,
+                        "options": {
+                            "num_predict": max_tokens,
+                            "temperature": 0.2,  # Lower temperature for more consistent formatting
+                            "top_p": 0.8,
+                            "repeat_penalty": 1.2,
+                            "stop": ["\n\n\n", "====", "----"]  # Stop sequences to prevent run-on
+                        },
+                    },
+                    timeout=120,  # 2 minute timeout for longer responses
+                )
+
+                if response.status_code == 200:
+                    result = response.json()
+                    generated_text = result.get("response", "").strip()
+
+                    if generated_text:
+                        # Post-process to ensure clean formatting
+                        cleaned_text = self._clean_response_format(generated_text)
+                        logger.info("✅ Successfully generated structured legal response")
+                        return cleaned_text
+                    else:
+                        return "No response generated from the local LLM."
+
+                else:
+                    error_msg = (
+                        f"Ollama API error: {response.status_code} - {response.text}"
+                    )
+                    logger.error(error_msg)
+                    return f"Local LLM unavailable. Error: {response.status_code}"
+
+            except requests.exceptions.ConnectionError:
+                error_msg = (
+                    "Cannot connect to Ollama. Make sure Ollama is running: 'ollama serve'"
+                )
+                logger.error(error_msg)
+                return f"[LOCAL LLM OFFLINE] {error_msg}"
+
+            except requests.exceptions.Timeout:
+                error_msg = "Ollama request timed out. The model might be processing."
+                logger.error(error_msg)
+                return f"[LOCAL LLM TIMEOUT] {error_msg}"
+
+            except Exception as e:
+                error_msg = f"Unexpected error with local LLM: {str(e)}"
+                logger.error(error_msg)
+                return f"[LOCAL LLM ERROR] {error_msg}"
+
+def _clean_response_format(self, text: str) -> str:
+    """Clean and format the response for consistent structure"""
+    import re
+    
+    # Remove excessive empty lines but maintain structure
+    text = re.sub(r'\n\s*\n', '\n\n', text)
+    
+    # Ensure bullet points are consistent
+    text = re.sub(r'^[\*\-]\s+', '• ', text, flags=re.MULTILINE)
+    
+    # Remove any markdown table artifacts
+    text = re.sub(r'\|.*\|', '', text)
+    
+    # Ensure Legal References section exists
+    if "**Legal References:**" not in text:
+        text += "\n\n**Legal References:** Relevant legal provisions cited above"
+    
+    # Trim any trailing whitespace
+    text = text.strip()
+    
+    return text
 
 
 class GeminiClient(ProviderClient):
@@ -268,36 +390,3 @@ def get_local_provider():
     """Directly get local provider without any checks"""
     return LocalProvider()
 
-
-if __name__ == "__main__":
-    print("Testing LOCAL provider with LangChain...")
-
-    # Test local provider directly
-    provider = LocalProvider()
-
-    # Test with sample legal texts
-    samples = [
-        "IPC Section 420: Cheating and dishonestly inducing delivery of property",
-        "The Indian Penal Code defines cheating in section 415",
-        "Whoever commits cheating shall be punished with imprisonment of either description for a term which may extend to seven years",
-    ]
-
-    print(f"Testing with {len(samples)} sample texts...")
-
-    try:
-        embeddings = provider.get_embeddings(samples)
-        print(f" SUCCESS: Generated {len(embeddings)} embeddings using LangChain")
-        print(f" Each embedding has {len(embeddings[0])} dimensions")
-        print(f" Sample embedding (first 5 values): {embeddings[0][:5]}")
-
-        # Test generation
-        answer = provider.generate("Explain IPC Section 420 briefly")
-        print(f" Generation test: {answer}")
-
-        print("\n Local model with LangChain is working perfectly!")
-
-    except Exception as e:
-        print(f"ERROR: {e}")
-        print(
-            "Make sure you have installed: pip install langchain sentence-transformers"
-        )

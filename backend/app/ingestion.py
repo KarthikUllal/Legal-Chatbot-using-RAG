@@ -107,9 +107,9 @@ def process_multiple_documents_parallel(file_paths: List[Path]) -> List[str]:
             try:
                 chunks = future.result()
                 all_chunks.extend(chunks)
-                print(f"✅ Completed: {file_path.name} - {len(chunks)} chunks")
+                print(f"Completed: {file_path.name} - {len(chunks)} chunks")
             except Exception as e:
-                print(f"❌ Failed: {file_path.name} - {e}")
+                print(f"Failed: {file_path.name} - {e}")
 
     return all_chunks
 
@@ -128,13 +128,13 @@ def process_multiple_documents_sequential(file_paths: List[Path]) -> List[str]:
 
     for file_path in file_paths:
         try:
-            print(f"🔄 Processing: {file_path.name}")
+            print(f"Processing: {file_path.name}")
             text = load_pdf_text(file_path)
             chunks = split_into_chunks(text)
             all_chunks.extend(chunks)
-            print(f"✅ Completed: {file_path.name} - {len(chunks)} chunks")
+            print(f"Completed: {file_path.name} - {len(chunks)} chunks")
         except Exception as e:
-            print(f"❌ Failed: {file_path.name} - {e}")
+            print(f"Failed: {file_path.name} - {e}")
 
     return all_chunks
 
@@ -167,7 +167,7 @@ def get_processing_stats(chunks: List[str]) -> dict:
 
 #testing
 if __name__ == "__main__":
-    print("✅ Ingestion module loaded successfully!")
+    print("Ingestion module loaded successfully!")
     print("Available functions:")
     print(" - load_pdf_text(path)")
     print(" - fetch_html_text(url)") 

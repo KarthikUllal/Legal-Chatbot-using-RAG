@@ -19,3 +19,7 @@ google-generativeai
 faiss-cpu
 beautifulsoup4
 pydantic-settings
+google-generativeai
+langchain-google-genai 
+langchain-openai 
+langchain-huggingface

@@ -56,126 +56,127 @@ class LocalProvider(ProviderClient):
         return embs
 
     def generate(self, prompt: str, max_tokens: int = 512, **kwargs) -> str:
-            """Generate text using Ollama local LLM with structured formatting"""
-            try:
-                import requests
+        """Generate text using Ollama local LLM with structured formatting"""
+        try:
+            import requests
+            import re
 
-                # Enhanced prompt with strict formatting instructions for legal responses
-                enhanced_prompt = f"""You are a legal expert specializing in Indian law. Provide a CLEAN, STRUCTURED answer based ONLY on the context.
+            # Enhanced prompt with strict formatting instructions for legal responses
+            enhanced_prompt = f"""You are a legal expert specializing in Indian law. Provide a CLEAN, STRUCTURED answer based ONLY on the context.
 
-        CONTEXT: {prompt}
+    CONTEXT: {prompt}
 
-        RESPONSE FORMATTING RULES - FOLLOW EXACTLY:
-        1. STRUCTURE:
-        - Start with 1-2 sentence overview
-        - Use **bold headings** for main sections
-        - Use • bullet points for lists (not * or -)
-        - Keep paragraphs short (2-3 lines maximum)
-        - End with "**Legal References:**" section
+    RESPONSE FORMATTING RULES - FOLLOW EXACTLY:
+    1. STRUCTURE:
+    - Start with 1-2 sentence overview
+    - Use **bold headings** for main sections
+    - Use • bullet points for lists (not * or -)
+    - Keep paragraphs short (2-3 lines maximum)
+    - End with "**Legal References:**" section
 
-        2. CONTENT:
-        - Use ONLY information from provided context
-        - Cite specific sections (Section 302, Section 304, etc.)
-        - Be precise and factual
-        - If context is insufficient, state this clearly
+    2. CONTENT:
+    - Use ONLY information from provided context
+    - Cite specific sections (Section 302, Section 304, etc.)
+    - Be precise and factual
+    - If context is insufficient, state this clearly
 
-        3. FORMAT EXAMPLE:
-        **Overview**
-        Brief introduction here.
+    3. FORMAT EXAMPLE:
+    **Overview**
+    Brief introduction here.
 
-        **Key Definitions**
-        • Definition 1 with section reference
-        • Definition 2 with section reference
+    **Key Definitions**
+    • Definition 1 with section reference
+    • Definition 2 with section reference
 
-        **Main Differences**
-        • Difference 1
-        • Difference 2
+    **Main Differences**
+    • Difference 1
+    • Difference 2
 
-        **Legal Provisions**
-        • Provision 1
-        • Provision 2
+    **Legal Provisions**
+    • Provision 1
+    • Provision 2
 
-        **Legal References:**
-        Sections XXX, YYY of Relevant Act
+    **Legal References:**
+    Sections XXX, YYY of Relevant Act
 
-        STRICTLY FOLLOW THIS FORMAT. DO NOT USE MARKDOWN TABLES OR COMPLEX FORMATTING.
+    STRICTLY FOLLOW THIS FORMAT. DO NOT USE MARKDOWN TABLES OR COMPLEX FORMATTING.
 
-        ANSWER:"""
+    ANSWER:"""
 
-                response = requests.post(
-                    f"{self.ollama_base_url}/api/generate",
-                    json={
-                        "model": self.llm_model,
-                        "prompt": enhanced_prompt,
-                        "stream": False,
-                        "options": {
-                            "num_predict": max_tokens,
-                            "temperature": 0.2,  # Lower temperature for more consistent formatting
-                            "top_p": 0.8,
-                            "repeat_penalty": 1.2,
-                            "stop": ["\n\n\n", "====", "----"]  # Stop sequences to prevent run-on
-                        },
+            response = requests.post(
+                f"{self.ollama_base_url}/api/generate",
+                json={
+                    "model": self.llm_model,
+                    "prompt": enhanced_prompt,
+                    "stream": False,
+                    "options": {
+                        "num_predict": max_tokens,
+                        "temperature": 0.2,  # Lower temperature for more consistent formatting
+                        "top_p": 0.8,
+                        "repeat_penalty": 1.2,
                     },
-                    timeout=120,  # 2 minute timeout for longer responses
-                )
+                },
+                timeout=120,
+            )
 
-                if response.status_code == 200:
-                    result = response.json()
-                    generated_text = result.get("response", "").strip()
+            if response.status_code == 200:
+                result = response.json()
+                generated_text = result.get("response", "").strip()
 
-                    if generated_text:
-                        # Post-process to ensure clean formatting
-                        cleaned_text = self._clean_response_format(generated_text)
-                        logger.info("✅ Successfully generated structured legal response")
-                        return cleaned_text
-                    else:
-                        return "No response generated from the local LLM."
-
+                if generated_text:
+                    # Simple cleaning without helper method
+                    # Remove excessive empty lines
+                    generated_text = re.sub(r'\n\s*\n', '\n\n', generated_text)
+                    # Ensure Legal References section exists
+                    if "**Legal References:**" not in generated_text and "**Reference Sources:**" not in generated_text:
+                        generated_text += "\n\n**Legal References:** Relevant legal provisions cited above"
+                    
+                    logger.info("✅ Successfully generated structured legal response")
+                    return generated_text.strip()
                 else:
-                    error_msg = (
-                        f"Ollama API error: {response.status_code} - {response.text}"
-                    )
-                    logger.error(error_msg)
-                    return f"Local LLM unavailable. Error: {response.status_code}"
+                    return "No response generated from the local LLM."
 
-            except requests.exceptions.ConnectionError:
-                error_msg = (
-                    "Cannot connect to Ollama. Make sure Ollama is running: 'ollama serve'"
-                )
+            else:
+                error_msg = f"Ollama API error: {response.status_code} - {response.text}"
                 logger.error(error_msg)
-                return f"[LOCAL LLM OFFLINE] {error_msg}"
+                return f"Local LLM unavailable. Error: {response.status_code}"
 
-            except requests.exceptions.Timeout:
-                error_msg = "Ollama request timed out. The model might be processing."
-                logger.error(error_msg)
-                return f"[LOCAL LLM TIMEOUT] {error_msg}"
+        except requests.exceptions.ConnectionError:
+            error_msg = "Cannot connect to Ollama. Make sure Ollama is running: 'ollama serve'"
+            logger.error(error_msg)
+            return f"[LOCAL LLM OFFLINE] {error_msg}"
 
-            except Exception as e:
-                error_msg = f"Unexpected error with local LLM: {str(e)}"
-                logger.error(error_msg)
-                return f"[LOCAL LLM ERROR] {error_msg}"
+        except requests.exceptions.Timeout:
+            error_msg = "Ollama request timed out. The model might be processing."
+            logger.error(error_msg)
+            return f"[LOCAL LLM TIMEOUT] {error_msg}"
 
-def _clean_response_format(self, text: str) -> str:
-    """Clean and format the response for consistent structure"""
-    import re
+        except Exception as e:
+            error_msg = f"Unexpected error with local LLM: {str(e)}"
+            logger.error(error_msg)
+            return f"[LOCAL LLM ERROR] {error_msg}"
+
+# def _clean_response_format(self, text: str) -> str:
+#     """Clean and format the response for consistent structure"""
+#     import re
     
-    # Remove excessive empty lines but maintain structure
-    text = re.sub(r'\n\s*\n', '\n\n', text)
+#     # Remove excessive empty lines but maintain structure
+#     text = re.sub(r'\n\s*\n', '\n\n', text)
     
-    # Ensure bullet points are consistent
-    text = re.sub(r'^[\*\-]\s+', '• ', text, flags=re.MULTILINE)
+#     # Ensure bullet points are consistent
+#     text = re.sub(r'^[\*\-]\s+', '• ', text, flags=re.MULTILINE)
     
-    # Remove any markdown table artifacts
-    text = re.sub(r'\|.*\|', '', text)
+#     # Remove any markdown table artifacts
+#     text = re.sub(r'\|.*\|', '', text)
     
-    # Ensure Legal References section exists
-    if "**Legal References:**" not in text:
-        text += "\n\n**Legal References:** Relevant legal provisions cited above"
+#     # Ensure Legal References section exists
+#     if "**Legal References:**" not in text:
+#         text += "\n\n**Legal References:** Relevant legal provisions cited above"
     
-    # Trim any trailing whitespace
-    text = text.strip()
+#     # Trim any trailing whitespace
+#     text = text.strip()
     
-    return text
+#     return text
 
 
 class GeminiClient(ProviderClient):

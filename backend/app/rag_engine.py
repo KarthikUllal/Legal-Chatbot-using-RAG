@@ -39,7 +39,7 @@ class RAGEngine:
 
     def _setup_prompts(self):
         """Setup LangChain prompt templates with precise structured formatting"""
-        
+    
         self.qa_prompt = PromptTemplate(
             input_variables=["question", "context"],
             template="""You are a legal expert on Indian law. Provide a CLEAN, WELL-STRUCTURED answer using ONLY the provided legal context.
@@ -50,37 +50,11 @@ class RAGEngine:
     QUESTION: {question}
 
     RESPONSE REQUIREMENTS:
-    1. STRUCTURE:
-    - Start with 1-2 sentence overview
-    - Use **bold headings** for main sections
-    - Use • bullet points for lists
-    - Keep paragraphs to 2-3 lines maximum
-    - End with "**Legal References:**" section
-
-    2. CONTENT:
-    - Use ONLY information from provided context
-    - Cite specific sections (Section 302, Section 304, etc.)
-    - Be precise and factual
-    - If context is insufficient, state this clearly
-
-    3. FORMATTING:
-    **Overview**
-    [Brief introduction]
-
-    **Key Definitions**
-    • [Point 1]
-    • [Point 2]
-
-    **Main Differences**
-    • [Difference 1]
-    • [Difference 2]
-
-    **Legal Provisions**
-    • [Provision 1]
-    • [Provision 2]
-
-    **Legal References:**
-    [Mention specific acts/sections used]
+    1. Use ONLY information from provided context
+    2. Structure with **bold headings** and • bullet points
+    3. Keep paragraphs short (2-3 lines max)
+    4. End with "**Legal References:**" section
+    5. Be precise and cite relevant sections
 
     ANSWER:"""
         )

@@ -3,6 +3,9 @@ from typing import List, Optional
 import logging
 import os
 from .config import settings
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -181,7 +184,8 @@ class DeepSeekClient(ProviderClient):
             from langchain_huggingface import HuggingFaceEmbeddings
             self.embeddings = HuggingFaceEmbeddings(
                 model_name="sentence-transformers/all-MiniLM-L6-v2",
-                model_kwargs={'device': 'cpu'}
+                model_kwargs={'device': 'cpu'},  
+                encode_kwargs={'normalize_embeddings': True}
             )
             print("✅ DEBUG: Local embeddings loaded successfully")
         except ImportError as e:

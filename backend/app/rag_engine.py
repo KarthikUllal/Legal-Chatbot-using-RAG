@@ -43,6 +43,14 @@ class RAGEngine:
     def _setup_prompts(self):
         """Setup prompts for clean, professional responses"""
 
+        self.context_prompt = PromptTemplate(
+        input_variables=["documents"],
+        template="""Legal Documents Context:
+{documents}
+
+Use the above legal documents to answer the question accurately."""
+    )
+
         self.qa_prompt = PromptTemplate(
             input_variables=["question", "context"],
             template="""As a legal expert, provide clear, accurate information based strictly on this context:

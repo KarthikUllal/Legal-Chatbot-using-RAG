@@ -26,23 +26,17 @@ class LocalProvider(ProviderClient):
             cfg_name = default_local
 
         try:
-            # Try new import path first (LangChain >= 0.1.0)
             from langchain_huggingface import HuggingFaceEmbeddings
-
             self.embeddings = HuggingFaceEmbeddings(model_name=cfg_name)
         except ImportError:
             try:
-                # Fallback to old import path (LangChain < 0.1.0)
                 from langchain.embeddings import HuggingFaceEmbeddings
-
                 self.embeddings = HuggingFaceEmbeddings(model_name=cfg_name)
             except ImportError:
-                raise ImportError(
-                    "Install: pip install langchain sentence-transformers"
-                )
+                raise ImportError("Install: pip install langchain sentence-transformers")
 
         self.model_name = cfg_name
-        self.llm_model = "llama3.2:3b"  # Your Ollama model
+        self.llm_model = "llama3.2:3b"
         self.ollama_base_url = "http://localhost:11434"
 
         logger.info(f"Loading local model with LangChain: {self.model_name}")
@@ -56,52 +50,50 @@ class LocalProvider(ProviderClient):
         return embs
 
     def generate(self, prompt: str, max_tokens: int = 512, **kwargs) -> str:
-        """Generate text using Ollama local LLM with structured formatting"""
         try:
             import requests
             import re
 
-            # Enhanced prompt with strict formatting instructions for legal responses
             enhanced_prompt = f"""You are a legal expert specializing in Indian law. Provide a CLEAN, STRUCTURED answer based ONLY on the context.
 
-    CONTEXT: {prompt}
+CONTEXT: {prompt}
 
-    RESPONSE FORMATTING RULES - FOLLOW EXACTLY:
-    1. STRUCTURE:
-    - Start with 1-2 sentence overview
-    - Use **bold headings** for main sections
-    - Use • bullet points for lists (not * or -)
-    - Keep paragraphs short (2-3 lines maximum)
-    - End with "**Legal References:**" section
+RESPONSE FORMATTING RULES - FOLLOW EXACTLY:
+1. STRUCTURE:
+- Start with 1-2 sentence overview
+- Use **bold headings** for main sections
+- Use • bullet points for lists (not * or -)
+- Keep paragraphs short (2-3 lines maximum)
+- End with "**Legal References:**" section
 
-    2. CONTENT:
-    - Use ONLY information from provided context
-    - Cite specific sections (Section 302, Section 304, etc.)
-    - Be precise and factual
-    - If context is insufficient, state this clearly
+2. CONTENT:
+- Use ONLY information from provided context
+- Cite specific sections (Section 302, Section 304, etc.)
+- Be precise and factual
+- If context is insufficient, state this clearly
 
-    3. FORMAT EXAMPLE:
-    **Overview**
-    Brief introduction here.
+3. FORMAT EXAMPLE:
+**Overview**
+Brief introduction here.
 
-    **Key Definitions**
-    • Definition 1 with section reference
-    • Definition 2 with section reference
+**Key Definitions**
+• Definition 1 with section reference
+• Definition 2 with section reference
 
-    **Main Differences**
-    • Difference 1
-    • Difference 2
+**Main Differences**
+• Difference 1
+• Difference 2
 
-    **Legal Provisions**
-    • Provision 1
-    • Provision 2
+**Legal Provisions**
+• Provision 1
+• Provision 2
 
-    **Legal References:**
-    Sections XXX, YYY of Relevant Act
+**Legal References:**
+Sections XXX, YYY of Relevant Act
 
-    STRICTLY FOLLOW THIS FORMAT. DO NOT USE MARKDOWN TABLES OR COMPLEX FORMATTING.
+STRICTLY FOLLOW THIS FORMAT. DO NOT USE MARKDOWN TABLES OR COMPLEX FORMATTING.
 
-    ANSWER:"""
+ANSWER:"""
 
             response = requests.post(
                 f"{self.ollama_base_url}/api/generate",
@@ -111,7 +103,7 @@ class LocalProvider(ProviderClient):
                     "stream": False,
                     "options": {
                         "num_predict": max_tokens,
-                        "temperature": 0.2,  # Lower temperature for more consistent formatting
+                        "temperature": 0.2,
                         "top_p": 0.8,
                         "repeat_penalty": 1.2,
                     },
@@ -124,10 +116,7 @@ class LocalProvider(ProviderClient):
                 generated_text = result.get("response", "").strip()
 
                 if generated_text:
-                    # Simple cleaning without helper method
-                    # Remove excessive empty lines
                     generated_text = re.sub(r'\n\s*\n', '\n\n', generated_text)
-                    # Ensure Legal References section exists
                     if "**Legal References:**" not in generated_text and "**Reference Sources:**" not in generated_text:
                         generated_text += "\n\n**Legal References:** Relevant legal provisions cited above"
                     
@@ -156,67 +145,133 @@ class LocalProvider(ProviderClient):
             logger.error(error_msg)
             return f"[LOCAL LLM ERROR] {error_msg}"
 
-# def _clean_response_format(self, text: str) -> str:
-#     """Clean and format the response for consistent structure"""
-#     import re
-    
-#     # Remove excessive empty lines but maintain structure
-#     text = re.sub(r'\n\s*\n', '\n\n', text)
-    
-#     # Ensure bullet points are consistent
-#     text = re.sub(r'^[\*\-]\s+', '• ', text, flags=re.MULTILINE)
-    
-#     # Remove any markdown table artifacts
-#     text = re.sub(r'\|.*\|', '', text)
-    
-#     # Ensure Legal References section exists
-#     if "**Legal References:**" not in text:
-#         text += "\n\n**Legal References:** Relevant legal provisions cited above"
-    
-#     # Trim any trailing whitespace
-#     text = text.strip()
-    
-#     return text
 
-
-class GeminiClient(ProviderClient):
+class DeepSeekClient(ProviderClient):
     def __init__(
         self,
         api_key: Optional[str] = None,
         emb_model: Optional[str] = None,
         gen_model: Optional[str] = None,
     ):
+        print("🚀 DEBUG: DeepSeekClient initialization starting...")
+        print(f"🔑 DEBUG: API Key provided: {'***' + api_key[-4:] if api_key else 'NONE'}")
+        
+        try:
+            from openai import OpenAI
+            print("✅ DEBUG: OpenAI import successful")
+        except ImportError as e:
+            print(f"❌ DEBUG: OpenAI import failed: {e}")
+            raise
+
+        try:
+            self.client = OpenAI(
+                api_key=api_key or os.getenv("DEEPSEEK_API_KEY"),
+                base_url="https://api.deepseek.com/v1",
+            )
+            print("✅ DEBUG: DeepSeek client created successfully")
+        except Exception as e:
+            print(f"❌ DEBUG: DeepSeek client creation failed: {e}")
+            raise
+        
+        self.gen_model = gen_model or "deepseek-chat"
+        print(f"🎯 DEBUG: Using model: {self.gen_model}")
+        
+        # Use local embeddings since DeepSeek doesn't provide embedding API
+        try:
+            from langchain_huggingface import HuggingFaceEmbeddings
+            self.embeddings = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2",
+                model_kwargs={'device': 'cpu'}
+            )
+            print("✅ DEBUG: Local embeddings loaded successfully")
+        except ImportError as e:
+            print(f"❌ DEBUG: Embeddings import failed: {e}")
+            raise
+
+        print("🎉 DEBUG: DeepSeekClient initialized successfully!")
+
+    def get_embeddings(self, texts: List[str]) -> List[List[float]]:
+        logger.info(f"Generating embeddings for {len(texts)} texts using local model")
+        embs = self.embeddings.embed_documents(texts)
+        logger.info(f"Generated {len(embs)} embeddings with {len(embs[0])} dimensions")
+        return embs
+
+    def generate(self, prompt: str, max_tokens: int = 512, **kwargs) -> str:
+        try:
+            legal_prompt = f"""You are a legal expert specializing in Indian law. Provide accurate, structured information based on the context.
+
+Context: {prompt}
+
+Response Requirements:
+1. Structure your answer with clear sections
+2. Use bullet points (•) for lists
+3. Cite specific legal sections when possible
+4. Be precise and factual
+5. If context is insufficient, state this clearly
+
+Format:
+- Start with a brief overview
+- Key Definitions (bullet points)
+- Legal Provisions (bullet points)
+- Important Points (bullet points)
+- Legal References (sections/acts used)
+
+Answer:"""
+
+            print("🔄 DEBUG: Sending request to DeepSeek API...")
+            response = self.client.chat.completions.create(
+                model=self.gen_model,
+                messages=[
+                    {
+                        "role": "system", 
+                        "content": "You are a legal expert specializing in Indian law. Provide accurate, structured legal information."
+                    },
+                    {
+                        "role": "user",
+                        "content": legal_prompt
+                    }
+                ],
+                max_tokens=max_tokens,
+                temperature=0.3,
+                top_p=0.9,
+            )
+            
+            generated_text = response.choices[0].message.content.strip()
+            
+            if "**Legal References:**" not in generated_text:
+                generated_text += "\n\n**Legal References:** Relevant legal provisions cited above"
+            
+            print("✅ DEBUG: DeepSeek generation successful!")
+            logger.info("✅ Successfully generated response with DeepSeek")
+            return generated_text
+            
+        except Exception as e:
+            logger.error(f"DeepSeek generation failed: {e}")
+            print(f"❌ DEBUG: DeepSeek generation error: {e}")
+            return f"[DEEPSEEK ERROR] Failed to generate response: {str(e)}"
+
+
+# Other provider classes (Gemini, OpenAI, HuggingFace) remain the same...
+class GeminiClient(ProviderClient):
+    def __init__(self, api_key: Optional[str] = None, emb_model: Optional[str] = None, gen_model: Optional[str] = None):
         try:
             import google.generativeai as genai
-
-            # Try new import path first
             try:
                 from langchain_google_genai import GoogleGenerativeAIEmbeddings
             except ImportError:
                 from langchain.embeddings import GoogleGenerativeAIEmbeddings
         except ImportError:
-            raise ImportError(
-                "Install: pip install google-generativeai langchain-google-genai"
-            )
+            raise ImportError("Install: pip install google-generativeai langchain-google-genai")
 
         self.genai = genai
-        self.api_key = (
-            api_key
-            or getattr(settings, "GEMINI_API_KEY", None)
-            or os.getenv("GEMINI_API_KEY")
-        )
+        self.api_key = api_key or getattr(settings, "GEMINI_API_KEY", None) or os.getenv("GEMINI_API_KEY")
         if not self.api_key:
             raise ValueError("Gemini API key required")
 
         self.genai.configure(api_key=self.api_key)
-        self.emb_model = emb_model or getattr(
-            settings, "EMBED_MODEL", "models/embedding-001"
-        )
+        self.emb_model = emb_model or getattr(settings, "EMBED_MODEL", "models/embedding-001")
         self.gen_model = gen_model or getattr(settings, "GEN_MODEL", "gemini-pro")
-
-        self.embeddings = GoogleGenerativeAIEmbeddings(
-            model=self.emb_model, google_api_key=self.api_key
-        )
+        self.embeddings = GoogleGenerativeAIEmbeddings(model=self.emb_model, google_api_key=self.api_key)
 
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         logger.info(f"Generating embeddings for {len(texts)} texts using Gemini")
@@ -231,16 +286,9 @@ class GeminiClient(ProviderClient):
 
 
 class OpenAIClient(ProviderClient):
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        emb_model: Optional[str] = None,
-        gen_model: Optional[str] = None,
-    ):
+    def __init__(self, api_key: Optional[str] = None, emb_model: Optional[str] = None, gen_model: Optional[str] = None):
         try:
             from openai import OpenAI
-
-            # Try new import path first
             try:
                 from langchain_openai import OpenAIEmbeddings
             except ImportError:
@@ -251,10 +299,7 @@ class OpenAIClient(ProviderClient):
         self.client = OpenAI(api_key=api_key or os.getenv("OPENAI_API_KEY"))
         self.emb_model = emb_model or "text-embedding-3-small"
         self.gen_model = gen_model or "gpt-3.5-turbo"
-
-        self.embeddings = OpenAIEmbeddings(
-            model=self.emb_model, openai_api_key=api_key or os.getenv("OPENAI_API_KEY")
-        )
+        self.embeddings = OpenAIEmbeddings(model=self.emb_model, openai_api_key=api_key or os.getenv("OPENAI_API_KEY"))
 
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         logger.info(f"Generating embeddings for {len(texts)} texts using OpenAI")
@@ -272,14 +317,8 @@ class OpenAIClient(ProviderClient):
 
 
 class HuggingFaceClient(ProviderClient):
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        emb_model: Optional[str] = None,
-        gen_model: Optional[str] = None,
-    ):
+    def __init__(self, api_key: Optional[str] = None, emb_model: Optional[str] = None, gen_model: Optional[str] = None):
         try:
-            # Try new import path first
             try:
                 from langchain_huggingface import HuggingFaceEmbeddings
             except ImportError:
@@ -290,7 +329,6 @@ class HuggingFaceClient(ProviderClient):
         self.api_key = api_key or os.getenv("HUGGINGFACE_TOKEN")
         self.emb_model = emb_model or "sentence-transformers/all-MiniLM-L6-v2"
         self.gen_model = gen_model or "google/flan-t5-large"
-
         self.embeddings = HuggingFaceEmbeddings(
             model_name=self.emb_model,
             model_kwargs={"device": "cpu"},
@@ -305,7 +343,6 @@ class HuggingFaceClient(ProviderClient):
 
     def generate(self, prompt: str, max_tokens: int = 512, **kwargs) -> str:
         import requests
-
         response = requests.post(
             f"https://api-inference.huggingface.co/models/{self.gen_model}",
             headers={"Authorization": f"Bearer {self.api_key}"},
@@ -314,80 +351,63 @@ class HuggingFaceClient(ProviderClient):
         return response.json()[0]["generated_text"]
 
 
-class DeepSeekClient(ProviderClient):
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        emb_model: Optional[str] = None,
-        gen_model: Optional[str] = None,
-    ):
-        try:
-            from openai import OpenAI
-
-            # Try new import path first
-            try:
-                from langchain_openai import OpenAIEmbeddings
-            except ImportError:
-                from langchain.embeddings import OpenAIEmbeddings
-        except ImportError:
-            raise ImportError("Install: pip install openai langchain-openai")
-
-        self.client = OpenAI(
-            api_key=api_key or os.getenv("DEEPSEEK_API_KEY"),
-            base_url="https://api.deepseek.com/v1",
-        )
-        self.emb_model = emb_model or "deepseek-embedding"
-        self.gen_model = gen_model or "deepseek-chat"
-
-        self.embeddings = OpenAIEmbeddings(
-            model=self.emb_model,
-            openai_api_key=api_key or os.getenv("DEEPSEEK_API_KEY"),
-            openai_api_base="https://api.deepseek.com/v1",
-        )
-
-    def get_embeddings(self, texts: List[str]) -> List[List[float]]:
-        logger.info(f"Generating embeddings for {len(texts)} texts using DeepSeek")
-        embs = self.embeddings.embed_documents(texts)
-        logger.info(f"Generated {len(embs)} embeddings with {len(embs[0])} dimensions")
-        return embs
-
-    def generate(self, prompt: str, max_tokens: int = 512, **kwargs) -> str:
-        response = self.client.chat.completions.create(
-            model=self.gen_model,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=max_tokens,
-        )
-        return response.choices[0].message.content
-
-
 def get_best_provider():
-    """Get provider - prioritize local for testing"""
-    # Force local provider for testing
-    force_local = os.getenv("FORCE_LOCAL", "true").lower() in ("true", "1", "yes")
+    """Get provider - prioritize DeepSeek if available"""
+    print("🚀 ======= PROVIDER SELECTION START =======")
+    
+    # ✅ FIXED: Check for DeepSeek FIRST
+    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
+    print(f"🔑 DEBUG: DeepSeek API Key from env: {'***' + deepseek_key[-4:] if deepseek_key else 'NOT FOUND'}")
+    
+    if deepseek_key:
+        print("🎯 DEBUG: Attempting DeepSeek...")
+        try:
+            provider = DeepSeekClient(api_key=deepseek_key)
+            print("✅ DEBUG: DeepSeek SUCCESS - Using DeepSeek Provider")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: DeepSeek FAILED: {e}")
+            print("🔄 DEBUG: Falling back to other providers...")
+    else:
+        print("❌ DEBUG: No DeepSeek API key found")
+
+    # ✅ FIXED: Check force_local AFTER DeepSeek
+    force_local = os.getenv("FORCE_LOCAL", "false").lower() in ("true", "1", "yes")
+    print(f"🔧 DEBUG: FORCE_LOCAL = {force_local}")
+    
     if force_local:
         provider = LocalProvider()
-        print("Using LocalProvider (forced for testing)")
+        print("🤖 DEBUG: Using LocalProvider (forced for testing)")
+        print("🚀 ======= PROVIDER SELECTION END =======")
         return provider
 
-    # If user specifically wants a cloud provider, check those
+    # If user specifically wants other providers
     preferred_provider = os.getenv("PREFERRED_PROVIDER", "").lower()
+    print(f"🎯 DEBUG: PREFERRED_PROVIDER = {preferred_provider}")
 
     if preferred_provider == "openai" and os.getenv("OPENAI_API_KEY"):
-        return OpenAIClient()
-    elif preferred_provider == "deepseek" and os.getenv("DEEPSEEK_API_KEY"):
-        return DeepSeekClient()
+        provider = OpenAIClient()
+        print("🤖 DEBUG: Using OpenAI Provider")
+        print("🚀 ======= PROVIDER SELECTION END =======")
+        return provider
     elif preferred_provider == "gemini" and os.getenv("GEMINI_API_KEY"):
-        return GeminiClient()
+        provider = GeminiClient()
+        print("🤖 DEBUG: Using Gemini Provider")
+        print("🚀 ======= PROVIDER SELECTION END =======")
+        return provider
     elif preferred_provider == "huggingface" and os.getenv("HUGGINGFACE_TOKEN"):
-        return HuggingFaceClient()
+        provider = HuggingFaceClient()
+        print("🤖 DEBUG: Using HuggingFace Provider")
+        print("🚀 ======= PROVIDER SELECTION END =======")
+        return provider
 
     # Default to local provider
     provider = LocalProvider()
-    print("Using LocalProvider (default)")
+    print("🤖 DEBUG: Using LocalProvider (default fallback)")
+    print("🚀 ======= PROVIDER SELECTION END =======")
     return provider
 
 
 def get_local_provider():
-    """Directly get local provider without any checks"""
     return LocalProvider()
-

@@ -8,7 +8,7 @@ from .config import settings
 from .schemas import ChatRequest, ChatResponse, IngestPayload, SourceItem
 from .rag_engine import RAGEngine, get_rag_engine
 from .provider_client import get_best_provider
-from .admin import admin_router
+from .admin import router as admin_router
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -28,7 +28,6 @@ app.add_middleware(
     allow_headers=["*"],   # Allow ALL headers
 )
 app.include_router(admin_router)
-
 
 # Initialize RAG engine with best available provider
 engine = get_rag_engine()

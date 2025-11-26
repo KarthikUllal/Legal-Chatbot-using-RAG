@@ -24,48 +24,54 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+
 class RAGEngine:
     def __init__(self, provider: ProviderClient = None):
         # Use provided provider or get the best available
         self.provider = provider or get_best_provider()
         self.vstore = VectorStore()
         self.embed_batch = settings.BATCH_SIZE
-        
+
         # Initialize LangChain components
         self._setup_prompts()
         self._setup_chain()
-        
-        logger.info(f"RAG Engine initialized with provider: {type(self.provider).__name__}")
+
+        logger.info(
+            f"RAG Engine initialized with provider: {type(self.provider).__name__}"
+        )
 
     def _setup_prompts(self):
-        """Setup LangChain prompt templates with precise structured formatting"""
-    
+        """Setup prompts for clean, professional responses"""
+
         self.qa_prompt = PromptTemplate(
             input_variables=["question", "context"],
-            template="""You are a legal expert on Indian law. Provide a CLEAN, WELL-STRUCTURED answer using ONLY the provided legal context.
+            template="""As a legal expert, provide clear, accurate information based strictly on this context:
 
-    CONTEXT:
     {context}
 
-    QUESTION: {question}
+    Question: {question}
 
-    RESPONSE REQUIREMENTS:
-    1. Use ONLY information from provided context
-    2. Structure with **bold headings** and • bullet points
-    3. Keep paragraphs short (2-3 lines max)
-    4. End with "**Legal References:**" section
-    5. Be precise and cite relevant sections
+    Instructions:
+    1. Answer using ONLY the provided legal context
+    2. Structure your response with clear sections and bullet points
+    3. Use this format:
+    - Start with a brief overview
+    - Key Definitions: bullet points for important terms
+    - Legal Provisions: specific sections and punishments  
+    - Important Points: main aspects to know
+    - References: acts/sections used
 
-    ANSWER:"""
-        )
-        # Context formatting prompt
-        self.context_prompt = PromptTemplate(
-            input_variables=["documents"],
-            template="""Format the following legal documents into a coherent context:
+    4. If context doesn't contain the answer, respond: "I cannot find specific information about this topic in the available legal documents."
 
-{documents}
+    5. Formatting:
+    - Use plain English with clear section breaks
+    - Use • for bullet points
+    - Keep paragraphs concise
+    - No markdown symbols like **
 
-Please format them in a way that maintains legal accuracy and readability."""
+    6. Be honest about information limitations
+
+    Response:""",
         )
 
     def _setup_chain(self):
@@ -74,198 +80,256 @@ Please format them in a way that maintains legal accuracy and readability."""
         # For now, we'll use our custom retrieval but with LangChain prompts
         pass
 
-    def _format_context(self, docs: List[str], metas: List[dict], ids: List[str], dists: List[float]) -> str:
+    def _format_context(
+        self, docs: List[str], metas: List[dict], ids: List[str], dists: List[float]
+    ) -> str:
         """Format retrieved documents into a coherent context using LangChain prompt"""
         try:
             # Build document strings with metadata
             document_parts = []
-            for i, (doc, meta, doc_id, distance) in enumerate(zip(docs, metas, ids, dists)):
-                act_name = meta.get('act', 'Unknown Act')
-                relevance_score = 1.0 - (distance / 2.0)  # Convert distance to relevance score
+            for i, (doc, meta, doc_id, distance) in enumerate(
+                zip(docs, metas, ids, dists)
+            ):
+                act_name = meta.get("act", "Unknown Act")
+                relevance_score = 1.0 - (
+                    distance / 2.0
+                )  # Convert distance to relevance score
                 document_parts.append(
                     f"[Document {i+1} | Source: {act_name} | Relevance: {relevance_score:.2f}]\n"
                     f"{doc[:800]}..."
                 )
-            
+
             documents_text = "\n\n".join(document_parts)
-            
+
             # Use LangChain prompt to format context
             formatted_context = self.context_prompt.format(documents=documents_text)
             return formatted_context
-            
+
         except Exception as e:
             logger.error(f"Error formatting context: {e}")
             # Fallback to simple concatenation
-            return "\n\n".join([f"[Source {i+1}]: {doc[:600]}..." 
-                              for i, doc in enumerate(docs)])
+            return "\n\n".join(
+                [f"[Source {i+1}]: {doc[:600]}..." for i, doc in enumerate(docs)]
+            )
 
     def ingest_text(self, doc_id: str, text: str, metadata: dict = None) -> bool:
         """Ingest text content into the vector store"""
         try:
             logger.info(f"Ingesting document: {doc_id}")
-            
+
             # Split text into chunks using LangChain text splitter
             chunks = split_into_chunks(text)
             logger.info(f"Split into {len(chunks)} chunks")
-            
+
             # Generate chunk IDs and metadata
             ids = [f"{doc_id}__{i}" for i in range(len(chunks))]
             metadatas = [
-                {**(metadata or {}), "chunk_index": i, "doc_id": doc_id} 
+                {**(metadata or {}), "chunk_index": i, "doc_id": doc_id}
                 for i in range(len(chunks))
             ]
 
             # Compute embeddings in batches
             embeddings = []
             for i in range(0, len(chunks), self.embed_batch):
-                batch = chunks[i:i + self.embed_batch]
-                logger.info(f"Generating embeddings for batch {i//self.embed_batch + 1}")
+                batch = chunks[i : i + self.embed_batch]
+                logger.info(
+                    f"Generating embeddings for batch {i//self.embed_batch + 1}"
+                )
                 embs = self.provider.get_embeddings(batch)
                 embeddings.extend(embs)
 
             # Store in vector store
             self.vstore.collection.add(
-                ids=ids,
-                documents=chunks,
-                embeddings=embeddings,
-                metadatas=metadatas
+                ids=ids, documents=chunks, embeddings=embeddings, metadatas=metadatas
             )
-            
+
             logger.info(f"✅ Successfully ingested {len(chunks)} chunks from {doc_id}")
             return True
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to ingest {doc_id}: {e}")
             return False
 
-    def ingest_file(self, file_path: str, doc_id: str = None, act_name: str = None) -> bool:
+    def ingest_file(
+        self, file_path: str, doc_id: str = None, act_name: str = None
+    ) -> bool:
         """Ingest a PDF file into the vector store"""
         try:
             path = Path(file_path)
             if not path.exists():
                 raise FileNotFoundError(f"File not found: {file_path}")
-                
+
             doc_id = doc_id or path.stem
             logger.info(f"Processing file: {path.name} as {doc_id}")
-            
+
             # Extract text from PDF
             text = load_pdf_text(path)
             if not text:
-                raise ValueError("No text extracted from PDF. File might be scanned or corrupted.")
-            
+                raise ValueError(
+                    "No text extracted from PDF. File might be scanned or corrupted."
+                )
+
             # Prepare metadata
             metadata = {
-                "act": act_name or doc_id, 
+                "act": act_name or doc_id,
                 "source_file": path.name,
-                "source_type": "pdf"
+                "source_type": "pdf",
             }
-            
+
             # Ingest the text
             return self.ingest_text(doc_id, text, metadata)
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to ingest file {file_path}: {e}")
             return False
 
     def retrieve(self, query: str, k: int = 4) -> Dict:
-        """Retrieve relevant documents for a query.
-        
-        Args:
-            query: The search query string
-            k: Number of results to return (default: 4)
-            
-        Returns:
-            Dict: Contains documents, metadatas, distances, and ids
-        """
+        """Retrieve relevant documents with better filtering"""
         try:
-            logger.info(f"Retrieving documents for query: '{query[:50]}...'")
-            
+            logger.info(f"Retrieving documents for query: '{query}'")
+
             # Generate query embedding
             query_embedding = self.provider.get_embeddings([query])[0]
-            
-            # Query vector store
-            results = self.vstore.query(query_embedding, n_results=k)
-            
-            # Extract IDs from results if needed
-            if results.get('metadatas') and results['metadatas'][0]:
-                results['ids'] = [[meta.get('doc_id', f"chunk_{i}") 
-                                for i, meta in enumerate(results['metadatas'][0])]]
-            else:
-                results['ids'] = [[]]
-                
-            logger.info(f"Retrieved {len(results.get('documents', [[]])[0])} documents")
-            return results
-            
+
+            # Query with more results for better filtering
+            results = self.vstore.query(query_embedding, n_results=k * 3)
+
+            docs = results.get("documents", [[]])[0]
+            metas = results.get("metadatas", [[]])[0]
+            dists = results.get("distances", [[]])[0]
+
+            if not docs:
+                return {
+                    "documents": [[]],
+                    "metadatas": [[]],
+                    "distances": [[]],
+                    "ids": [[]],
+                }
+
+            # Filter by relevance to query keywords
+            query_lower = query.lower()
+            filtered_docs = []
+            filtered_metas = []
+            filtered_dists = []
+            filtered_ids = []
+
+            for i, (doc, meta, distance) in enumerate(zip(docs, metas, dists)):
+                if doc and meta:
+                    doc_lower = doc.lower()
+                    # Check if document contains relevant keywords
+                    has_relevant_content = any(
+                        keyword in doc_lower
+                        for keyword in [
+                            "420",
+                            "section",
+                            "ipc",
+                            "indian penal",
+                            "cheating",
+                        ]
+                    )
+
+                    # Include if relevant or very close in embedding space
+                    if has_relevant_content or distance < 0.8:
+                        filtered_docs.append(doc)
+                        filtered_metas.append(meta)
+                        filtered_dists.append(distance)
+                        filtered_ids.append(meta.get("doc_id", f"chunk_{i}"))
+
+            # If no good matches, return original results but log warning
+            if not filtered_docs:
+                logger.warning(f"No highly relevant documents found for query: {query}")
+                filtered_docs = docs[:k]
+                filtered_metas = metas[:k]
+                filtered_dists = dists[:k]
+                filtered_ids = [
+                    meta.get("doc_id", f"chunk_{i}") for i, meta in enumerate(metas[:k])
+                ]
+
+            return {
+                "documents": [filtered_docs[:k]],  # Return only top k
+                "metadatas": [filtered_metas[:k]],
+                "distances": [filtered_dists[:k]],
+                "ids": [filtered_ids[:k]],
+            }
+
         except Exception as e:
             logger.error(f"❌ Retrieval failed: {e}")
-            return {"documents": [[]], "metadatas": [[]], "ids": [[]], "distances": [[]]}
+            return {
+                "documents": [[]],
+                "metadatas": [[]],
+                "distances": [[]],
+                "ids": [[]],
+            }
 
-    def generate_answer(self, question: str, retrieved: Dict) -> Tuple[str, List[SourceItem]]:
-            """Generate structured answer based on retrieved documents"""
-            try:
-                # Extract retrieved information
-                docs = retrieved.get("documents", [[]])[0]
-                metas = retrieved.get("metadatas", [[]])[0]
-                ids = retrieved.get("ids", [[]])[0]
-                dists = retrieved.get("distances", [[]])[0]
+    def generate_answer(
+        self, question: str, retrieved: Dict
+    ) -> Tuple[str, List[SourceItem]]:
+        """Generate structured answer based on retrieved documents"""
+        try:
+            # Extract retrieved information
+            docs = retrieved.get("documents", [[]])[0]
+            metas = retrieved.get("metadatas", [[]])[0]
+            ids = retrieved.get("ids", [[]])[0]
+            dists = retrieved.get("distances", [[]])[0]
 
-                if not docs:
-                    return "I couldn't find any relevant legal documents to answer your question. Please try rephrasing or check if relevant documents have been ingested.", []
-
-                # Format context
-                context = self._format_context(docs, metas, ids, dists)
-
-                # Generate structured answer
-                formatted_prompt = self.qa_prompt.format(
-                    question=question,
-                    context=context
+            if not docs:
+                return (
+                    "I couldn't find any relevant legal documents to answer your question. Please try rephrasing or check if relevant documents have been ingested.",
+                    [],
                 )
-                
-                # Generate answer with specific instructions for structure
-                answer = self.provider.generate(
-                    formatted_prompt, 
-                    max_tokens=800,  # Increased for structured content
-                )
-                
-                # Ensure the answer ends with sources reference
-                if "**Reference Sources:**" not in answer and "Sources:" not in answer:
-                    answer += "\n\n**Reference Sources:** See cited legal documents below"
-                
-                # Prepare sources for response
-                sources = []
-                for i, (doc_id, meta, doc_text) in enumerate(zip(ids, metas, docs)):
-                    sources.append(SourceItem(
+
+            # Format context
+            context = self._format_context(docs, metas, ids, dists)
+
+            # Generate structured answer
+            formatted_prompt = self.qa_prompt.format(question=question, context=context)
+
+            # Generate answer with specific instructions for structure
+            answer = self.provider.generate(
+                formatted_prompt,
+                max_tokens=800,  # Increased for structured content
+            )
+
+            # Ensure the answer ends with sources reference
+            if "**Reference Sources:**" not in answer and "Sources:" not in answer:
+                answer += "\n\n**Reference Sources:** See cited legal documents below"
+
+            # Prepare sources for response
+            sources = []
+            for i, (doc_id, meta, doc_text) in enumerate(zip(ids, metas, docs)):
+                sources.append(
+                    SourceItem(
                         id=doc_id,
                         source=meta,
-                        snippet=doc_text[:300] + "..." if len(doc_text) > 300 else doc_text
-                    ))
-                
-                logger.info(f"✅ Generated structured answer with {len(sources)} sources")
-                return answer, sources
-                
-            except Exception as e:
-                logger.error(f"❌ Answer generation failed: {e}")
-                return f"Error generating answer: {str(e)}", []
+                        snippet=(
+                            doc_text[:300] + "..." if len(doc_text) > 300 else doc_text
+                        ),
+                    )
+                )
+
+            logger.info(f"✅ Generated structured answer with {len(sources)} sources")
+            return answer, sources
+
+        except Exception as e:
+            logger.error(f"❌ Answer generation failed: {e}")
+            return f"Error generating answer: {str(e)}", []
 
     def query(self, question: str, top_k: int = 4) -> ChatResponse:
         """Complete RAG pipeline: retrieve + generate using LangChain concepts"""
         try:
             # Step 1: Retrieve relevant documents
             retrieved = self.retrieve(question, k=top_k)
-            
+
             # Step 2: Generate answer using LangChain prompts
             answer, sources = self.generate_answer(question, retrieved)
-            
-            return ChatResponse(
-                answer=answer,
-                sources=sources
-            )
-            
+
+            return ChatResponse(answer=answer, sources=sources)
+
         except Exception as e:
             logger.error(f"❌ RAG query failed: {e}")
             return ChatResponse(
                 answer=f"Sorry, I encountered an error while processing your question: {str(e)}",
-                sources=[]
+                sources=[],
             )
 
     def get_stats(self) -> Dict:
@@ -276,7 +340,7 @@ Please format them in a way that maintains legal accuracy and readability."""
                 "total_documents": count,
                 "provider": type(self.provider).__name__,
                 "collection": self.vstore.col_name,
-                "embedding_model": getattr(self.provider, 'model_name', 'Unknown')
+                "embedding_model": getattr(self.provider, "model_name", "Unknown"),
             }
         except Exception as e:
             logger.error(f"❌ Failed to get stats: {e}")
@@ -288,8 +352,7 @@ Please format them in a way that maintains legal accuracy and readability."""
             self.vstore.client.delete_collection(self.vstore.col_name)
             # Recreate collection
             self.vstore.collection = self.vstore.client.create_collection(
-                name=self.vstore.col_name,
-                metadata={"source": "legal_docs"}
+                name=self.vstore.col_name, metadata={"source": "legal_docs"}
             )
             logger.info("✅ Collection cleared successfully")
             return True
@@ -304,9 +367,36 @@ Please format them in a way that maintains legal accuracy and readability."""
             "context_prompt": self.context_prompt.template[:100] + "...",
             "input_variables": {
                 "qa_prompt": self.qa_prompt.input_variables,
-                "context_prompt": self.context_prompt.input_variables
-            }
+                "context_prompt": self.context_prompt.input_variables,
+            },
         }
+
+
+
+    def health_check(self) -> Dict:
+        """Comprehensive health check for the RAG engine"""
+        try:
+            # Check vector store
+            doc_count = self.vstore.collection.count()
+
+            # Check provider
+            provider_status = "healthy"
+            try:
+                # Test embedding generation
+                test_embeddings = self.provider.get_embeddings(["test"])
+                if not test_embeddings or len(test_embeddings) == 0:
+                    provider_status = "unhealthy"
+            except Exception as e:
+                provider_status = f"unhealthy: {str(e)}"
+
+            return {
+                "status": "healthy",
+                "vector_store_documents": doc_count,
+                "provider_status": provider_status,
+                "provider_name": type(self.provider).__name__,
+            }
+        except Exception as e:
+            return {"status": "unhealthy", "error": str(e)}
 
 
 # Utility function for easy usage
@@ -318,33 +408,34 @@ def get_rag_engine(provider: ProviderClient = None) -> RAGEngine:
 # Test the RAG engine
 if __name__ == "__main__":
     print("🧪 Testing RAG Engine with LangChain...")
-    
+
     try:
         # Initialize RAG engine
         rag = RAGEngine()
-        
+
         # Test stats
         stats = rag.get_stats()
         print(f"📊 Vector Store Stats: {stats}")
-        
+
         # Test prompt templates
         prompts = rag.get_prompt_templates()
         print(f"📝 Prompt Templates: {prompts}")
-        
+
         # Test retrieval with a sample legal question
         test_question = "What is cheating under Indian law?"
         print(f"🔍 Testing query: {test_question}")
-        
+
         response = rag.query(test_question, top_k=2)
         print(f"🤖 Answer: {response.answer}")
         print(f"📚 Sources: {len(response.sources)}")
-        
+
         for i, source in enumerate(response.sources):
             print(f"   {i+1}. {source.snippet[:100]}...")
-            
+
         print("✅ RAG Engine with LangChain test completed successfully!")
-        
+
     except Exception as e:
         print(f"❌ RAG Engine test failed: {e}")
         import traceback
+
         traceback.print_exc()

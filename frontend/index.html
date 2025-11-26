@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Legal AI Chatbot - Indian Laws</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+            font-size: 14px;
+            /* Base font size */
+            line-height: 1.5;
+            /* Better readability */
+            margin-bottom: 1.5rem;
+        }
+
+        .chat-message .bg-white {
+            padding: 1.5rem;
+            /* More padding */
+            border-radius: 1.5rem;
+            max-width: 42rem;
+            /* Wider messages */
+            font-size: 16px;
+            /* Larger base font */
+            line-height: 1.6;
+            /* Better readability */
+        }
+
+        .chat-message .bg-gradient-to-r {
+            padding: 1.5rem;
+            border-radius: 1.5rem;
+            max-width: 42rem;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .chat-message p {
+            margin-bottom: 0.75rem;
+            font-size: 16px;
+            color: #374151;
+        }
+
+        .chat-message strong {
+            font-weight: 700;
+            color: #1f2937;
+            display: block;
+            margin: 1rem 0 0.5rem 0;
+            font-size: 17px;
+        }
+
+        .chat-message ul,
+        .chat-message ol {
+            margin: 0.5rem 0 1rem 1.5rem;
+        }
+
+        .chat-message li {
+            margin-bottom: 0.5rem;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Sources Section - Much Better */
+        .sources-section {
+            margin-top: 1.5rem;
+            padding: 1.5rem;
+            background: #f8fafc;
+            border-radius: 1rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .sources-title {
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 1rem;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .source-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            background: white;
+            border-radius: 0.75rem;
+            border: 1px solid #e5e7eb;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .source-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .source-name {
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .source-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+
+        /* Fix button alignment issues */
+        #voiceBtn,
+        #sendBtn {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        /* Ensure proper input field height */
+        #userInput {
+            min-height: 48px;
+        }
+
+        /* Fix quick question buttons */
+        .quick-question {
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .source-snippet {
+            color: #4b5563;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+
+        .typing-indicator span {
+            width: 12px;
+            height: 12px;
+            background: #6b7280;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #9ca3af;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .scroll-indicator {
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .admin-panel {
+            transition: all 0.3s ease;
+        }
+
+        .language-flag {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        chat-message p {
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .chat-message .bg-white p {
+            font-size: 15px;
+            /* Slightly larger for bot messages */
+            color: #374151;
+            /* Better contrast */
+        }
+
+        .sources-section {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .sources-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .source-item {
+            padding: 8px;
+            margin-bottom: 6px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .source-snippet {
+            color: #4b5563;
+            font-size: 13px;
+        }
+
+        /* Ensure good contrast and readability */
+        .bg-white {
+            color: #374151;
+        }
+
+        /* Make bullet points more visible */
+        .chat-message ul,
+        .chat-message ol {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .chat-message li {
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div
+                    class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-xl flex items-center justify-center text-xl font-bold shadow-lg">
+                    <i class="fas fa-balance-scale"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Legal AI Chatbot</h1>
+                    <p class="text-xs text-gray-500">Powered by RAG Technology</p>
+                </div>
+            </div>
+            <nav class="hidden md:flex gap-6">
+                <a href="#home"
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2">
+                    <i class="fas fa-home"></i> Home
+                </a>
+                <a href="#chatbot"
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2">
+                    <i class="fas fa-comments"></i> Chatbot
+                </a>
+                <a href="admin-login.html"
+                    class="text-gray-600 hover:text-red-600 transition font-medium flex items-center gap-1">
+                    <i class="fas fa-shield-alt text-sm"></i>
+                    Admin
+                </a>
+                <a href="#about"
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i> About
+                </a>
+            </nav>
+            <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-blue-600">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="container mx-auto px-6 py-4 flex flex-col gap-3">
+                <a href="#home" class="text-gray-600 hover:text-blue-600 transition"><i class="fas fa-home mr-2"></i>
+                    Home</a>
+                <a href="#chatbot" class="text-gray-600 hover:text-blue-600 transition"><i
+                        class="fas fa-comments mr-2"></i> Chatbot</a>
+                <a href="#admin" class="text-gray-600 hover:text-blue-600 transition"><i class="fas fa-cog mr-2"></i>
+                    Admin</a>
+                <a href="#about" class="text-gray-600 hover:text-blue-600 transition"><i
+                        class="fas fa-info-circle mr-2"></i> About</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Section -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Hero Section -->
+        <section id="home" class="bg-white rounded-2xl shadow-xl p-8 md:p-12 mb-8 fade-in relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full -mr-32 -mt-32 opacity-50"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-purple-100 rounded-full -ml-24 -mb-24 opacity-50"></div>
+
+            <div class="text-center max-w-3xl mx-auto relative z-10">
+                <div class="floating mb-6">
+                    <i class="fas fa-gavel text-6xl text-blue-600"></i>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+                    Understand <span class="gradient-text">Indian Laws</span> Easily
+                </h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    Get instant, accurate answers about IPC, BNS, IT Act 2000, Consumer
+                    Protection Act, and more. All explained in simple language using
+                    advanced RAG technology.
+                </p>
+                <div class="flex gap-4 justify-center flex-wrap">
+                    <a href="#chatbot"
+                        class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition shadow-lg font-medium flex items-center gap-2">
+                        <i class="fas fa-rocket"></i> Start Chatting
+                    </a>
+                    <a href="#admin"
+                        class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-8 py-4 rounded-xl hover:from-green-700 hover:to-teal-700 transition shadow-lg font-medium flex items-center gap-2">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </a>
+                </div>
+                <div class="scroll-indicator mt-8">
+                    <i class="fas fa-chevron-down text-gray-400 text-2xl"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chatbot Section -->
+        <section id="chatbot" class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                            <i class="fas fa-robot"></i> Legal AI Assistant
+                        </h2>
+                        <p class="text-blue-100 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            Online - Ready to help
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <!-- Language Selector -->
+                        <div class="relative">
+                            <button id="languageBtn"
+                                class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition text-sm flex items-center gap-2">
+                                <i class="fas fa-language"></i>
+                                <span id="currentLanguage">English</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div id="languageDropdown"
+                                class="hidden absolute top-full right-0 mt-1 bg-white rounded-lg shadow-xl z-50 min-w-48">
+                                <div class="p-2 space-y-1">
+                                    <button
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2"
+                                        data-lang="en">
+                                        <span>🇺🇸 English</span>
+                                    </button>
+                                    <button
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2"
+                                        data-lang="hi">
+                                        <span>🇮🇳 Hindi</span>
+                                    </button>
+                                    <button
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2"
+                                        data-lang="ta">
+                                        <span>🇮🇳 Tamil</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="clearChat"
+                            class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition text-sm">
+                            <i class="fas fa-trash-alt mr-2"></i>Clear Chat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LARGER Chat Messages Area -->
+            <div id="chatBox" class="h-[500px] overflow-y-auto p-6 bg-gradient-to-b from-gray-50 to-white">
+                <div class="chat-message mb-6">
+                    <div class="flex gap-4">
+                        <div
+                            class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                            <i class="fas fa-robot text-lg"></i>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl border border-gray-100 flex-1">
+                            <p class="text-gray-800 text-base leading-relaxed">👋 Hello! I'm your AI Legal Assistant. I
+                                can help you understand Indian laws including IPC, BNS, IT Act 2000, Consumer Protection
+                                Act, and Domestic Violence Act. What would you like to know?</p>
+                            <p class="text-sm text-gray-500 mt-3 flex items-center gap-2">
+                                <i class="fas fa-clock"></i> Just now
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Questions -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                <p class="text-sm text-gray-600 mb-3 flex items-center gap-2">
+                    <i class="fas fa-magic"></i> Try these questions:
+                </p>
+                <div class="flex gap-3 flex-wrap">
+                    <button
+                        class="quick-question bg-white border border-gray-300 px-4 py-2 rounded-full text-sm hover:bg-blue-50 hover:border-blue-300 transition">
+                        What is Section 420 IPC?
+                    </button>
+                    <button
+                        class="quick-question bg-white border border-gray-300 px-4 py-2 rounded-full text-sm hover:bg-blue-50 hover:border-blue-300 transition">
+                        Consumer rights in India
+                    </button>
+                    <button
+                        class="quick-question bg-white border border-gray-300 px-4 py-2 rounded-full text-sm hover:bg-blue-50 hover:border-blue-300 transition">
+                        Cyber crime punishments
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Input Area - FIXED -->
+            <div class="p-6 bg-white border-t border-gray-200">
+                <div class="flex gap-3 items-stretch">
+                    <input type="text" id="userInput" placeholder="Type your legal question here..."
+                        class="flex-1 border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-base" />
+                    <button id="voiceBtn"
+                        class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-teal-600 transition shadow-lg font-medium flex items-center justify-center min-w-[60px]"
+                        title="Voice Search">
+                        <i class="fas fa-microphone text-lg"></i>
+                    </button>
+                    <button id="sendBtn"
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-600 transition shadow-lg font-medium flex items-center justify-center min-w-[80px]">
+                        <i class="fas fa-paper-plane text-lg"></i>
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 text-center flex items-center justify-center gap-2">
+                    <i class="fas fa-shield-alt text-yellow-500"></i>
+                    This chatbot provides general legal information only, not legal advice.
+                </p>
+            </div>
+        </section>
+
+        <section
+            class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl shadow-xl p-8 mb-8 text-white">
+            <h2 class="text-3xl font-bold text-center mb-2 flex items-center justify-center gap-2">
+                <i class="fas fa-book-open"></i> Laws We Cover
+            </h2>
+            <p class="text-center text-blue-100 mb-8">
+                Comprehensive coverage of major Indian legal acts
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div
+                    class="bg-white/20 backdrop-blur rounded-xl p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    <div class="text-4xl mb-3">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <p class="font-bold text-lg">IPC</p>
+                    <p class="text-xs text-blue-100 mt-1">Indian Penal Code</p>
+                </div>
+                <div
+                    class="bg-white/20 backdrop-blur rounded-xl p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    <div class="text-4xl mb-3">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <p class="font-bold text-lg">BNS</p>
+                    <p class="text-xs text-blue-100 mt-1">Bhartiya Nyaya Sanhita</p>
+                </div>
+                <div
+                    class="bg-white/20 backdrop-blur rounded-xl p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    <div class="text-4xl mb-3"><i class="fas fa-laptop-code"></i></div>
+                    <p class="font-bold text-lg">IT Act 2000</p>
+                    <p class="text-xs text-blue-100 mt-1">Information Technology</p>
+                </div>
+                <div
+                    class="bg-white/20 backdrop-blur rounded-xl p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    <div class="text-4xl mb-3">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <p class="font-bold text-lg">Consumer</p>
+                    <p class="text-xs text-blue-100 mt-1">Protection Act</p>
+                </div>
+                <div
+                    class="bg-white/20 backdrop-blur rounded-xl p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    <div class="text-4xl mb-3"><i class="fas fa-home"></i></div>
+                    <p class="font-bold text-lg">Domestic</p>
+                    <p class="text-xs text-blue-100 mt-1">Violence Act</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="bg-white rounded-2xl shadow-xl p-8">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3">
+                <i class="fas fa-info-circle text-blue-600"></i> About This Project
+            </h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        This AI-based legal chatbot is designed to make Indian laws
+                        accessible to everyone. Using advanced Retrieval-Augmented
+                        Generation (RAG) technology, it provides accurate, verified legal
+                        information in simple language.
+                    </p>
+                    <p class="text-gray-600 mb-4 leading-relaxed">
+                        Whether you're a student, researcher, or someone seeking legal
+                        guidance, this chatbot helps you understand your rights and
+                        responsibilities under Indian law.
+                    </p>
+
+                    <div
+                        class="bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-blue-600 p-5 rounded-lg mt-6 shadow-sm">
+                        <p class="text-sm font-semibold text-blue-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-bullseye"></i> Project Goal
+                        </p>
+                        <p class="text-sm text-gray-700">
+                            Bridge the gap between complex legal knowledge and common people
+                            through AI technology.
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-600 p-5 rounded-lg mt-4 shadow-sm">
+                        <p class="text-sm font-semibold text-green-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-users"></i> Who Can Use?
+                        </p>
+                        <p class="text-sm text-gray-700">
+                            Students, researchers, common citizens, and anyone seeking legal
+                            information.
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <div
+                        class="bg-gradient-to-r from-orange-50 to-yellow-50 border-l-4 border-orange-600 p-5 rounded-lg mb-4 shadow-sm">
+                        <p class="text-sm font-semibold text-orange-800 mb-2 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle"></i> Important Note
+                        </p>
+                        <p class="text-sm text-gray-700">
+                            This system is for informational purposes only and does not
+                            replace professional legal consultation.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 text-center shadow-sm">
+                            <i class="fas fa-book text-2xl text-blue-600 mb-2"></i>
+                            <p class="text-2xl font-bold text-blue-600">5+</p>
+                            <p class="text-xs text-gray-600">Laws</p>
+                        </div>
+                        <div
+                            class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 text-center shadow-sm">
+                            <i class="fas fa-brain text-2xl text-purple-600 mb-2"></i>
+                            <p class="text-2xl font-bold text-purple-600">RAG</p>
+                            <p class="text-xs text-gray-600">Tech</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 text-center shadow-sm">
+                            <i class="fas fa-heart text-2xl text-green-600 mb-2"></i>
+                            <p class="text-2xl font-bold text-green-600">Free</p>
+                            <p class="text-xs text-gray-600">Access</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-10 mt-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8 mb-6">
+                <div>
+                    <div class="flex items-center gap-3 mb-3">
+                        <div
+                            class="bg-gradient-to-br from-blue-600 to-purple-600 w-10 h-10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-balance-scale"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">Legal AI Chatbot</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        Making Indian Laws Accessible to Everyone through AI Technology.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-3 flex items-center gap-2">
+                        <i class="fas fa-link"></i> Quick Links
+                    </h4>
+                    <div class="space-y-2 text-sm">
+                        <a href="#home" class="block text-gray-400 hover:text-white transition"><i
+                                class="fas fa-chevron-right text-xs mr-2"></i>Home</a>
+                        <a href="#chatbot" class="block text-gray-400 hover:text-white transition"><i
+                                class="fas fa-chevron-right text-xs mr-2"></i>Chatbot</a>
+                        <a href="#admin" class="block text-gray-400 hover:text-white transition"><i
+                                class="fas fa-chevron-right text-xs mr-2"></i>Admin</a>
+                        <a href="#about" class="block text-gray-400 hover:text-white transition"><i
+                                class="fas fa-chevron-right text-xs mr-2"></i>About</a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-3 flex items-center gap-2">
+                        <i class="fas fa-envelope"></i> Contact
+                    </h4>
+                    <p class="text-gray-400 text-sm mb-2">For inquiries and feedback</p>
+                    <p class="text-sm text-gray-400">📧 legalai@example.com</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6 text-center">
+                <p class="text-sm text-gray-400">
+                    &copy; 2025 Legal AI Chatbot Project. For Educational Purposes Only.
+                </p>
+                <p class="text-xs text-gray-500 mt-2">
+                    Built with ❤️ using RAG Technology
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Backend Configuration -->
+    <script>
+        const BACKEND_URL = "http://localhost:8000"; // Your FastAPI backend URL
+
+        // API Endpoints
+        const API_ENDPOINTS = {
+            CHAT: `${BACKEND_URL}/chat`,
+            INGEST: `${BACKEND_URL}/ingest-file`,
+            ADMIN_STATS: `${BACKEND_URL}/admin/stats`,
+            TRANSLATE: `${BACKEND_URL}/multilingual/translate`,
+            VOICE_PROCESS: `${BACKEND_URL}/voice/process`,
+            LANGUAGES: `${BACKEND_URL}/multilingual/languages`,
+        };
+    </script>
+
+    <script>
+        // DOM Elements
+        const chatBox = document.getElementById("chatBox");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const voiceBtn = document.getElementById("voiceBtn");
+        const clearChatBtn = document.getElementById("clearChat");
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+        const mobileMenu = document.getElementById("mobileMenu");
+        const quickQuestions = document.querySelectorAll(".quick-question");
+        const languageBtn = document.getElementById("languageBtn");
+        const languageDropdown = document.getElementById("languageDropdown");
+        const languageOptions = document.querySelectorAll(".language-option");
+        const currentLanguageSpan = document.getElementById("currentLanguage");
+
+        // Admin Elements
+        const docCount = document.getElementById("docCount");
+        const systemStatus = document.getElementById("systemStatus");
+        const modelName = document.getElementById("modelName");
+        const uploadArea = document.getElementById("uploadArea");
+        const fileInput = document.getElementById("fileInput");
+        const uploadProgress = document.getElementById("uploadProgress");
+        const refreshStats = document.getElementById("refreshStats");
+        const clearAllData = document.getElementById("clearAllData");
+        const testConnection = document.getElementById("testConnection");
+
+        // State
+        let currentLanguage = "en";
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        // Language mapping
+        const languageMap = {
+            en: "English",
+            hi: "Hindi",
+            ta: "Tamil",
+            te: "Telugu",
+        };
+
+        // Initialize
+        document.addEventListener("DOMContentLoaded", function () {
+            loadAdminStats();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Chat functionality
+            sendBtn.addEventListener("click", handleSend);
+            userInput.addEventListener("keypress", (e) => {
+                if (e.key === "Enter") handleSend();
+            });
+
+            // Voice functionality
+            voiceBtn.addEventListener("click", toggleVoiceRecording);
+
+            // Language functionality
+            languageBtn.addEventListener("click", toggleLanguageDropdown);
+            languageOptions.forEach((option) => {
+                option.addEventListener("click", () => {
+                    const lang = option.dataset.lang;
+                    setLanguage(lang);
+                    languageDropdown.classList.add("hidden");
+                });
+            });
+
+            // Admin functionality
+            uploadArea.addEventListener("click", () => fileInput.click());
+            fileInput.addEventListener("change", handleFileUpload);
+            refreshStats.addEventListener("click", loadAdminStats);
+            clearAllData.addEventListener("click", clearAllDocuments);
+            testConnection.addEventListener("click", testBackendConnection);
+
+            // Existing functionality
+            clearChatBtn.addEventListener("click", clearChat);
+            mobileMenuBtn.addEventListener("click", () =>
+                mobileMenu.classList.toggle("hidden")
+            );
+
+            quickQuestions.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                    userInput.value = btn.textContent;
+                    handleSend();
+                });
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+                anchor.addEventListener("click", function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute("href"));
+                    if (target) {
+                        target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                    if (window.innerWidth < 768) {
+                        mobileMenu.classList.add("hidden");
+                    }
+                });
+            });
+        }
+
+        // Backend API Functions
+        async function sendChatMessage(question) {
+            try {
+                const response = await fetch(API_ENDPOINTS.CHAT, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        top_k: 4,
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error("Chat API error:", error);
+                return {
+                    answer:
+                        "Sorry, I encountered an error while processing your question. Please try again later.",
+                    sources: [],
+                };
+            }
+        }
+
+        async function loadAdminStats() {
+            try {
+                const response = await fetch(API_ENDPOINTS.ADMIN_STATS);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.status === "success") {
+                        docCount.textContent = data.data.total_documents || 0;
+                        systemStatus.textContent =
+                            data.data.rag_engine_status || "Active";
+                        modelName.textContent = data.data.llm_provider || "Local";
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to load admin stats:", error);
+                systemStatus.textContent = "Error";
+                systemStatus.className =
+                    "text-xl font-bold text-gray-800 mt-2 text-red-600";
+            }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (!file.type.includes("pdf")) {
+                alert("Please upload a PDF file");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // Show upload progress
+            const progressId = "upload-" + Date.now();
+            const progressHtml = `
+                <div id="${progressId}" class="flex items-center gap-3 p-3 bg-white rounded-lg border">
+                    <i class="fas fa-file-pdf text-red-500"></i>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">${file.name}</p>
+                        <p class="text-xs text-gray-500">Uploading...</p>
+                    </div>
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            uploadProgress.innerHTML = progressHtml;
+
+            try {
+                const response = await fetch(API_ENDPOINTS.INGEST, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const progressElement = document.getElementById(progressId);
+                if (response.ok) {
+                    progressElement.innerHTML = `
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">${file.name}</p>
+                            <p class="text-xs text-green-600">Upload successful!</p>
+                        </div>
+                    `;
+                    // Reload stats after successful upload
+                    setTimeout(loadAdminStats, 1000);
+                } else {
+                    progressElement.innerHTML = `
+                        <i class="fas fa-times-circle text-red-500"></i>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium">${file.name}</p>
+                            <p class="text-xs text-red-600">Upload failed</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Upload failed:", error);
+                const progressElement = document.getElementById(progressId);
+                progressElement.innerHTML = `
+                    <i class="fas fa-times-circle text-red-500"></i>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">${file.name}</p>
+                        <p class="text-xs text-red-600">Upload error</p>
+                    </div>
+                `;
+            }
+
+            // Clear file input
+            fileInput.value = "";
+        }
+
+        async function clearAllDocuments() {
+            if (
+                !confirm(
+                    "Are you sure you want to clear all documents? This action cannot be undone."
+                )
+            ) {
+                return;
+            }
+
+            try {
+                // This would call your backend clear endpoint
+                // For now, just show a message
+                alert(
+                    "Document clearing functionality will be implemented with your backend"
+                );
+                loadAdminStats();
+            } catch (error) {
+                console.error("Clear documents failed:", error);
+                alert("Failed to clear documents");
+            }
+        }
+
+        async function testBackendConnection() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/health`);
+                if (response.ok) {
+                    alert("✅ Backend connection successful!");
+                } else {
+                    alert("❌ Backend connection failed");
+                }
+            } catch (error) {
+                alert(
+                    "❌ Cannot connect to backend. Make sure your FastAPI server is running."
+                );
+            }
+        }
+
+        // Voice Recording Functions
+        async function toggleVoiceRecording() {
+            if (!isRecording) {
+                startVoiceRecording();
+            } else {
+                stopVoiceRecording();
+            }
+        }
+
+        async function startVoiceRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true,
+                });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = processAudioRecording;
+
+                mediaRecorder.start();
+                isRecording = true;
+                voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                voiceBtn.classList.remove("from-green-600", "to-teal-600");
+                voiceBtn.classList.add("from-red-600", "to-pink-600");
+
+                // Show recording indicator
+                addMessage("🎤 Recording... Speak your legal question now.", false);
+            } catch (error) {
+                console.error("Error starting recording:", error);
+                addMessage("❌ Microphone access denied or not available.", false);
+            }
+        }
+
+        function stopVoiceRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+                isRecording = false;
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceBtn.classList.remove("from-red-600", "to-pink-600");
+                voiceBtn.classList.add("from-green-600", "to-teal-600");
+            }
+        }
+
+        async function processAudioRecording() {
+            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+
+            // Convert to base64 for demo
+            // In production, you would send this to your voice processing endpoint
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                const base64Audio = reader.result.split(",")[1];
+
+                try {
+                    // Demo voice processing - in production, call your voice API
+                    const response = await fetch(API_ENDPOINTS.VOICE_PROCESS, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            audio_data: base64Audio,
+                            language: currentLanguage,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        userInput.value = data.text;
+                        handleSend();
+                    } else {
+                        // Fallback demo response
+                        userInput.value =
+                            "What is the punishment for murder under Indian law?";
+                        handleSend();
+                    }
+                } catch (error) {
+                    console.error("Voice processing failed:", error);
+                    // Fallback
+                    userInput.value = "What are consumer rights under Indian law?";
+                    handleSend();
+                }
+            };
+            reader.readAsDataURL(audioBlob);
+        }
+
+        // Language Functions
+        function toggleLanguageDropdown() {
+            languageDropdown.classList.toggle("hidden");
+        }
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            currentLanguageSpan.textContent = languageMap[lang] || "English";
+
+            // Update UI based on language
+            if (lang !== "en") {
+                addMessage(
+                    `🌐 Language changed to ${languageMap[lang]}. Voice search may not work perfectly for this language in demo mode.`,
+                    false
+                );
+            }
+        }
+
+        // Existing Chat Functions (updated for backend integration)
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        }
+
+        function addMessage(message, isUser) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'chat-message mb-6';
+
+            if (isUser) {
+                // USER MESSAGE - WHITE TEXT on GRADIENT BACKGROUND
+                msgDiv.innerHTML = `
+            <div class="flex gap-4 justify-end">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl rounded-tr-none shadow-md max-w-3xl">
+                    <p class="text-white text-base leading-relaxed">${message}</p>
+                    <p class="text-blue-100 text-sm mt-3 flex items-center gap-2 justify-end">
+                        <i class="fas fa-clock"></i> ${getCurrentTime()}
+                    </p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-600 to-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        `;
+            } else {
+                // BOT MESSAGE - DARK TEXT on WHITE BACKGROUND
+                msgDiv.innerHTML = `
+            <div class="flex gap-4">
+                <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="bg-white p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl border border-gray-100 flex-1">
+                    <p class="text-gray-800 text-base leading-relaxed">${message}</p>
+                    <p class="text-gray-500 text-sm mt-3 flex items-center gap-2">
+                        <i class="fas fa-clock"></i> ${getCurrentTime()}
+                    </p>
+                </div>
+            </div>
+        `;
+            }
+
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement("div");
+            typingDiv.className = "flex gap-3 mb-4";
+            typingDiv.id = "typing";
+            typingDiv.innerHTML = `
+                <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-md">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function handleSend() {
+            const message = userInput.value.trim();
+            if (message === "") return;
+
+            addMessage(message, true);
+            userInput.value = "";
+
+            showTypingIndicator();
+
+            try {
+                const response = await sendChatMessage(message);
+
+                const typingElement = document.getElementById("typing");
+                if (typingElement) {
+                    typingElement.remove();
+                }
+
+                addMessage(response.answer, false);
+
+                // Show sources if available
+                if (response.sources && response.sources.length > 0) {
+                    const sourcesHtml = `
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p class="text-xs text-blue-800 font-medium mb-2 flex items-center gap-1">
+                                <i class="fas fa-file-alt"></i> Reference Sources:
+                            </p>
+                            <div class="space-y-1">
+                                ${response.sources
+                            .map(
+                                (source) => `
+                                    <p class="text-xs text-blue-600">• ${source.snippet.substring(
+                                    0,
+                                    100
+                                )}...</p>
+                                `
+                            )
+                            .join("")}
+                            </div>
+                        </div>
+                    `;
+
+                    const lastMessage = chatBox.lastElementChild;
+                    const messageContent = lastMessage.querySelector(".bg-white");
+                    messageContent.innerHTML += sourcesHtml;
+                }
+            } catch (error) {
+                const typingElement = document.getElementById("typing");
+                if (typingElement) {
+                    typingElement.remove();
+                }
+                addMessage(
+                    "Sorry, I encountered an error while processing your question. Please try again.",
+                    false
+                );
+            }
+        }
+
+        function clearChat() {
+            const welcomeMsg = chatBox.querySelector(".chat-message");
+            chatBox.innerHTML = "";
+            if (welcomeMsg) {
+                chatBox.appendChild(welcomeMsg.cloneNode(true));
+            }
+        }
+
+        // Close language dropdown when clicking outside
+        document.addEventListener("click", (event) => {
+            if (
+                !languageBtn.contains(event.target) &&
+                !languageDropdown.contains(event.target)
+            ) {
+                languageDropdown.classList.add("hidden");
+            }
+        });
+    </script>
+</body>
+
+</html>

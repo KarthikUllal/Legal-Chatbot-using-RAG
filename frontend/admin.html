@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Legal AI Chatbot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background-color: #f0f9ff;
+        }
+
+        .document-card {
+            transition: all 0.2s ease;
+        }
+
+        .document-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 min-h-screen">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">Legal AI Admin</h1>
+                        <p class="text-sm text-gray-500">
+                            Document Management & System Monitoring
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <a href="index.html"
+                        class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-gray-700 transition flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i>
+                        Back to Chat
+                    </a>
+                    <button id="logoutBtn"
+                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Admin Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- System Overview -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-tachometer-alt text-blue-600"></i>
+                System Overview
+            </h2>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600 font-medium">Total Documents</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-2" id="totalDocuments">
+                                0
+                            </h3>
+                        </div>
+                        <i class="fas fa-file-alt text-2xl text-blue-500"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600 font-medium">Total Chunks</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-2" id="totalChunks">
+                                0
+                            </h3>
+                        </div>
+                        <i class="fas fa-layer-group text-2xl text-green-500"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600 font-medium">System Status</p>
+                            <h3 class="text-xl font-bold text-gray-800 mt-2" id="systemStatus">
+                                Checking...
+                            </h3>
+                        </div>
+                        <i class="fas fa-server text-2xl text-purple-500"></i>
+                    </div>
+                </div>
+
+                <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm text-gray-600 font-medium">AI Model</p>
+                            <h3 class="text-xl font-bold text-gray-800 mt-2" id="aiModel">
+                                Checking...
+                            </h3>
+                        </div>
+                        <i class="fas fa-brain text-2xl text-orange-500"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Document Management -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-database text-blue-600"></i>
+                Document Management
+            </h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Upload Section -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-upload text-green-600"></i>
+                        Upload Legal Documents
+                    </h3>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tag mr-2"></i>Document Type
+                        </label>
+                        <select id="documentType"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="ipc">Indian Penal Code (IPC)</option>
+                            <option value="bns">Bharatiya Nyaya Sanhita (BNS)</option>
+                            <option value="it_act">Information Technology Act</option>
+                            <option value="consumer">Consumer Protection Act</option>
+                            <option value="domestic_violence">Domestic Violence Act</option>
+                            <option value="crpc">Criminal Procedure Code (CrPC)</option>
+                            <option value="evidence">Indian Evidence Act</option>
+                            <option value="contract">Indian Contract Act</option>
+                            <option value="The protection of women from domestic voilance  act , 2005">
+                                The protection of women from domestic voilance act , 2005
+                            </option>
+                            <option value="other">Other Legal Document</option>
+                        </select>
+                    </div>
+
+                    <div class="upload-area border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition mb-4"
+                        id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 mb-2 font-medium">
+                            Drop PDF files here or click to upload
+                        </p>
+                        <p class="text-sm text-gray-500 mb-4">
+                            Supports multiple files. Maximum 10 files at once.
+                        </p>
+                        <button type="button"
+                            class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                            <i class="fas fa-plus mr-2"></i>Select Files
+                        </button>
+                        <input type="file" id="fileInput" class="hidden" accept=".pdf" multiple />
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-info-circle text-blue-600 mt-1"></i>
+                            <div>
+                                <p class="text-sm text-blue-800 font-medium">
+                                    Supported Documents:
+                                </p>
+                                <p class="text-xs text-blue-700 mt-1">
+                                    IPC, BNS, IT Act, Consumer Protection, Domestic Violence
+                                    Act, CrPC, Evidence Act, Contract Act, and other Indian
+                                    legal documents.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3" id="uploadProgress"></div>
+                </div>
+
+                <!-- Document List -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-list text-purple-600"></i>
+                            Ingested Documents
+                        </h3>
+                        <button id="refreshDocuments"
+                            class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg text-gray-700 transition flex items-center gap-2 text-sm">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
+
+                    <div class="space-y-4 max-h-96 overflow-y-auto" id="documentsList">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-folder-open text-4xl mb-3"></i>
+                            <p>No documents uploaded yet</p>
+                            <p class="text-sm mt-2">
+                                Upload your first legal document to get started
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                <i class="fas fa-bolt text-yellow-600"></i>
+                Quick Actions
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button id="uploadSample"
+                    class="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl transition font-medium flex items-center justify-center gap-2">
+                    <i class="fas fa-file-import"></i>
+                    Upload Sample Docs
+                </button>
+
+                <button id="clearAllData"
+                    class="bg-red-600 hover:bg-red-700 text-white py-4 rounded-xl transition font-medium flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-alt"></i>
+                    Clear All Data
+                </button>
+
+                <button id="refreshStats"
+                    class="bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl transition font-medium flex items-center justify-center gap-2">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Stats
+                </button>
+
+                <button id="testBackend"
+                    class="bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-xl transition font-medium flex items-center justify-center gap-2">
+                    <i class="fas fa-plug"></i>
+                    Test Connection
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p class="text-gray-600 text-sm">
+                <i class="fas fa-shield-alt text-blue-600 mr-1"></i>
+                Legal AI Admin Dashboard - Document Management System
+            </p>
+            <p class="text-gray-500 text-xs mt-1">
+                Upload and manage multiple legal documents
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        const BACKEND_URL = "http://localhost:8000";
+
+        // DOM Elements
+        const totalDocuments = document.getElementById("totalDocuments");
+        const totalChunks = document.getElementById("totalChunks");
+        const systemStatus = document.getElementById("systemStatus");
+        const aiModel = document.getElementById("aiModel");
+        const uploadArea = document.getElementById("uploadArea");
+        const fileInput = document.getElementById("fileInput");
+        const documentType = document.getElementById("documentType");
+        const uploadProgress = document.getElementById("uploadProgress");
+        const documentsList = document.getElementById("documentsList");
+        const refreshDocuments = document.getElementById("refreshDocuments");
+        const refreshStats = document.getElementById("refreshStats");
+        const clearAllData = document.getElementById("clearAllData");
+        const testBackend = document.getElementById("testBackend");
+        const uploadSample = document.getElementById("uploadSample");
+        const systemLogs = document.getElementById("systemLogs");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        // Check authentication
+        if (localStorage.getItem("adminAuthenticated") !== "true") {
+            window.location.href = "admin-login.html";
+        }
+
+        // Initialize
+        document.addEventListener("DOMContentLoaded", function () {
+            loadSystemStats();
+            loadDocumentsList();
+            setupEventListeners();
+            addLog("Admin dashboard initialized");
+        });
+
+        function setupEventListeners() {
+            // Upload functionality
+            uploadArea.addEventListener("click", () => fileInput.click());
+            uploadArea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                uploadArea.classList.add("dragover");
+            });
+            uploadArea.addEventListener("dragleave", () => {
+                uploadArea.classList.remove("dragover");
+            });
+            uploadArea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove("dragover");
+                handleFileUpload(e.dataTransfer.files);
+            });
+            fileInput.addEventListener("change", (e) =>
+                handleFileUpload(e.target.files)
+            );
+
+            // Control buttons
+            refreshStats.addEventListener("click", loadSystemStats);
+            refreshDocuments.addEventListener("click", loadDocumentsList);
+            clearAllData.addEventListener("click", clearAllDocuments);
+            testBackend.addEventListener("click", testBackendConnection);
+            uploadSample.addEventListener("click", uploadSampleDocuments);
+            logoutBtn.addEventListener("click", logout);
+        }
+
+
+        async function loadSystemStats() {
+            console.log('Loading system stats from backend...');
+
+            try {
+                // Show loading state
+                totalDocuments.textContent = '...';
+                totalChunks.textContent = '...';
+                systemStatus.textContent = 'Loading...';
+                aiModel.textContent = 'Loading...';
+
+                // Call the admin stats endpoint
+                const response = await fetch(`${BACKEND_URL}/admin/stats`);
+                console.log('Stats response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('Stats API response:', data);
+
+                if (data.status === 'success') {
+                    // Update the UI with real data
+                    totalDocuments.textContent = data.data.total_documents || 0;
+                    systemStatus.textContent = data.data.rag_engine_status || 'Active';
+                    systemStatus.className = 'text-xl font-bold text-green-600 mt-2';
+                    aiModel.textContent = data.data.llm_provider || 'Local LLM';
+
+                    console.log('✅ Stats updated successfully');
+                } else {
+                    throw new Error(data.error || 'Unknown error from server');
+                }
+
+            } catch (error) {
+                console.error('❌ Error loading stats:', error);
+
+                // Show error state in UI but don't break the page
+                systemStatus.textContent = 'Error';
+                systemStatus.className = 'text-xl font-bold text-red-600 mt-2';
+                totalDocuments.textContent = '0';
+                totalChunks.textContent = '0';
+                aiModel.textContent = 'Unknown';
+            }
+
+            // Load chunk count separately - with better error handling
+            try {
+                const debugResponse = await fetch(`${BACKEND_URL}/admin/debug/documents`);
+                if (debugResponse.ok) {
+                    const debugData = await debugResponse.json();
+                    console.log('Debug documents data:', debugData);
+                    totalChunks.textContent = debugData.total_chunks || 0;
+                } else {
+                    totalChunks.textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error loading chunks:', error);
+                totalChunks.textContent = '0';
+            }
+        }
+
+        async function loadDocumentsList() {
+            console.log('Loading documents list...'); // Debug
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/admin/debug/documents`);
+                console.log('Documents response status:', response.status); // Debug
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Documents data:', data); // Debug
+
+                const documents = data.documents_found || {};
+
+                if (Object.keys(documents).length === 0) {
+                    documentsList.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-folder-open text-4xl mb-3"></i>
+                    <p>No documents uploaded yet</p>
+                    <p class="text-sm mt-2">Upload your first legal document to get started</p>
+                </div>
+            `;
+                    return;
+                }
+
+                let documentsHtml = '';
+                for (const [docId, docInfo] of Object.entries(documents)) {
+                    documentsHtml += `
+                <div class="document-card border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-all">
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-file-pdf text-red-500"></i>
+                            <h4 class="font-bold text-gray-800">${docInfo.name}</h4>
+                        </div>
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${docInfo.chunks} chunks</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">ID: ${docId}</p>
+                    <p class="text-xs text-gray-500 line-clamp-2">${docInfo.sample_content}</p>
+                    <div class="flex gap-2 mt-3">
+                        <button class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition" onclick="deleteDocument('${docId}')">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+                }
+
+                documentsList.innerHTML = documentsHtml;
+                addLog(`Loaded ${Object.keys(documents).length} documents`);
+
+            } catch (error) {
+                console.error('Error loading documents:', error); // Debug
+                addLog(`Error loading documents list: ${error.message}`, 'error');
+
+                documentsList.innerHTML = `
+            <div class="text-center py-8 text-red-500">
+                <i class="fas fa-exclamation-triangle text-4xl mb-3"></i>
+                <p>Failed to load documents</p>
+                <p class="text-sm mt-2">Check console for details</p>
+            </div>
+        `;
+            }
+        }
+
+        async function handleFileUpload(files) {
+            if (!files || files.length === 0) return;
+
+            addLog(`Starting upload of ${files.length} file(s)`);
+
+            // Limit to 10 files
+            const filesToUpload = Array.from(files).slice(0, 10);
+
+            if (files.length > 10) {
+                addLog("Limited to 10 files maximum", "warning");
+            }
+
+            for (const file of filesToUpload) {
+                if (!file.type.includes("pdf")) {
+                    addLog(`Skipped non-PDF file: ${file.name}`, "warning");
+                    continue;
+                }
+
+                await uploadSingleFile(file);
+            }
+        }
+
+        async function uploadSingleFile(file) {
+            const progressId = "upload-" + Date.now();
+            const actName = documentType.options[documentType.selectedIndex].text;
+
+            const progressHtml = `
+                <div id="${progressId}" class="border border-gray-200 rounded-lg p-4 bg-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-file-pdf text-red-500"></i>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800">${file.name}</p>
+                            <p class="text-sm text-gray-500">Type: ${actName} | Uploading...</p>
+                        </div>
+                        <div class="flex gap-1">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                            <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            uploadProgress.insertAdjacentHTML("afterbegin", progressHtml);
+
+            try {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("act_name", documentType.value);
+
+                const response = await fetch(`${BACKEND_URL}/ingest-file`, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const progressElement = document.getElementById(progressId);
+
+                if (response.ok) {
+                    const result = await response.json();
+                    progressElement.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-800">${file.name}</p>
+                                <p class="text-sm text-green-600">Upload successful! Document ID: ${result.doc_id}</p>
+                            </div>
+                        </div>
+                    `;
+                    addLog(`Upload successful: ${file.name} (${actName})`);
+
+                    // Refresh stats and documents list
+                    setTimeout(() => {
+                        loadSystemStats();
+                        loadDocumentsList();
+                    }, 1000);
+                } else {
+                    throw new Error(`Upload failed: ${response.status}`);
+                }
+            } catch (error) {
+                const progressElement = document.getElementById(progressId);
+                progressElement.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-times-circle text-red-500"></i>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-800">${file.name}</p>
+                            <p class="text-sm text-red-600">Upload failed: ${error.message}</p>
+                        </div>
+                    </div>
+                `;
+                addLog(`Upload failed: ${file.name} - ${error.message}`, "error");
+            }
+        }
+
+        async function uploadSampleDocuments() {
+            addLog(
+                "Sample documents feature would upload pre-defined legal documents"
+            );
+            alert(
+                "Sample documents feature: This would upload common Indian legal documents like IPC, CrPC, etc."
+            );
+        }
+
+        async function clearAllDocuments() {
+            if (
+                !confirm(
+                    "Are you sure you want to clear ALL documents? This action cannot be undone."
+                )
+            ) {
+                return;
+            }
+
+            addLog("Clearing all documents...");
+            try {
+                // This would call your backend clear endpoint
+                alert(
+                    "Document clearing functionality will be implemented with backend integration"
+                );
+                addLog("Clear documents operation requested");
+            } catch (error) {
+                addLog(`Error clearing documents: ${error.message}`, "error");
+            }
+        }
+
+        // Add these functions for document actions
+        async function deleteDocument(docId) {
+            if (!confirm(`Are you sure you want to delete document "${docId}"?`)) {
+                return;
+            }
+
+            addLog(`Deleting document: ${docId}`);
+            try {
+                // This would call your backend delete endpoint
+                alert(
+                    `Delete functionality for ${docId} will be implemented with backend integration`
+                );
+                addLog(`Delete requested for document: ${docId}`);
+            } catch (error) {
+                addLog(`Error deleting document: ${error.message}`, "error");
+            }
+        }
+
+        async function testBackendConnection() {
+            try {
+                addLog('Testing backend connection...');
+
+                // Test multiple endpoints
+                const endpoints = [
+                    `${BACKEND_URL}/`,
+                    `${BACKEND_URL}/health`,
+                    `${BACKEND_URL}/admin/stats`
+                ];
+
+                let successCount = 0;
+
+                for (const endpoint of endpoints) {
+                    try {
+                        const response = await fetch(endpoint);
+                        if (response.ok) {
+                            successCount++;
+                            addLog(`✅ ${endpoint} - Healthy`, 'success');
+                        } else {
+                            addLog(`❌ ${endpoint} - HTTP ${response.status}`, 'error');
+                        }
+                    } catch (error) {
+                        addLog(`❌ ${endpoint} - Connection failed`, 'error');
+                    }
+                }
+
+                if (successCount === endpoints.length) {
+                    alert('✅ All backend endpoints are working correctly!');
+                } else {
+                    alert(`⚠️ Backend partially available (${successCount}/${endpoints.length} endpoints working)`);
+                }
+
+            } catch (error) {
+                addLog(`Backend connection test failed: ${error.message}`, 'error');
+                alert('❌ Cannot connect to backend! Check if server is running on port 8000.');
+            }
+        }
+
+        function addLog(message, type = "info") {
+            const timestamp = new Date().toLocaleTimeString();
+            const color =
+                type === "error"
+                    ? "text-red-600"
+                    : type === "success"
+                        ? "text-green-600"
+                        : type === "warning"
+                            ? "text-yellow-600"
+                            : "text-gray-600";
+            const icon =
+                type === "error"
+                    ? "❌"
+                    : type === "success"
+                        ? "✅"
+                        : type === "warning"
+                            ? "⚠️"
+                            : "ℹ️";
+
+            const logEntry = document.createElement("div");
+            logEntry.className = `text-sm ${color}`;
+            logEntry.innerHTML = `<span class="font-mono">[${timestamp}]</span> ${icon} ${message}`;
+
+            systemLogs.insertBefore(logEntry, systemLogs.firstChild);
+
+            // Keep only last 10 logs
+            if (systemLogs.children.length > 10) {
+                systemLogs.removeChild(systemLogs.lastChild);
+            }
+        }
+
+        // Simple authentication check
+        if (localStorage.getItem("adminAuthenticated") !== "true") {
+            window.location.href = "admin-login.html";
+        }
+
+        // Add logout functionality (reuse existing logoutBtn declared earlier)
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", function () {
+                localStorage.removeItem("adminAuthenticated");
+                window.location.href = "admin-login.html";
+            });
+        }
+
+    </script>
+</body>
+
+</html>

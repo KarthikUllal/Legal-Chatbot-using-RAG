@@ -170,3 +170,32 @@ async def startup_event():
     logger.info(f"Using provider: {type(engine.provider).__name__}")
     stats = engine.get_stats()
     logger.info(f"Initial documents count: {stats.get('total_documents', 0)}")
+
+#langauage translation route
+@app.post("/chat-translate", response_model=ChatResponse)
+async def chat_with_translation(question: str, language: str = "en", top_k: int = 4):
+    """
+    Chat endpoint with language translation
+    - question: User's question in any language
+    - language: Language code for response (en, hi, kn, etc.)
+    - top_k: Number of sources to use
+    """
+    try:
+        logger.info(f"Translation chat: '{question[:50]}...' in {language}")
+        
+        # Use the simple translation approach
+        response = engine.query_with_language(
+            question=question, 
+            language=language, 
+            top_k=top_k
+        )
+        
+        logger.info(f"Generated response in {language}")
+        return response
+        
+    except Exception as e:
+        logger.error(f"Translation chat failed: {e}")
+        error_msg = f"Failed to process question: {str(e)}"
+        if language != "en":
+            error_msg = translator.translate_legal_response(error_msg, language)
+        raise HTTPException(status_code=500, detail=error_msg)

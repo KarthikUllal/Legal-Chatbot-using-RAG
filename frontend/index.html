@@ -43,6 +43,51 @@
             color: #374151;
         }
 
+        .chat-message .bg-white strong {
+            font-weight: 700;
+            color: #1a56db;
+            display: block;
+            margin: 1.2rem 0 0.5rem 0;
+            font-size: 16px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.3rem;
+        }
+
+        .chat-message .bg-white ul {
+            margin: 0.5rem 0 1rem 1.2rem;
+            list-style-type: none;
+        }
+
+        .chat-message .bg-white li {
+            margin-bottom: 0.4rem;
+            padding-left: 0.5rem;
+            position: relative;
+            font-size: 14.5px;
+            line-height: 1.5;
+        }
+
+        .chat-message .bg-white li:before {
+            content: "•";
+            color: #3b82f6;
+            font-weight: bold;
+            position: absolute;
+            left: -0.8rem;
+        }
+
+        /* Better text contrast */
+        .chat-message .bg-white {
+            color: #374151;
+            background: linear-gradient(to bottom right, #ffffff, #fafafa);
+        }
+
+        /* First paragraph styling */
+        .chat-message .bg-white p:first-of-type {
+            font-size: 15.5px;
+            color: #1f2937;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
         .chat-message strong {
             font-weight: 700;
             color: #1f2937;
@@ -153,6 +198,46 @@
             background: #6b7280;
             border-radius: 50%;
             animation: typing 1.4s infinite;
+        }
+
+        /* css for maximizing chatarea */
+        /* Maximized chat styles */
+        .chat-maximized {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 9999 !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .chat-maximized #chatBox {
+            height: calc(100vh - 200px) !important;
+            flex: 1 !important;
+            min-height: 0 !important;
+            /* Important for flexbox */
+        }
+
+        .chat-maximized .p-6.bg-white.border-t {
+            flex-shrink: 0 !important;
+            /* Prevent input from shrinking */
+            position: sticky !important;
+            bottom: 0 !important;
+            background: white !important;
+            border-top: 1px solid #e5e7eb !important;
+        }
+
+        /* Button states */
+        #maximizeBtn.maximized i {
+            transform: rotate(180deg);
+        }
+
+        .button-transition {
+            transition: all 0.3s ease;
         }
 
         @keyframes slideIn {
@@ -429,6 +514,12 @@
                         </p>
                     </div>
                     <div class="flex gap-2">
+                        <!-- Maximize Button -->
+                        <button id="maximizeBtn"
+                            class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition text-sm flex items-center gap-2"
+                            title="Maximize Chat">
+                            <i class="fas fa-expand"></i>
+                        </button>
                         <!-- Language Selector -->
                         <div class="relative">
                             <button id="languageBtn"
@@ -444,6 +535,11 @@
                                         class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2"
                                         data-lang="en">
                                         <span>🇺🇸 English</span>
+                                    </button>
+                                    <button
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2"
+                                        data-lang="kn">
+                                        <span>🇮🇳 Kannada</span>
                                     </button>
                                     <button
                                         class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2"
@@ -691,7 +787,7 @@
                         <i class="fas fa-envelope"></i> Contact
                     </h4>
                     <p class="text-gray-400 text-sm mb-2">For inquiries and feedback</p>
-                    <p class="text-sm text-gray-400">📧 legalai@example.com</p>
+                    <p class="text-sm text-gray-400">📧 karthikullal13@gmail.com</p>
                 </div>
             </div>
             <div class="border-t border-gray-700 pt-6 text-center">
@@ -734,6 +830,7 @@
         const languageDropdown = document.getElementById("languageDropdown");
         const languageOptions = document.querySelectorAll(".language-option");
         const currentLanguageSpan = document.getElementById("currentLanguage");
+        const maximizeBtn = document.getElementById("maximizeBtn");
 
         // Admin Elements
         const docCount = document.getElementById("docCount");
@@ -747,17 +844,17 @@
         const testConnection = document.getElementById("testConnection");
 
         // State
-        let currentLanguage = "en";
         let isRecording = false;
         let mediaRecorder;
         let audioChunks = [];
 
-        // Language mapping
         const languageMap = {
-            en: "English",
-            hi: "Hindi",
-            ta: "Tamil",
-            te: "Telugu",
+            en: { name: "English", flag: "🇺🇸", native: "English" },
+            hi: { name: "Hindi", flag: "🇮🇳", native: "हिन्दी" },
+            kn: { name: "Kannada", flag: "🇮🇳", native: "ಕನ್ನಡ" },
+            ta: { name: "Tamil", flag: "🇮🇳", native: "தமிழ்" },
+            te: { name: "Telugu", flag: "🇮🇳", native: "తెలుగు" },
+            mr: { name: "Marathi", flag: "🇮🇳", native: "मराठी" }
         };
 
         // Initialize
@@ -772,6 +869,9 @@
             userInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") handleSend();
             });
+
+            //maximize toggle functionality
+            maximizeBtn.addEventListener("click", toggleMaximizeChat);
 
             // Voice functionality
             voiceBtn.addEventListener("click", toggleVoiceRecording);
@@ -1101,7 +1201,7 @@
             msgDiv.className = 'chat-message mb-6';
 
             if (isUser) {
-                // USER MESSAGE - WHITE TEXT on GRADIENT BACKGROUND
+                // User message (keep existing)
                 msgDiv.innerHTML = `
             <div class="flex gap-4 justify-end">
                 <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl rounded-tr-none shadow-md max-w-3xl">
@@ -1116,14 +1216,22 @@
             </div>
         `;
             } else {
-                // BOT MESSAGE - DARK TEXT on WHITE BACKGROUND
+                // Bot message - with better formatting
+                // Convert **text** to <strong> for better styling
+                const formattedMessage = message
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br>');
+
                 msgDiv.innerHTML = `
             <div class="flex gap-4">
                 <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="bg-white p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl border border-gray-100 flex-1">
-                    <p class="text-gray-800 text-base leading-relaxed">${message}</p>
+                    <div class="message-content text-gray-800 text-base leading-relaxed">
+                        ${formattedMessage}
+                    </div>
                     <p class="text-gray-500 text-sm mt-3 flex items-center gap-2">
                         <i class="fas fa-clock"></i> ${getCurrentTime()}
                     </p>
@@ -1228,6 +1336,194 @@
                 !languageDropdown.contains(event.target)
             ) {
                 languageDropdown.classList.add("hidden");
+            }
+        });
+
+
+        // Update your frontend JavaScript
+        let currentLanguage = 'en';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            const langInfo = languageMap[lang];
+            document.getElementById('currentLanguage').textContent = langInfo.name;
+
+            // Show language change confirmation
+            showLanguageChangeMessage(langInfo.name);
+        }
+
+        async function handleSend() {
+            const message = userInput.value.trim();
+            if (message === "") return;
+
+            addMessage(message, true);
+            userInput.value = "";
+
+            showTypingIndicator();
+
+            try {
+                // ✅ SIMPLE FIX: Use only query parameters, NO body
+                const response = await fetch(
+                    `${BACKEND_URL}/chat-translate?language=${currentLanguage}&question=${encodeURIComponent(message)}&top_k=4`,
+                    {
+                        method: 'POST',
+                        // NO headers, NO body - just use URL parameters
+                    }
+                );
+
+                const typingElement = document.getElementById("typing");
+                if (typingElement) {
+                    typingElement.remove();
+                }
+
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.answer, false);
+
+                    if (data.sources && data.sources.length > 0) {
+                        showSources(data.sources);
+                    }
+                } else {
+                    console.error('Server error:', await response.text());
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                const typingElement = document.getElementById("typing");
+                if (typingElement) {
+                    typingElement.remove();
+                }
+                addMessage(`Sorry, I encountered an error. Please try again. (${error.message})`, false);
+            }
+        }
+
+        function showLanguageChangeMessage(langName) {
+            const messages = {
+                'en': `Language changed to ${langName}`,
+                'hi': `भाषा ${langName} में बदल गई`,
+                'kn': `ಭಾಷೆ ${langName} ಗೆ ಬದಲಾಯಿತು`
+            };
+
+            const message = messages[currentLanguage] || messages['en'];
+
+            // Show temporary message
+            const tempMsg = document.createElement('div');
+            tempMsg.className = 'text-center text-sm text-blue-600 py-2';
+            tempMsg.innerHTML = `<i class="fas fa-language mr-2"></i>${message}`;
+
+            chatBox.appendChild(tempMsg);
+            setTimeout(() => tempMsg.remove(), 3000);
+        }
+        function showSources(sources) {
+            if (!sources || sources.length === 0) return;
+
+            const sourcesHtml = `
+        <div class="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div class="flex items-center gap-2 text-blue-800 font-medium mb-3">
+                <i class="fas fa-file-contract"></i>
+                Legal References (${sources.length})
+            </div>
+            <div class="space-y-3">
+                ${sources.map((source, index) => `
+                    <div class="bg-white p-3 rounded border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-sm font-semibold text-gray-800">
+                                ${source.source?.act || 'Legal Document'}
+                            </span>
+                            <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">Ref ${index + 1}</span>
+                        </div>
+                        <div class="text-sm text-gray-600 leading-relaxed">
+                            <div class="source-content" style="max-height: 80px; overflow: hidden;">
+                                ${source.snippet || 'Content not available'}
+                            </div>
+                            <button class="text-blue-600 text-xs mt-1 hover:text-blue-800 show-more-btn">
+                                Show more ▼
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+            const lastMessage = chatBox.lastElementChild;
+            const messageContent = lastMessage.querySelector(".bg-white");
+            if (messageContent) {
+                messageContent.innerHTML += sourcesHtml;
+
+                // Add click handlers for show more/less
+                setTimeout(() => {
+                    document.querySelectorAll('.show-more-btn').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            const content = this.previousElementSibling;
+                            if (content.style.maxHeight) {
+                                content.style.maxHeight = null;
+                                this.textContent = 'Show less ▲';
+                            } else {
+                                content.style.maxHeight = '200px';
+                                this.textContent = 'Show more ▼';
+                            }
+                        });
+                    });
+                }, 100);
+            }
+        }
+
+        // Maximize functionality
+        let isChatMaximized = false;
+
+        function toggleMaximizeChat() {
+            console.log("Toggle maximize called");
+
+            const chatSection = document.getElementById("chatbot");
+            const chatBox = document.getElementById("chatBox");
+            const chatInputArea = chatSection.querySelector('.p-6.bg-white.border-t'); // The input area
+            const maximizeIcon = maximizeBtn.querySelector("i");
+
+            if (!isChatMaximized) {
+                // ✅ MAXIMIZE - Use flexbox layout
+                chatSection.classList.add("chat-maximized");
+                document.body.classList.add("maximized-chat");
+
+                // Ensure proper height for chat box
+                chatBox.style.height = "calc(100vh - 200px)";
+                chatBox.style.flex = "1";
+
+                // Change icon
+                maximizeIcon.className = "fas fa-compress";
+                maximizeBtn.title = "Minimize Chat";
+                maximizeBtn.classList.add("maximized");
+
+                isChatMaximized = true;
+                console.log("Chat maximized");
+
+            } else {
+                // ✅ MINIMIZE - Reset to original
+                chatSection.classList.remove("chat-maximized");
+                document.body.classList.remove("maximized-chat");
+
+                // Reset chat box
+                chatBox.style.height = "500px";
+                chatBox.style.flex = "";
+
+                // Change icon back
+                maximizeIcon.className = "fas fa-expand";
+                maximizeBtn.title = "Maximize Chat";
+                maximizeBtn.classList.remove("maximized");
+
+                isChatMaximized = false;
+                console.log("Chat minimized");
+            }
+
+            // Scroll to bottom
+            setTimeout(() => {
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 100);
+        }
+
+        // Close with Escape key
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && isChatMaximized) {
+                toggleMaximizeChat();
             }
         });
     </script>

@@ -356,12 +356,30 @@ class HuggingFaceClient(ProviderClient):
 
 
 def get_best_provider():
-    """Get provider - prioritize DeepSeek if available"""
+    """Get provider - prioritize based on FORCE_LOCAL setting"""
     print("🚀 ======= PROVIDER SELECTION START =======")
     
-    # ✅ FIXED: Check for DeepSeek FIRST
+    # ✅ CHECK FORCE_LOCAL FIRST (Most Important)
+    force_local = os.getenv("FORCE_LOCAL", "false").lower() in ("true", "1", "yes")
+    print(f"🔧 DEBUG: FORCE_LOCAL = {force_local}")
+    
+    if force_local:
+        print("🎯 DEBUG: FORCE_LOCAL enabled - Using LocalProvider")
+        try:
+            provider = LocalProvider()
+            print("✅ DEBUG: LocalProvider SUCCESS")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: LocalProvider FAILED: {e}")
+            print("🔄 DEBUG: Falling back to online providers...")
+    
+    # ✅ ONLY TRY ONLINE PROVIDERS IF FORCE_LOCAL IS FALSE
+    print("🌐 DEBUG: Searching for online providers...")
+    
+    # 1. Check DeepSeek first (your preferred online)
     deepseek_key = os.getenv("DEEPSEEK_API_KEY")
-    print(f"🔑 DEBUG: DeepSeek API Key from env: {'***' + deepseek_key[-4:] if deepseek_key else 'NOT FOUND'}")
+    print(f"🔑 DEBUG: DeepSeek API Key: {'***' + deepseek_key[-4:] if deepseek_key else 'NOT FOUND'}")
     
     if deepseek_key:
         print("🎯 DEBUG: Attempting DeepSeek...")
@@ -372,46 +390,150 @@ def get_best_provider():
             return provider
         except Exception as e:
             print(f"❌ DEBUG: DeepSeek FAILED: {e}")
-            print("🔄 DEBUG: Falling back to other providers...")
-    else:
-        print("❌ DEBUG: No DeepSeek API key found")
-
-    # ✅ FIXED: Check force_local AFTER DeepSeek
-    force_local = os.getenv("FORCE_LOCAL", "false").lower() in ("true", "1", "yes")
-    print(f"🔧 DEBUG: FORCE_LOCAL = {force_local}")
     
-    if force_local:
-        provider = LocalProvider()
-        print("🤖 DEBUG: Using LocalProvider (forced for testing)")
-        print("🚀 ======= PROVIDER SELECTION END =======")
-        return provider
-
-    # If user specifically wants other providers
+    # 2. Check user's preferred online provider
     preferred_provider = os.getenv("PREFERRED_PROVIDER", "").lower()
     print(f"🎯 DEBUG: PREFERRED_PROVIDER = {preferred_provider}")
-
-    if preferred_provider == "openai" and os.getenv("OPENAI_API_KEY"):
-        provider = OpenAIClient()
-        print("🤖 DEBUG: Using OpenAI Provider")
-        print("🚀 ======= PROVIDER SELECTION END =======")
-        return provider
-    elif preferred_provider == "gemini" and os.getenv("GEMINI_API_KEY"):
-        provider = GeminiClient()
-        print("🤖 DEBUG: Using Gemini Provider")
-        print("🚀 ======= PROVIDER SELECTION END =======")
-        return provider
+    
+    if preferred_provider == "gemini" and os.getenv("GEMINI_API_KEY"):
+        print("🎯 DEBUG: Attempting Gemini...")
+        try:
+            provider = GeminiClient()
+            print("✅ DEBUG: Gemini SUCCESS")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: Gemini FAILED: {e}")
+    
+    elif preferred_provider == "openai" and os.getenv("OPENAI_API_KEY"):
+        print("🎯 DEBUG: Attempting OpenAI...")
+        try:
+            provider = OpenAIClient()
+            print("✅ DEBUG: OpenAI SUCCESS")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: OpenAI FAILED: {e}")
+    
     elif preferred_provider == "huggingface" and os.getenv("HUGGINGFACE_TOKEN"):
-        provider = HuggingFaceClient()
-        print("🤖 DEBUG: Using HuggingFace Provider")
+        print("🎯 DEBUG: Attempting HuggingFace...")
+        try:
+            provider = HuggingFaceClient()
+            print("✅ DEBUG: HuggingFace SUCCESS")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: HuggingFace FAILED: {e}")
+    
+    # 3. Fallback: Try any available online provider (in order of preference)
+    print("🔄 DEBUG: Trying any available online provider...")
+    
+    # Try Gemini as first fallback
+    if os.getenv("GEMINI_API_KEY"):
+        try:
+            provider = GeminiClient()
+            print("✅ DEBUG: Using Gemini (fallback)")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: Gemini fallback failed: {e}")
+    
+    # Try OpenAI as second fallback
+    if os.getenv("OPENAI_API_KEY"):
+        try:
+            provider = OpenAIClient()
+            print("✅ DEBUG: Using OpenAI (fallback)")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: OpenAI fallback failed: {e}")
+    
+    # Try HuggingFace as third fallback
+    if os.getenv("HUGGINGFACE_TOKEN"):
+        try:
+            provider = HuggingFaceClient()
+            print("✅ DEBUG: Using HuggingFace (fallback)")
+            print("🚀 ======= PROVIDER SELECTION END =======")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: HuggingFace fallback failed: {e}")
+    
+    # 4. FINAL FALLBACK: Use LocalProvider if all online providers fail
+    print("🔄 DEBUG: All online providers failed, falling back to LocalProvider")
+    try:
+        provider = LocalProvider()
+        print("✅ DEBUG: Using LocalProvider (final fallback)")
         print("🚀 ======= PROVIDER SELECTION END =======")
         return provider
-
-    # Default to local provider
-    provider = LocalProvider()
-    print("🤖 DEBUG: Using LocalProvider (default fallback)")
-    print("🚀 ======= PROVIDER SELECTION END =======")
-    return provider
-
+    except Exception as e:
+        print(f"❌ DEBUG: LocalProvider also failed: {e}")
+        raise Exception("❌ No AI providers available! Check your configuration.")
 
 def get_local_provider():
+    """Get local provider directly (for specific use cases)"""
     return LocalProvider()
+
+def get_online_provider():
+    """Get online provider only (skip local even if available)"""
+    print("🌐 DEBUG: Forcing online provider search...")
+    
+    # 1. Check DeepSeek
+    deepseek_key = os.getenv("DEEPSEEK_API_KEY")
+    if deepseek_key:
+        print("🎯 DEBUG: Attempting DeepSeek...")
+        try:
+            provider = DeepSeekClient(api_key=deepseek_key)
+            print("✅ DEBUG: Using DeepSeek Provider")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: DeepSeek FAILED: {e}")
+    
+    # 2. Check preferred provider
+    preferred_provider = os.getenv("PREFERRED_PROVIDER", "").lower()
+    print(f"🎯 DEBUG: PREFERRED_PROVIDER = {preferred_provider}")
+    
+    if preferred_provider == "gemini" and os.getenv("GEMINI_API_KEY"):
+        try:
+            provider = GeminiClient()
+            print("✅ DEBUG: Using Gemini Provider")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: Gemini FAILED: {e}")
+    
+    elif preferred_provider == "openai" and os.getenv("OPENAI_API_KEY"):
+        try:
+            provider = OpenAIClient()
+            print("✅ DEBUG: Using OpenAI Provider")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: OpenAI FAILED: {e}")
+    
+    # 3. Try any available online provider
+    print("🔄 DEBUG: Trying any available online provider...")
+    
+    if os.getenv("GEMINI_API_KEY"):
+        try:
+            provider = GeminiClient()
+            print("✅ DEBUG: Using Gemini (any available)")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: Gemini failed: {e}")
+    
+    if os.getenv("OPENAI_API_KEY"):
+        try:
+            provider = OpenAIClient()
+            print("✅ DEBUG: Using OpenAI (any available)")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: OpenAI failed: {e}")
+    
+    if os.getenv("HUGGINGFACE_TOKEN"):
+        try:
+            provider = HuggingFaceClient()
+            print("✅ DEBUG: Using HuggingFace (any available)")
+            return provider
+        except Exception as e:
+            print(f"❌ DEBUG: HuggingFace failed: {e}")
+    
+    # 4. No online providers available
+    raise Exception("No online providers available. Check your API keys and internet connection.")

@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     ALLOW_ORIGINS: list = ["*"]
     OLLAMA_MODEL: str ="llama3.2:3b"
     DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY")
-    FORCE_LOCAL: bool = False
+    FORCE_LOCAL: bool = True
     class Config:
         env_file = ".env"
         extra = "ignore"

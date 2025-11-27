@@ -29,12 +29,21 @@ class LocalProvider(ProviderClient):
             cfg_name = default_local
 
         try:
+            # FIX: Use device='cpu' explicitly and avoid meta tensor issues
             from langchain_huggingface import HuggingFaceEmbeddings
-            self.embeddings = HuggingFaceEmbeddings(model_name=cfg_name)
+            self.embeddings = HuggingFaceEmbeddings(
+                model_name=cfg_name,
+                model_kwargs={'device': 'cpu'},  # Explicitly set device
+                encode_kwargs={'normalize_embeddings': True}
+            )
         except ImportError:
             try:
                 from langchain.embeddings import HuggingFaceEmbeddings
-                self.embeddings = HuggingFaceEmbeddings(model_name=cfg_name)
+                self.embeddings = HuggingFaceEmbeddings(
+                    model_name=cfg_name,
+                    model_kwargs={'device': 'cpu'},
+                    encode_kwargs={'normalize_embeddings': True}
+                )
             except ImportError:
                 raise ImportError("Install: pip install langchain sentence-transformers")
 

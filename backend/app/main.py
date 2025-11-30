@@ -10,6 +10,7 @@ from .rag_engine import RAGEngine, get_rag_engine
 from .provider_client import get_best_provider
 from .admin import router as admin_router
 from .translation import translator
+from .voice_processor import voice_processor
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -200,3 +201,30 @@ async def chat_with_translation(question: str, language: str = "en", top_k: int 
         if language != "en":
             error_msg = translator.translate_legal_response(error_msg, language)
         raise HTTPException(status_code=500, detail=error_msg)
+    
+#voice 
+@app.post("/voice/process")
+async def process_voice(audio_data: str, language: str = "en"):
+    """
+    Process voice audio and convert to text
+    """
+    try:
+        text = voice_processor.process_audio(audio_data, language)
+        return {
+            "status": "success",
+            "text": text,
+            "language": language
+        }
+    except Exception as e:
+        logger.error(f"Voice processing failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/voice/supported-languages")
+async def get_supported_languages():
+    """
+    Get list of supported languages for voice recognition
+    """
+    return {
+        "status": "success",
+        "languages": voice_processor.supported_languages
+    }

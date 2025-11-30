@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,20 +12,31 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
         }
+
         .login-card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
+
         .floating {
             animation: floating 3s ease-in-out infinite;
         }
+
         @keyframes floating {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
         }
     </style>
 </head>
+
 <body class="login-container">
     <div class="min-h-screen flex items-center justify-center px-4 py-12">
         <!-- Login Card -->
@@ -32,7 +44,8 @@
             <!-- Header -->
             <div class="text-center mb-8">
                 <div class="floating mb-4">
-                    <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                    <div
+                        class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                         <i class="fas fa-shield-alt text-2xl"></i>
                     </div>
                 </div>
@@ -46,40 +59,28 @@
                     <label for="username" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-user mr-2 text-blue-600"></i>Username
                     </label>
-                    <input 
-                        type="text" 
-                        id="username" 
-                        required
-                        placeholder="Enter admin username"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    >
+                    <input type="text" id="username" required placeholder="Enter admin username"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                 </div>
 
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-lock mr-2 text-blue-600"></i>Password
                     </label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        required
-                        placeholder="Enter your password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    >
+                    <input type="password" id="password" required placeholder="Enter your password"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                 </div>
 
-                <button 
-                    type="submit"
-                    id="loginBtn"
-                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition shadow-lg font-medium flex items-center justify-center gap-2"
-                >
+                <button type="submit" id="loginBtn"
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition shadow-lg font-medium flex items-center justify-center gap-2">
                     <i class="fas fa-sign-in-alt"></i>
                     Sign In
                 </button>
             </form>
 
             <!-- Error Message -->
-            <div id="errorMessage" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
+            <div id="errorMessage"
+                class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm text-center">
                 <i class="fas fa-exclamation-triangle mr-2"></i>
                 <span id="errorText"></span>
             </div>
@@ -96,63 +97,69 @@
 
     <script>
         const loginForm = document.getElementById('loginForm');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const errorText = document.getElementById('errorText');
+const loginBtn = document.getElementById('loginBtn');
+const errorMessage = document.getElementById('errorMessage');
+const errorText = document.getElementById('errorText');
 
-        // Simple frontend authentication
-        const ADMIN_CREDENTIALS = {
-            username: 'admin',
-            password: 'admin'
-        };
+// Simple frontend authentication
+const ADMIN_CREDENTIALS = {
+    username: 'admin',
+    password: 'admin'
+};
 
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+// Check if already logged in (redirect if authenticated)
+if (sessionStorage.getItem('adminAuthenticated') === 'true' || 
+    localStorage.getItem('adminAuthenticated') === 'true') {
+    window.location.href = 'admin.html';
+}
 
-            // Show loading state
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-            loginBtn.disabled = true;
-            hideError();
+loginForm.addEventListener('submit', function (e) {
+    e.preventDefault();
 
-            // Simple authentication check
-            setTimeout(() => {
-                if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                    // Store login state
-                    localStorage.setItem('adminAuthenticated', 'true');
-                    // Redirect to admin dashboard
-                    window.location.href = 'admin.html';
-                } else {
-                    showError('Invalid username or password. Please try again.');
-                    resetLoginButton();
-                }
-            }, 1000);
-        });
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-        function showError(message) {
-            errorText.textContent = message;
-            errorMessage.classList.remove('hidden');
-        }
+    // Show loading state
+    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+    loginBtn.disabled = true;
+    hideError();
 
-        function hideError() {
-            errorMessage.classList.add('hidden');
-        }
+    // Simple authentication check
+    setTimeout(() => {
+        if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+            // Use sessionStorage for auto-expiry when browser closes
+            sessionStorage.setItem('adminAuthenticated', 'true');
 
-        function resetLoginButton() {
-            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-            loginBtn.disabled = false;
-        }
+            // Optional: Add timestamp for session management
+            localStorage.setItem('authTimestamp', Date.now().toString());
 
-        // Check if already logged in
-        if (localStorage.getItem('adminAuthenticated') === 'true') {
+            // Redirect to admin dashboard
             window.location.href = 'admin.html';
+        } else {
+            showError('Invalid username or password. Please try again.');
+            resetLoginButton();
         }
+    }, 1000);
+});
 
-        // Clear error when user starts typing
-        document.getElementById('username').addEventListener('input', hideError);
-        document.getElementById('password').addEventListener('input', hideError);
+function showError(message) {
+    errorText.textContent = message;
+    errorMessage.classList.remove('hidden');
+}
+
+function hideError() {
+    errorMessage.classList.add('hidden');
+}
+
+function resetLoginButton() {
+    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+    loginBtn.disabled = false;
+}
+
+// Clear error when user starts typing
+document.getElementById('username').addEventListener('input', hideError);
+document.getElementById('password').addEventListener('input', hideError);
     </script>
 </body>
+
 </html>

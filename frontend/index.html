@@ -341,6 +341,34 @@
             }
         }
 
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .recording {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Voice button states */
+        .voice-recording {
+            background: linear-gradient(135deg, #ef4444, #ec4899) !important;
+            animation: pulse 1.5s infinite;
+        }
+
+        .voice-ready {
+            background: linear-gradient(135deg, #10b981, #14b8a6) !important;
+        }
+
         .admin-panel {
             transition: all 0.3s ease;
         }
@@ -457,7 +485,8 @@
                     Home</a>
                 <a href="#chatbot" class="text-gray-600 hover:text-blue-600 transition"><i
                         class="fas fa-comments mr-2"></i> Chatbot</a>
-                <a href="#admin" class="text-gray-600 hover:text-blue-600 transition"><i class="fas fa-cog mr-2"></i>
+                <a href="admin-login.html" class="text-gray-600 hover:text-blue-600 transition"><i
+                        class="fas fa-cog mr-2"></i>
                     Admin</a>
                 <a href="#about" class="text-gray-600 hover:text-blue-600 transition"><i
                         class="fas fa-info-circle mr-2"></i> About</a>
@@ -776,7 +805,7 @@
                                 class="fas fa-chevron-right text-xs mr-2"></i>Home</a>
                         <a href="#chatbot" class="block text-gray-400 hover:text-white transition"><i
                                 class="fas fa-chevron-right text-xs mr-2"></i>Chatbot</a>
-                        <a href="#admin" class="block text-gray-400 hover:text-white transition"><i
+                        <a href="admin-login.html" class="block text-gray-400 hover:text-white transition"><i
                                 class="fas fa-chevron-right text-xs mr-2"></i>Admin</a>
                         <a href="#about" class="block text-gray-400 hover:text-white transition"><i
                                 class="fas fa-chevron-right text-xs mr-2"></i>About</a>
@@ -843,10 +872,6 @@
         const clearAllData = document.getElementById("clearAllData");
         const testConnection = document.getElementById("testConnection");
 
-        // State
-        let isRecording = false;
-        let mediaRecorder;
-        let audioChunks = [];
 
         const languageMap = {
             en: { name: "English", flag: "🇺🇸", native: "English" },
@@ -861,6 +886,7 @@
         document.addEventListener("DOMContentLoaded", function () {
             loadAdminStats();
             setupEventListeners();
+            checkVoiceSupport();
         });
 
         function setupEventListeners() {
@@ -872,6 +898,9 @@
 
             //maximize toggle functionality
             maximizeBtn.addEventListener("click", toggleMaximizeChat);
+            
+            //clear chat 
+            clearChatBtn.addEventListener("click", clearChat);
 
             // Voice functionality
             voiceBtn.addEventListener("click", toggleVoiceRecording);
@@ -894,10 +923,42 @@
             testConnection.addEventListener("click", testBackendConnection);
 
             // Existing functionality
-            clearChatBtn.addEventListener("click", clearChat);
-            mobileMenuBtn.addEventListener("click", () =>
-                mobileMenu.classList.toggle("hidden")
-            );
+            function clearChat() {
+                // Ask for confirmation
+                if (!confirm("Are you sure you want to clear the chat history?")) {
+                    return;
+                }
+
+                // Store the welcome message HTML
+                const welcomeMsgHTML = `
+        <div class="chat-message mb-6">
+            <div class="flex gap-4">
+                <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <i class="fas fa-robot text-lg"></i>
+                </div>
+                <div class="bg-white p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl border border-gray-100 flex-1">
+                    <p class="text-gray-800 text-base leading-relaxed">👋 Hello! I'm your AI Legal Assistant. I can help you understand Indian laws including IPC, BNS, IT Act 2000, Consumer Protection Act, and Domestic Violence Act. What would you like to know?</p>
+                    <p class="text-sm text-gray-500 mt-3 flex items-center gap-2">
+                        <i class="fas fa-clock"></i> Just now
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+                // Clear the chat box
+                chatBox.innerHTML = welcomeMsgHTML;
+
+                // Scroll to bottom
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Show success message
+                const tempMsg = document.createElement('div');
+                tempMsg.className = 'text-center text-sm text-green-600 py-2';
+                tempMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Chat cleared successfully';
+                chatBox.appendChild(tempMsg);
+                setTimeout(() => tempMsg.remove(), 3000);
+            }
 
             quickQuestions.forEach((btn) => {
                 btn.addEventListener("click", () => {
@@ -1080,9 +1141,13 @@
         }
 
         // Voice Recording Functions
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
         async function toggleVoiceRecording() {
             if (!isRecording) {
-                startVoiceRecording();
+                await startVoiceRecording();
             } else {
                 stopVoiceRecording();
             }
@@ -1090,83 +1155,420 @@
 
         async function startVoiceRecording() {
             try {
+                // Check browser support first
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showVoiceError("Voice search is not supported in your browser. Please use Chrome, Edge, or Firefox.");
+                    return;
+                }
+
+                // Request microphone permissions with better error handling
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    audio: true,
+                    audio: {
+                        sampleRate: 16000,
+                        channelCount: 1,
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    },
+                    video: false
+                }).catch(error => {
+                    handleMicrophoneError(error);
+                    return null;
                 });
-                mediaRecorder = new MediaRecorder(stream);
+
+                if (!stream) return;
+
+                // Set up media recorder
+                const options = { mimeType: 'audio/webm' };
+
+                // Try different mime types for browser compatibility
+                if (!MediaRecorder.isTypeSupported('audio/webm')) {
+                    options.mimeType = 'audio/mp4';
+                }
+
+                mediaRecorder = new MediaRecorder(stream, options);
                 audioChunks = [];
 
                 mediaRecorder.ondataavailable = (event) => {
-                    audioChunks.push(event.data);
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
                 };
 
                 mediaRecorder.onstop = processAudioRecording;
 
-                mediaRecorder.start();
+                // Start recording
+                mediaRecorder.start(100); // Collect data every 100ms
                 isRecording = true;
-                voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
-                voiceBtn.classList.remove("from-green-600", "to-teal-600");
-                voiceBtn.classList.add("from-red-600", "to-pink-600");
+
+                // Update UI for recording state
+                updateVoiceUI(true);
 
                 // Show recording indicator
-                addMessage("🎤 Recording... Speak your legal question now.", false);
+                addMessage("🎤 Recording... Speak your legal question now. Click stop when done.", false);
+
+                // Auto-stop after 8 seconds (safety)
+                setTimeout(() => {
+                    if (isRecording) {
+                        stopVoiceRecording();
+                        addMessage("⏱️ Auto-stopped recording. Processing your question...", false);
+                    }
+                }, 8000);
+
             } catch (error) {
                 console.error("Error starting recording:", error);
-                addMessage("❌ Microphone access denied or not available.", false);
+                handleMicrophoneError(error);
             }
         }
 
         function stopVoiceRecording() {
             if (mediaRecorder && isRecording) {
                 mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+                // Stop all tracks in the stream
+                mediaRecorder.stream.getTracks().forEach(track => {
+                    track.stop();
+                    track.enabled = false;
+                });
                 isRecording = false;
-                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
-                voiceBtn.classList.remove("from-red-600", "to-pink-600");
-                voiceBtn.classList.add("from-green-600", "to-teal-600");
+
+                // Update UI back to ready state
+                updateVoiceUI(false);
             }
         }
 
-        async function processAudioRecording() {
-            const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+        function updateVoiceUI(recording) {
+            const voiceBtn = document.getElementById("voiceBtn");
+            if (recording) {
+                voiceBtn.innerHTML = '<i class="fas fa-stop"></i>';
+                voiceBtn.classList.remove("from-green-500", "to-teal-500");
+                voiceBtn.classList.add("from-red-500", "to-pink-500");
+                voiceBtn.title = "Stop Recording";
+                voiceBtn.style.animation = "pulse 1.5s infinite";
+            } else {
+                voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+                voiceBtn.classList.remove("from-red-500", "to-pink-500");
+                voiceBtn.classList.add("from-green-500", "to-teal-500");
+                voiceBtn.title = "Voice Search";
+                voiceBtn.style.animation = "none";
+            }
+        }
 
-            // Convert to base64 for demo
-            // In production, you would send this to your voice processing endpoint
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64Audio = reader.result.split(",")[1];
+        function handleMicrophoneError(error) {
+            console.error("Microphone error:", error);
+
+            let errorMessage = "Microphone access denied. ";
+
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                errorMessage += "Please allow microphone permissions in your browser settings.";
+                showPermissionInstructions();
+            } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                errorMessage += "No microphone found. Please check your audio devices.";
+            } else if (error.name === 'NotSupportedError') {
+                errorMessage += "Voice search not supported in this browser.";
+            } else {
+                errorMessage += "Please try typing your question instead.";
+            }
+
+            showVoiceError(errorMessage);
+        }
+
+        function showPermissionInstructions() {
+            const instructions = `
+        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p class="text-sm text-yellow-800 font-medium mb-2">How to enable microphone:</p>
+            <ul class="text-xs text-yellow-700 list-disc list-inside space-y-1">
+                <li><strong>Chrome:</strong> Click the lock icon in address bar → Site settings → Allow microphone</li>
+                <li><strong>Firefox:</strong> Click the (i) icon in address bar → Permissions → Allow microphone</li>
+                <li><strong>Edge:</strong> Click the lock icon → Permissions → Allow microphone</li>
+                <li>Refresh the page after changing permissions</li>
+            </ul>
+        </div>
+    `;
+
+            // Add instructions to the last message
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage) {
+                lastMessage.querySelector('.bg-white').innerHTML += instructions;
+            }
+        }
+
+        function showVoiceError(message) {
+            addMessage(`❌ ${message}`, false);
+
+            // Show fallback options after a delay
+            setTimeout(() => {
+                showVoiceFallbackOptions();
+            }, 2000);
+        }
+
+        function showVoiceFallbackOptions() {
+            const fallbackHtml = `
+        <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-sm text-blue-800 font-medium mb-2">Try these alternatives:</p>
+            <div class="flex gap-2 flex-wrap">
+                <button onclick="useSampleQuestion('What is Section 420 IPC?')" 
+                        class="text-xs bg-white border border-blue-300 px-3 py-1 rounded hover:bg-blue-100 transition">
+                    What is Section 420 IPC?
+                </button>
+                <button onclick="useSampleQuestion('Consumer rights in India')" 
+                        class="text-xs bg-white border border-blue-300 px-3 py-1 rounded hover:bg-blue-100 transition">
+                    Consumer rights
+                </button>
+                <button onclick="useSampleQuestion('Cyber crime punishments')" 
+                        class="text-xs bg-white border border-blue-300 px-3 py-1 rounded hover:bg-blue-100 transition">
+                    Cyber crime punishments
+                </button>
+            </div>
+        </div>
+    `;
+
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage) {
+                lastMessage.querySelector('.bg-white').innerHTML += fallbackHtml;
+            }
+        }
+
+        function useSampleQuestion(question) {
+            userInput.value = question;
+            userInput.focus();
+        }
+
+        // Enhanced audio processing - NO auto-send, shows confirmation
+        async function processAudioRecording() {
+            try {
+                if (audioChunks.length === 0) {
+                    throw new Error("No audio data recorded");
+                }
+
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+
+                // Remove the "Processing your voice" message
+                removeLastMessageIfContains("Processing your voice");
+
+                // Show "Converting speech to text..." message
+                addMessage("🔄 Converting speech to text...", false);
+
+                // Convert to base64
+                const base64Audio = await blobToBase64(audioBlob);
 
                 try {
-                    // Demo voice processing - in production, call your voice API
-                    const response = await fetch(API_ENDPOINTS.VOICE_PROCESS, {
+                    // Try to send to backend for processing
+                    const response = await fetch(`${BACKEND_URL}/voice/process`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            audio_data: base64Audio,
-                            language: currentLanguage,
+                            audio_data: base64Audio.split(',')[1],
+                            language: currentLanguage
                         }),
                     });
 
                     if (response.ok) {
                         const data = await response.json();
-                        userInput.value = data.text;
-                        handleSend();
+                        handleVoiceResponse(data);
                     } else {
-                        // Fallback demo response
-                        userInput.value =
-                            "What is the punishment for murder under Indian law?";
-                        handleSend();
+                        throw new Error(`Server error: ${response.status}`);
                     }
-                } catch (error) {
-                    console.error("Voice processing failed:", error);
-                    // Fallback
-                    userInput.value = "What are consumer rights under Indian law?";
-                    handleSend();
+
+                } catch (backendError) {
+                    console.warn("Backend voice processing failed:", backendError);
+                    // Instead of auto-demo, show manual input option
+                    handleBackendVoiceFailure();
                 }
-            };
-            reader.readAsDataURL(audioBlob);
+
+            } catch (error) {
+                console.error("Voice processing failed:", error);
+                handleVoiceProcessingError();
+            }
+        }
+
+        // UPDATED: Handle voice response with confirmation instead of auto-send
+        function handleVoiceResponse(data) {
+            // Remove processing message
+            removeLastMessageIfContains("Converting speech to text");
+
+            if (data.status === 'success' && data.text && data.text.length > 5) {
+                // Use recognized text
+                userInput.value = data.text;
+                addMessage(`🎤 You said: "${data.text}"`, true);
+
+                // Show confirmation UI instead of auto-sending
+                showVoiceConfirmation(data.text);
+            } else {
+                handleNoSpeechDetected();
+            }
+        }
+
+        // NEW: Show confirmation before sending
+        function showVoiceConfirmation(recognizedText) {
+            const confirmationHtml = `
+                <div class="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <p class="text-sm text-green-800 font-medium mb-2">Question recognized! Click to send or edit:</p>
+                    <div class="flex gap-2 items-center">
+                        <input type="text" id="voiceInputConfirm" 
+                               value="${recognizedText}" 
+                               class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm">
+                        <button onclick="sendVoiceQuestion()" 
+                                class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm">
+                            <i class="fas fa-paper-plane mr-1"></i>Send
+                        </button>
+                        <button onclick="editVoiceQuestion()" 
+                                class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition text-sm">
+                            <i class="fas fa-edit mr-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage) {
+                lastMessage.querySelector('.bg-white').innerHTML += confirmationHtml;
+                // Focus on the input field for easy editing
+                setTimeout(() => {
+                    const confirmInput = document.getElementById('voiceInputConfirm');
+                    if (confirmInput) confirmInput.focus();
+                }, 100);
+            }
+        }
+
+        // NEW: Send the voice question
+        function sendVoiceQuestion() {
+            const confirmInput = document.getElementById('voiceInputConfirm');
+            if (confirmInput && confirmInput.value.trim()) {
+                userInput.value = confirmInput.value;
+                // Remove confirmation UI
+                removeVoiceConfirmationUI();
+                // Send the question
+                handleSend();
+            }
+        }
+
+        // NEW: Edit the voice question
+        function editVoiceQuestion() {
+            const confirmInput = document.getElementById('voiceInputConfirm');
+            if (confirmInput) {
+                userInput.value = confirmInput.value;
+                userInput.focus();
+            }
+            // Remove the confirmation UI
+            removeVoiceConfirmationUI();
+        }
+
+        // NEW: Remove confirmation UI
+        function removeVoiceConfirmationUI() {
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage) {
+                const confirmationDiv = lastMessage.querySelector('.bg-green-50');
+                if (confirmationDiv) {
+                    confirmationDiv.remove();
+                }
+            }
+        }
+
+        // NEW: Handle backend voice failure
+        function handleBackendVoiceFailure() {
+            removeLastMessageIfContains("Converting speech to text");
+
+            addMessage("❌ Voice recognition service unavailable. Please type your question below.", false);
+
+            // Show manual input encouragement
+            const manualInputHtml = `
+                <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p class="text-sm text-blue-800 font-medium mb-2">Please type your legal question:</p>
+                    <p class="text-xs text-blue-600">You can ask about IPC sections, consumer rights, cyber crimes, etc.</p>
+                </div>
+            `;
+
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage) {
+                lastMessage.querySelector('.bg-white').innerHTML += manualInputHtml;
+            }
+
+            // Focus on input field for manual typing
+            userInput.focus();
+            userInput.placeholder = "Type your legal question here...";
+        }
+
+        // NEW: Handle case where no speech is detected
+        function handleNoSpeechDetected() {
+            addMessage("🔇 No speech detected. Please try speaking again or type your question.", false);
+
+            const retryHtml = `
+                <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p class="text-sm text-yellow-800 font-medium mb-2">Tips for better voice recognition:</p>
+                    <ul class="text-xs text-yellow-700 list-disc list-inside space-y-1">
+                        <li>Speak clearly and at normal pace</li>
+                        <li>Reduce background noise</li>
+                        <li>Hold microphone closer</li>
+                        <li>Try simple questions first</li>
+                    </ul>
+                    <div class="flex gap-2 mt-3">
+                        <button onclick="toggleVoiceRecording()" 
+                                class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 transition">
+                            <i class="fas fa-microphone mr-1"></i>Try Again
+                        </button>
+                        <button onclick="focusTextInput()" 
+                                class="bg-gray-600 text-white px-3 py-1 rounded text-xs hover:bg-gray-700 transition">
+                            <i class="fas fa-keyboard mr-1"></i>Type Instead
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage) {
+                lastMessage.querySelector('.bg-white').innerHTML += retryHtml;
+            }
+        }
+
+        // NEW: Focus on text input
+        function focusTextInput() {
+            userInput.focus();
+            userInput.placeholder = "Type your legal question here...";
+        }
+
+        function handleVoiceProcessingError() {
+            removeLastMessageIfContains("Converting speech to text");
+            addMessage("❌ Voice recognition failed. Please try typing your question.", false);
+
+            // Provide helpful suggestions
+            userInput.value = "What legal information can I help you find?";
+            userInput.focus();
+        }
+
+        function removeLastMessageIfContains(text) {
+            const chatBox = document.getElementById("chatBox");
+            const lastMessage = chatBox.lastElementChild;
+            if (lastMessage && lastMessage.textContent.includes(text)) {
+                lastMessage.remove();
+            }
+        }
+
+        // Helper function to convert blob to base64
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        //Function to check browser compatibility
+        function checkVoiceSupport() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                console.warn("Voice recording not supported in this browser");
+                voiceBtn.style.display = 'none'; // Hide button if not supported
+                return false;
+            }
+            return true;
         }
 
         // Language Functions
@@ -1201,20 +1603,19 @@
             msgDiv.className = 'chat-message mb-6';
 
             if (isUser) {
-                // User message (keep existing)
                 msgDiv.innerHTML = `
-            <div class="flex gap-4 justify-end">
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6 rounded-2xl rounded-tr-none shadow-md max-w-3xl">
-                    <p class="text-white text-base leading-relaxed">${message}</p>
-                    <p class="text-blue-100 text-sm mt-3 flex items-center gap-2 justify-end">
-                        <i class="fas fa-clock"></i> ${getCurrentTime()}
-                    </p>
-                </div>
-                <div class="bg-gradient-to-br from-purple-600 to-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <i class="fas fa-user"></i>
-                </div>
+        <div class="flex gap-4 justify-end">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-6 rounded-2xl rounded-tr-none shadow-md max-w-3xl">  <!-- Lighter blue/purple -->
+                <p class="text-white font-medium text-base leading-relaxed">${message}</p>
+                <p class="text-blue-100 text-sm mt-3 flex items-center gap-2 justify-end">
+                    ${getCurrentTime()}
+                </p>
             </div>
-        `;
+            <div class="bg-gradient-to-br from-purple-500 to-pink-500 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                User
+            </div>
+        </div>
+    `;
             } else {
                 // Bot message - with better formatting
                 // Convert **text** to <strong> for better styling
@@ -1274,94 +1675,6 @@
             showTypingIndicator();
 
             try {
-                const response = await sendChatMessage(message);
-
-                const typingElement = document.getElementById("typing");
-                if (typingElement) {
-                    typingElement.remove();
-                }
-
-                addMessage(response.answer, false);
-
-                // Show sources if available
-                if (response.sources && response.sources.length > 0) {
-                    const sourcesHtml = `
-                        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <p class="text-xs text-blue-800 font-medium mb-2 flex items-center gap-1">
-                                <i class="fas fa-file-alt"></i> Reference Sources:
-                            </p>
-                            <div class="space-y-1">
-                                ${response.sources
-                            .map(
-                                (source) => `
-                                    <p class="text-xs text-blue-600">• ${source.snippet.substring(
-                                    0,
-                                    100
-                                )}...</p>
-                                `
-                            )
-                            .join("")}
-                            </div>
-                        </div>
-                    `;
-
-                    const lastMessage = chatBox.lastElementChild;
-                    const messageContent = lastMessage.querySelector(".bg-white");
-                    messageContent.innerHTML += sourcesHtml;
-                }
-            } catch (error) {
-                const typingElement = document.getElementById("typing");
-                if (typingElement) {
-                    typingElement.remove();
-                }
-                addMessage(
-                    "Sorry, I encountered an error while processing your question. Please try again.",
-                    false
-                );
-            }
-        }
-
-        function clearChat() {
-            const welcomeMsg = chatBox.querySelector(".chat-message");
-            chatBox.innerHTML = "";
-            if (welcomeMsg) {
-                chatBox.appendChild(welcomeMsg.cloneNode(true));
-            }
-        }
-
-        // Close language dropdown when clicking outside
-        document.addEventListener("click", (event) => {
-            if (
-                !languageBtn.contains(event.target) &&
-                !languageDropdown.contains(event.target)
-            ) {
-                languageDropdown.classList.add("hidden");
-            }
-        });
-
-
-        // Update your frontend JavaScript
-        let currentLanguage = 'en';
-
-        function setLanguage(lang) {
-            currentLanguage = lang;
-            const langInfo = languageMap[lang];
-            document.getElementById('currentLanguage').textContent = langInfo.name;
-
-            // Show language change confirmation
-            showLanguageChangeMessage(langInfo.name);
-        }
-
-        async function handleSend() {
-            const message = userInput.value.trim();
-            if (message === "") return;
-
-            addMessage(message, true);
-            userInput.value = "";
-
-            showTypingIndicator();
-
-            try {
                 // ✅ SIMPLE FIX: Use only query parameters, NO body
                 const response = await fetch(
                     `${BACKEND_URL}/chat-translate?language=${currentLanguage}&question=${encodeURIComponent(message)}&top_k=4`,
@@ -1394,6 +1707,36 @@
                 }
                 addMessage(`Sorry, I encountered an error. Please try again. (${error.message})`, false);
             }
+        }
+
+        function clearChat() {
+            const welcomeMsg = chatBox.querySelector(".chat-message");
+            chatBox.innerHTML = "";
+            if (welcomeMsg) {
+                chatBox.appendChild(welcomeMsg.cloneNode(true));
+            }
+        }
+
+        // Close language dropdown when clicking outside
+        document.addEventListener("click", (event) => {
+            if (
+                !languageBtn.contains(event.target) &&
+                !languageDropdown.contains(event.target)
+            ) {
+                languageDropdown.classList.add("hidden");
+            }
+        });
+
+        // Update your frontend JavaScript
+        let currentLanguage = 'en';
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            const langInfo = languageMap[lang];
+            document.getElementById('currentLanguage').textContent = langInfo.name;
+
+            // Show language change confirmation
+            showLanguageChangeMessage(langInfo.name);
         }
 
         function showLanguageChangeMessage(langName) {
@@ -1460,16 +1803,20 @@
         // Toggle source content visibility
         function toggleSourceContent(button) {
             const content = button.previousElementSibling;
-            if (content.style.maxHeight) {
-                content.style.maxHeight = null;
+
+            if (content.style.maxHeight && content.style.maxHeight !== 'none') {
+                // Show full content
+                content.style.maxHeight = 'none';
+                content.style.overflow = 'visible';
+                content.style.whiteSpace = 'normal';
                 button.textContent = 'Show less ▲';
             } else {
-                content.style.maxHeight = 'none';
+                // Hide content (back to limited view)
+                content.style.maxHeight = '120px';
+                content.style.overflow = 'hidden';
                 button.textContent = 'Show more ▼';
             }
         }
-
-
 
         // Maximize functionality
         let isChatMaximized = false;

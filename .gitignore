@@ -6,3 +6,4 @@ notebooks/faiss_store/metadata.pkl
 notebooks/faiss_store/*.pkl
 notebooks/faiss_store/chunks.pkl
 chroma_db/
+datas/

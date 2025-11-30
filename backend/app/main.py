@@ -9,6 +9,7 @@ from .schemas import ChatRequest, ChatResponse, IngestPayload, SourceItem
 from .rag_engine import RAGEngine, get_rag_engine
 from .provider_client import get_best_provider
 from .admin import router as admin_router
+from .translation import translator
 
 # Setup logging
 logger = logging.getLogger(__name__)

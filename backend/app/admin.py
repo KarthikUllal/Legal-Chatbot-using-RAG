@@ -154,3 +154,37 @@ async def delete_document(doc_id: str, engine=Depends(get_engine)):
     except Exception as e:
         logger.error(f"Document deletion failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@router.get("/debug/find-section/{section_number}")
+async def find_section(section_number: str, engine=Depends(get_engine)):
+    """Find specific section content"""
+    collection = engine.vstore.collection
+    results = collection.get(include=["metadatas", "documents"])
+    
+    section_matches = []
+    search_terms = [
+        f"Section {section_number}",
+        f"section {section_number}",
+        f"{section_number}.",
+        f" {section_number} "
+    ]
+    
+    for i, (doc, meta) in enumerate(zip(results["documents"], results["metadatas"])):
+        doc_lower = doc.lower()
+        for term in search_terms:
+            if term.lower() in doc_lower:
+                section_matches.append({
+                    "chunk_id": i,
+                    "doc_id": meta.get("doc_id", "unknown"),
+                    "term_found": term,
+                    "preview": doc[:400] + "...",
+                })
+                break
+    
+    return {
+        "section": section_number,
+        "total_chunks_searched": len(results["documents"]),
+        "matches_found": len(section_matches),
+        "matches": section_matches
+    }

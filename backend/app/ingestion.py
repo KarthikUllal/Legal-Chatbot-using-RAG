@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import requests
 from typing import List
 import concurrent.futures
+
 try:
     from .config import settings
     from .utils import clean_text
@@ -58,15 +59,46 @@ def fetch_html_text(url: str) -> str:
     return clean_text(text)
 
 
+# def split_into_chunks(
+#     text: str, chunk_size: int = None, overlap: int = None
+# ) -> List[str]:
+#     from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+#     cs = chunk_size or settings.CHUNK_SIZE
+#     co = overlap or settings.CHUNK_OVERLAP
+#     splitter = RecursiveCharacterTextSplitter(chunk_size=cs, chunk_overlap=co)
+#     return splitter.split_text(text)
+
+
 def split_into_chunks(
     text: str, chunk_size: int = None, overlap: int = None
 ) -> List[str]:
     from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-    cs = chunk_size or settings.CHUNK_SIZE
-    co = overlap or settings.CHUNK_OVERLAP
-    splitter = RecursiveCharacterTextSplitter(chunk_size=cs, chunk_overlap=co)
-    return splitter.split_text(text)
+    cs = chunk_size or 1000  # Reduced for better context
+    co = overlap or 150
+
+    # Better splitting for legal documents
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=cs,
+        chunk_overlap=co,
+        separators=[
+            "\n\nSection",
+            "\n\nArticle",
+            "\n\nCHAPTER",
+            "\n\n",
+            "\n",
+            ". ",
+            " ",
+            "",
+        ],
+        length_function=len,
+    )
+
+    chunks = splitter.split_text(text)
+    print(f"📄 Split into {len(chunks)} chunks (size: {cs}, overlap: {co})")  # DEBUG
+
+    return chunks
 
 
 def process_multiple_documents_parallel(file_paths: List[Path]) -> List[str]:

@@ -97,68 +97,68 @@
 
     <script>
         const loginForm = document.getElementById('loginForm');
-const loginBtn = document.getElementById('loginBtn');
-const errorMessage = document.getElementById('errorMessage');
-const errorText = document.getElementById('errorText');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
 
-// Simple frontend authentication
-const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin'
-};
+        // Simple frontend authentication
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'admin'
+        };
 
-// Check if already logged in (redirect if authenticated)
-if (sessionStorage.getItem('adminAuthenticated') === 'true' || 
-    localStorage.getItem('adminAuthenticated') === 'true') {
-    window.location.href = 'admin.html';
-}
-
-loginForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-
-    // Show loading state
-    loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
-    loginBtn.disabled = true;
-    hideError();
-
-    // Simple authentication check
-    setTimeout(() => {
-        if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-            // Use sessionStorage for auto-expiry when browser closes
-            sessionStorage.setItem('adminAuthenticated', 'true');
-
-            // Optional: Add timestamp for session management
-            localStorage.setItem('authTimestamp', Date.now().toString());
-
-            // Redirect to admin dashboard
+        // Check if already logged in (redirect if authenticated)
+        if (sessionStorage.getItem('adminAuthenticated') === 'true' ||
+            localStorage.getItem('adminAuthenticated') === 'true') {
             window.location.href = 'admin.html';
-        } else {
-            showError('Invalid username or password. Please try again.');
-            resetLoginButton();
         }
-    }, 1000);
-});
 
-function showError(message) {
-    errorText.textContent = message;
-    errorMessage.classList.remove('hidden');
-}
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
 
-function hideError() {
-    errorMessage.classList.add('hidden');
-}
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-function resetLoginButton() {
-    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
-    loginBtn.disabled = false;
-}
+            // Show loading state
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+            loginBtn.disabled = true;
+            hideError();
 
-// Clear error when user starts typing
-document.getElementById('username').addEventListener('input', hideError);
-document.getElementById('password').addEventListener('input', hideError);
+            // Simple authentication check
+            setTimeout(() => {
+                if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                    // Use sessionStorage for auto-expiry when browser closes
+                    sessionStorage.setItem('adminAuthenticated', 'true');
+
+                    // Optional: Add timestamp for session management
+                    localStorage.setItem('authTimestamp', Date.now().toString());
+
+                    // Redirect to admin dashboard
+                    window.location.href = 'admin.html';
+                } else {
+                    showError('Invalid username or password. Please try again.');
+                    resetLoginButton();
+                }
+            }, 1000);
+        });
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorMessage.classList.add('hidden');
+        }
+
+        function resetLoginButton() {
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+            loginBtn.disabled = false;
+        }
+
+        // Clear error when user starts typing
+        document.getElementById('username').addEventListener('input', hideError);
+        document.getElementById('password').addEventListener('input', hideError);
     </script>
 </body>
 

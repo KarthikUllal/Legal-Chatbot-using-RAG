@@ -716,18 +716,18 @@
         }
 
         function logout() {
-    console.log("🔄 Logging out...");
-    
-    // Clear ALL authentication data
-    localStorage.removeItem("adminAuthenticated");
-    sessionStorage.removeItem("adminAuthenticated");
-    localStorage.removeItem("authTimestamp");
-    
-    console.log("✅ Storage cleared. Redirecting to login...");
-    
-    // Force redirect to login page
-    window.location.href = "admin-login.html";
-}
+            console.log("🔄 Logging out...");
+
+            // Clear ALL authentication data
+            localStorage.removeItem("adminAuthenticated");
+            sessionStorage.removeItem("adminAuthenticated");
+            localStorage.removeItem("authTimestamp");
+
+            console.log("✅ Storage cleared. Redirecting to login...");
+
+            // Force redirect to login page
+            window.location.href = "admin-login.html";
+        }
 
         // Debug function to test upload functionality
         function testUpload() {

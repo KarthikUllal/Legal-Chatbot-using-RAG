@@ -7,14 +7,26 @@ class Settings(BaseSettings):
     CHROMA_DIR: str = "./chroma_db"
     EMBED_MODEL: str= "models/embedding-001"
     LLM_PROVIDER: str = "gemini"  
-    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY")     # fill via env
+        # fill via env
     CHUNK_SIZE: int = 800
     CHUNK_OVERLAP: int = 120
     BATCH_SIZE: int = 32
     ALLOW_ORIGINS: list = ["*"]
     OLLAMA_MODEL: str ="llama3.2:3b"
-    DEEPSEEK_API_KEY: str = os.getenv("DEEPSEEK_API_KEY")
-    FORCE_LOCAL: bool = True
+    FORCE_LOCAL: bool = False # make sure to change it to True when you dont use openRouter api key
+
+    # NVIDIA Configuration
+    NVIDIA_API_KEY: str = os.getenv("NVIDIA_API_KEY", "")
+    NVIDIA_MODEL: str = os.getenv("NVIDIA_MODEL", "meta/llama-3.1-8b-instruct")
+    USE_NVIDIA: bool = os.getenv("USE_NVIDIA", "true").lower() == "true"
+
+
+
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
+    USE_OPENROUTER: bool = os.getenv("USE_OPENROUTER", "false").lower() == "true"
+
+
     class Config:
         env_file = ".env"
         extra = "ignore"

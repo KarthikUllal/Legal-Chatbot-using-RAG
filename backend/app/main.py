@@ -12,6 +12,7 @@ from .admin import router as admin_router
 from .translation import translator
 from .voice_processor import voice_processor
 
+
 # Setup logging
 logger = logging.getLogger(__name__)
 
@@ -228,3 +229,4 @@ async def get_supported_languages():
         "status": "success",
         "languages": voice_processor.supported_languages
     }
+

@@ -118,9 +118,7 @@ ANSWER:""",
                 zip(docs, metas, ids, dists)
             ):
                 act_name = meta.get("act", "Unknown Act")
-                relevance_score = 1.0 - (
-                    distance / 2.0
-                )
+                relevance_score = 1.0 - (distance / 2.0)
                 document_parts.append(
                     f"[Document {i+1} | Source: {act_name} | Relevance: {relevance_score:.2f}]\n"
                     f"{doc[:800]}..."
@@ -202,29 +200,47 @@ ANSWER:""",
     def retrieve(self, query: str, k: int = 6) -> Dict:
         try:
             logger.info(f"Retrieving for: '{query}'")
-            
+
             legal_keywords = [
-                "section", "act", "law", "legal", "right", "remedy", 
-                "punishment", "penalty", "offense", "crime", "consumer",
-                "protection", "domestic", "violence", "contract", "property"
+                "section",
+                "act",
+                "law",
+                "legal",
+                "right",
+                "remedy",
+                "punishment",
+                "penalty",
+                "offense",
+                "crime",
+                "consumer",
+                "protection",
+                "domestic",
+                "violence",
+                "contract",
+                "property",
             ]
-            
+
             enhanced_query = query
             if not any(keyword in query.lower() for keyword in legal_keywords):
                 enhanced_query += " legal law section act rights remedies"
-            
+
             query_embedding = self.provider.get_embeddings([enhanced_query])[0]
-            
+
             results = self.vstore.query(query_embedding, n_results=k * 2)
-            
+
             docs = results.get("documents", [[]])[0]
             metas = results.get("metadatas", [[]])[0]
             dists = results.get("distances", [[]])[0]
-            
+
             print(f"Initial retrieval: {len(docs)} documents")
 
             if not docs:
-                return {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
+                return {
+                    "documents": [[]],
+                    "metadatas": [[]],
+                    "distances": [[]],
+                    "ids": [[]],
+                }
 
             filtered_docs = []
             filtered_metas = []
@@ -235,11 +251,15 @@ ANSWER:""",
                 if doc and meta:
                     doc_lower = doc.lower()
                     query_lower = query.lower()
-                    
-                    has_query_terms = any(term in doc_lower for term in query_lower.split())
-                    has_legal_content = any(keyword in doc_lower for keyword in legal_keywords)
+
+                    has_query_terms = any(
+                        term in doc_lower for term in query_lower.split()
+                    )
+                    has_legal_content = any(
+                        keyword in doc_lower for keyword in legal_keywords
+                    )
                     is_relevant_distance = distance < 1.0
-                    
+
                     if has_query_terms or (has_legal_content and is_relevant_distance):
                         filtered_docs.append(doc)
                         filtered_metas.append(meta)
@@ -250,21 +270,28 @@ ANSWER:""",
                 filtered_docs = docs[:k]
                 filtered_metas = metas[:k]
                 filtered_dists = dists[:k]
-                filtered_ids = [meta.get("doc_id", f"doc_{i}") for i, meta in enumerate(metas[:k])]
+                filtered_ids = [
+                    meta.get("doc_id", f"doc_{i}") for i, meta in enumerate(metas[:k])
+                ]
 
             print(f"Final filtered: {len(filtered_docs)} documents")
-            
+
             return {
                 "documents": [filtered_docs[:k]],
-                "metadatas": [filtered_metas[:k]], 
+                "metadatas": [filtered_metas[:k]],
                 "distances": [filtered_dists[:k]],
                 "ids": [filtered_ids[:k]],
             }
 
         except Exception as e:
             logger.error(f"Retrieval failed: {e}")
-            return {"documents": [[]], "metadatas": [[]], "distances": [[]], "ids": [[]]}
-        
+            return {
+                "documents": [[]],
+                "metadatas": [[]],
+                "distances": [[]],
+                "ids": [[]],
+            }
+
     def generate_answer(
         self, question: str, retrieved: Dict
     ) -> Tuple[str, List[SourceItem]]:
@@ -289,7 +316,7 @@ ANSWER:""",
                 max_tokens=1000,
             )
             answer = self._clean_response(answer)
-            
+
             if "Reference Sources:" not in answer and "Sources:" not in answer:
                 answer += "\n\nReference Sources: See cited legal documents below"
 
@@ -402,10 +429,14 @@ ANSWER:""",
             processed_question = question
             if language != "en":
                 try:
-                    processed_question = translator.translate_legal_response(question, "en")
+                    processed_question = translator.translate_legal_response(
+                        question, "en"
+                    )
                     logger.info(f"Translated question to English: {processed_question}")
                 except Exception as trans_error:
-                    logger.warning(f"Question translation failed, using original: {trans_error}")
+                    logger.warning(
+                        f"Question translation failed, using original: {trans_error}"
+                    )
 
             response = self.query(question=processed_question, top_k=top_k)
 
@@ -414,12 +445,11 @@ ANSWER:""",
                     translated_answer = translator.translate_legal_response(
                         response.answer, language
                     )
-                    
+
                     return ChatResponse(
-                        answer=translated_answer, 
-                        sources=response.sources
+                        answer=translated_answer, sources=response.sources
                     )
-                    
+
                 except Exception as translation_error:
                     logger.error(f"Answer translation failed: {translation_error}")
                     return response
@@ -438,32 +468,3 @@ ANSWER:""",
 
 def get_rag_engine(provider: ProviderClient = None) -> RAGEngine:
     return RAGEngine(provider)
-
-if __name__ == "__main__":
-    print("Testing RAG Engine with LangChain...")
-
-    try:
-        rag = RAGEngine()
-
-        stats = rag.get_stats()
-        print(f"Vector Store Stats: {stats}")
-
-        prompts = rag.get_prompt_templates()
-        print(f"Prompt Templates: {prompts}")
-
-        test_question = "What is cheating under Indian law?"
-        print(f"Testing query: {test_question}")
-
-        response = rag.query(test_question, top_k=2)
-        print(f"Answer: {response.answer}")
-        print(f"Sources: {len(response.sources)}")
-
-        for i, source in enumerate(response.sources):
-            print(f"   {i+1}. {source.snippet[:100]}...")
-
-        print("RAG Engine with LangChain test completed successfully!")
-
-    except Exception as e:
-        print(f"RAG Engine test failed: {e}")
-        import traceback
-        traceback.print_exc()

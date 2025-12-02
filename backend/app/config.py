@@ -21,7 +21,6 @@ class Settings(BaseSettings):
     USE_NVIDIA: bool = os.getenv("USE_NVIDIA", "true").lower() == "true"
 
 
-
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY")
     OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
     USE_OPENROUTER: bool = os.getenv("USE_OPENROUTER", "false").lower() == "true"

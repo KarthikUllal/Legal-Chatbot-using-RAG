@@ -31,3 +31,5 @@ class SourceItem(BaseModel):
 class ChatResponse(BaseModel):
     answer: str  # The actual answer to your question
     sources: List[SourceItem]  # Proof/references that support the answer
+
+

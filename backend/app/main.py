@@ -11,7 +11,7 @@ from .provider_client import get_best_provider
 from .admin import router as admin_router
 from .translation import translator
 from .voice_processor import voice_processor
-
+from .news_routes import news_router
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -31,6 +31,8 @@ app.add_middleware(
     allow_headers=["*"],   # Allow ALL headers
 )
 app.include_router(admin_router)
+#new router
+app.include_router(news_router)
 
 # Initialize RAG engine with best available provider
 engine = get_rag_engine()

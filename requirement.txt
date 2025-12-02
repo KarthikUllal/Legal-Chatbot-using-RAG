@@ -25,6 +25,9 @@ langchain-openai
 langchain-huggingface
 python-multipart
 pymsql
+SpeechRecognition 
+pydub
+pyaudio
 
 
 Run command

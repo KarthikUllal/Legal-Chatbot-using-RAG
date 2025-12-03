@@ -22,27 +22,32 @@ class LegalNewsService:
         self.sources = {
             "scc_blog": {
                 "name": "SCC Blog",
-                "url": "https://www.scconline.com/blog/feed/",
+                "rss_url": "https://www.scconline.com/blog/feed/",
+                "website_url": "https://www.scconline.com/blog/",
                 "type": "rss"
             },
             "lawctopus": {
                 "name": "Lawctopus",
-                "url": "https://www.lawctopus.com/feed/",
+                "rss_url": "https://www.lawctopus.com/feed/",
+                "website_url": "https://www.lawctopus.com/",
                 "type": "rss"
             },
             "legal_bites": {
                 "name": "Legal Bites",
-                "url": "https://www.legalbites.in/feed/",
+                "rss_url": "https://www.legalbites.in/feed/",
+                "website_url": "https://www.legalbites.in/",
                 "type": "rss"
             },
             "indian_express": {
                 "name": "The Indian Express - Legal",
-                "url": "https://indianexpress.com/section/law-and-policy/feed/",
+                "rss_url": "https://indianexpress.com/section/law-and-policy/feed/",
+                "website_url": "https://indianexpress.com/section/law-and-policy/",
                 "type": "rss"
             },
             "live_law": {
                 "name": "Live Law",
-                "url": "https://www.livelaw.in/rss/latest",
+                "rss_url": "https://www.livelaw.in/rss/latest",
+                "website_url": "https://www.livelaw.in/",
                 "type": "rss"
             }
         }
@@ -116,7 +121,8 @@ class LegalNewsService:
             # Parse RSS feed with timeout
             try:
                 async with aiohttp.ClientSession(headers=self.headers) as session:
-                    async with session.get(source["url"], timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    # Use rss_url instead of url
+                    async with session.get(source["rss_url"], timeout=aiohttp.ClientTimeout(total=10)) as response:
                         if response.status != 200:
                             logger.warning(f"Failed to fetch RSS from {source_id}: HTTP {response.status}")
                             return []

@@ -110,7 +110,8 @@ async def get_news_sources():
         for source_id, source in news_service.sources.items():
             sources_info[source_id] = {
                 "name": source["name"],
-                "url": source["url"],
+                "rss_url": source.get("rss_url", source.get("url", "")),
+                "website_url": source.get("website_url", ""),
                 "type": source["type"]
             }
         
@@ -301,3 +302,69 @@ async def news_health_check():
             "status": "unhealthy",
             "error": str(e)
         }
+    
+@news_router.get("/article/{article_id}")
+async def get_article_detail(
+    article_id: str,
+    fetch_content: bool = Query(False, description="Fetch full content")
+):
+    """Get detailed information about a specific article"""
+    try:
+        # Search for article in all cached news
+        target_article = None
+        for cache_key, cache_data in news_service.cache.items():
+            if datetime.now().timestamp() - cache_data["timestamp"] < news_service.cache_timeout:
+                for article in cache_data["articles"]:
+                    if article.get("id") == article_id:
+                        target_article = article
+                        break
+                if target_article:
+                    break
+        
+        if not target_article:
+            # Try to fetch fresh articles
+            await news_service.fetch_all_news(limit_per_source=2)
+            # Search again
+            for cache_key, cache_data in news_service.cache.items():
+                for article in cache_data["articles"]:
+                    if article.get("id") == article_id:
+                        target_article = article
+                        break
+                if target_article:
+                    break
+        
+        if not target_article:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
+        # If fetch_content is True and we don't have content, try to fetch it
+        if fetch_content and not target_article.get("content"):
+            try:
+                # You could implement article content scraping here
+                pass
+            except Exception as e:
+                logger.debug(f"Could not fetch full content: {e}")
+        
+        # Prepare response with additional fields frontend expects
+        response = {
+            "id": target_article.get("id"),
+            "title": target_article.get("title", ""),
+            "description": target_article.get("description", ""),
+            "summary": target_article.get("summary", ""),
+            "content": target_article.get("content", ""),
+            "link": target_article.get("link", ""),
+            "published": target_article.get("published", ""),
+            "source": target_article.get("source", ""),
+            "source_id": target_article.get("source_id", ""),
+            "category": target_article.get("category", ""),
+            "image": target_article.get("image", ""),
+            "top_image": target_article.get("image", ""),  # For modal
+            "read_time": target_article.get("read_time", 1),
+            "authors": [],  # Could extract from RSS if available
+            "keywords": []  # Could generate from content
+        }
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error fetching article details: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to fetch article details")

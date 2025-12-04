@@ -200,6 +200,29 @@
             animation: typing 1.4s infinite;
         }
 
+        /* Add this to your existing CSS */
+.bot-message-casual {
+    border-left: 4px solid #10b981 !important;
+    background: linear-gradient(to right, #f0fdf4, #dcfce7) !important;
+}
+
+.bot-message-casual .message-content {
+    color: #065f46 !important;
+}
+
+.bot-message-casual strong {
+    color: #047857 !important;
+}
+
+/* Quick styling for casual responses */
+.bg-gradient-to-br.from-green-50.to-emerald-50 {
+    color: #065f46;
+}
+
+.bg-gradient-to-br.from-green-50.to-emerald-50 strong {
+    color: #047857;
+}
+
         /* css for maximizing chatarea */
         /* Maximized chat styles */
         .chat-maximized {
@@ -862,6 +885,28 @@
     <!-- Backend Configuration -->
     <script>
         const BACKEND_URL = "http://localhost:8000"; // Your FastAPI backend URL
+
+        // Casual phrase handler for greetings
+        const casualPhrases = {
+            'hi': 'Hello! I\'m your legal assistant. What legal question can I help you with?',
+            'hello': 'Hello! I specialize in Indian law. How can I assist you today?',
+            'hey': 'Hey there! Ready to help with legal matters. What\'s your question?',
+            'namaste': 'Namaste! 🙏 I\'m here for legal guidance. What do you need help with?',
+            'thanks': 'You\'re welcome! Feel free to ask more legal questions.',
+            'thank you': 'Happy to help! Let me know if you have other legal concerns.',
+            'thankyou': 'Happy to help! Let me know if you have other legal concerns.',
+            'bye': 'Goodbye! Remember to consult a lawyer for critical matters.',
+            'good morning': 'Good morning! Ready to assist with legal queries.',
+            'good afternoon': 'Good afternoon! How can I help you legally today?',
+            'good evening': 'Good evening! I\'m here for legal assistance.',
+            'ok': 'Got it! What else would you like to know?',
+            'okay': 'Understood! What\'s your next legal question?',
+            'got it': 'Great! Feel free to ask more legal questions.',
+            'how are you': 'I\'m doing well, thank you! Ready to assist with legal matters.',
+            'what\'s up': 'Ready to help with legal questions! What do you need?',
+            'who are you': 'I\'m your AI Legal Assistant specialized in Indian laws. How can I help you?',
+            'what can you do': 'I can explain Indian laws, answer legal questions, and provide guidance on IPC, BNS, IT Act, etc.'
+        };
 
         // API Endpoints
         const API_ENDPOINTS = {
@@ -1627,27 +1672,39 @@
             });
         }
 
-        function addMessage(message, isUser) {
+        function addMessage(message, isUser, messageType = 'legal') {
             const msgDiv = document.createElement('div');
             msgDiv.className = 'chat-message mb-6';
 
             if (isUser) {
                 msgDiv.innerHTML = `
-        <div class="flex gap-4 justify-end">
-            <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-6 rounded-2xl rounded-tr-none shadow-md max-w-3xl">  <!-- Lighter blue/purple -->
-                <p class="text-white font-medium text-base leading-relaxed">${message}</p>
-                <p class="text-blue-100 text-sm mt-3 flex items-center gap-2 justify-end">
-                    ${getCurrentTime()}
-                </p>
+            <div class="flex gap-4 justify-end">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-6 rounded-2xl rounded-tr-none shadow-md max-w-3xl">
+                    <p class="text-white font-medium text-base leading-relaxed">${message}</p>
+                    <p class="text-blue-100 text-sm mt-3 flex items-center gap-2 justify-end">
+                        ${getCurrentTime()}
+                    </p>
+                </div>
+                <div class="bg-gradient-to-br from-purple-500 to-pink-500 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                    User
+                </div>
             </div>
-            <div class="bg-gradient-to-br from-purple-500 to-pink-500 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-                User
-            </div>
-        </div>
-    `;
+        `;
             } else {
-                // Bot message - with better formatting
-                // Convert **text** to <strong> for better styling
+                // ========== UPDATED BOT MESSAGE ==========
+                // Different styling based on message type
+                let messageClass = "bg-white border border-gray-100";
+                let iconClass = "from-blue-600 to-purple-600";
+
+                if (messageType === 'casual') {
+                    messageClass = "bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200";
+                    iconClass = "from-green-500 to-teal-500";
+                } else if (messageType === 'error') {
+                    messageClass = "bg-gradient-to-br from-red-50 to-pink-50 border border-red-200";
+                    iconClass = "from-red-500 to-pink-500";
+                }
+
+                // Format the message
                 const formattedMessage = message
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
                     .replace(/\n\n/g, '</p><p>')
@@ -1655,10 +1712,10 @@
 
                 msgDiv.innerHTML = `
             <div class="flex gap-4">
-                <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                <div class="bg-gradient-to-br ${iconClass} text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="bg-white p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl border border-gray-100 flex-1">
+                <div class="${messageClass} p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl flex-1">
                     <div class="message-content text-gray-800 text-base leading-relaxed">
                         ${formattedMessage}
                     </div>
@@ -1668,6 +1725,7 @@
                 </div>
             </div>
         `;
+                // ========== END OF UPDATE ==========
             }
 
             chatBox.appendChild(msgDiv);
@@ -1694,10 +1752,39 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        // Find this function and REPLACE it completely:
         async function handleSend() {
             const message = userInput.value.trim();
             if (message === "") return;
 
+            const input = message.toLowerCase().trim();
+
+            // ========== ADD THIS CHECK ==========
+            // Check if it's a casual phrase (exact match)
+            if (casualPhrases[input]) {
+                addMessage(message, true);
+                userInput.value = "";
+                // Show casual response immediately (no API call)
+                setTimeout(() => {
+                    addMessage(casualPhrases[input], false, 'casual');
+                }, 300);
+                return;
+            }
+
+            // Check for variations (like "hi there", "hello sir")
+            for (const [phrase, response] of Object.entries(casualPhrases)) {
+                if (input.startsWith(phrase) && input.split(' ').length <= 3) {
+                    addMessage(message, true);
+                    userInput.value = "";
+                    setTimeout(() => {
+                        addMessage(response, false, 'casual');
+                    }, 300);
+                    return;
+                }
+            }
+            // ========== END OF CHECK ==========
+
+            // Only call API for legal queries
             addMessage(message, true);
             userInput.value = "";
 
@@ -1720,7 +1807,7 @@
 
                 if (response.ok) {
                     const data = await response.json();
-                    addMessage(data.answer, false);
+                    addMessage(data.answer, false, 'legal');
 
                     if (data.sources && data.sources.length > 0) {
                         showSources(data.sources);
@@ -1734,7 +1821,7 @@
                 if (typingElement) {
                     typingElement.remove();
                 }
-                addMessage(`Sorry, I encountered an error. Please try again. (${error.message})`, false);
+                addMessage(`Sorry, I encountered an error. Please try again. (${error.message})`, false, 'error');
             }
         }
 

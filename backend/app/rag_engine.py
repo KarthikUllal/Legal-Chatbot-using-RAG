@@ -9,6 +9,7 @@ from .ingestion import split_into_chunks, load_pdf_text
 from .schemas import ChatResponse, SourceItem
 from .translation import translator
 import re
+from datetime import datetime
 
 try:
     from langchain_core.prompts import PromptTemplate
@@ -27,6 +28,8 @@ class RAGEngine:
         self.provider = provider or get_best_provider()
         self.vstore = VectorStore()
         self.embed_batch = settings.BATCH_SIZE
+        self.conversation_memory = {}  # session_id -> list of exchanges
+        self.max_memory_per_session = 8  # Store last 8 exchanges
 
         self._setup_prompts()
         self._setup_chain()
@@ -35,55 +38,101 @@ class RAGEngine:
             f"RAG Engine initialized with provider: {type(self.provider).__name__}"
         )
 
+        # older prompt template ... if changed one fails then this will be replaced
+
+    #     def _setup_prompts(self):
+    #         self.context_prompt = PromptTemplate(
+    #             input_variables=["documents"],
+    #             template="""Legal Documents Context:
+    # {documents}
+
+    # Use the above legal documents to answer the question accurately.""",
+    #         )
+
+    #         self.qa_prompt = PromptTemplate(
+    #             input_variables=["question", "context"],
+    #             template="""You are an expert Indian legal advisor. Analyze the user's situation and provide practical legal guidance based on the context.
+
+    # USER'S SITUATION: {question}
+
+    # RELEVANT LEGAL CONTEXT:
+    # {context}
+
+    # IMPORTANT - FOLLOW THIS STRUCTURE EXACTLY:
+
+    # Situation Analysis
+    # Briefly summarize the legal situation
+    # Identify key legal issues involved
+
+    # Applicable Laws & Sections
+    # List relevant legal provisions with section numbers
+    # Explain how each law applies to this situation
+
+    # Legal Rights & Remedies
+    # What legal rights does the person have?
+    # Available legal remedies and procedures
+
+    # Recommended Actions
+    # Step-by-step practical advice
+    # Timeline for actions
+    # Required documents/evidence
+
+    # Potential Outcomes
+    # Best-case and worst-case scenarios
+    # Typical resolution timeframes
+
+    # Important Caveats
+    # Limitations of this advice
+    # When to consult a practicing lawyer
+
+    # Legal References:
+    # Sections XXX, YYY of Relevant Act
+
+    # BASE YOUR ANSWER STRICTLY ON THE PROVIDED LEGAL CONTEXT. If the context doesn't cover specific situational aspects, acknowledge this limitation.
+
+    # ANSWER:""",
+    #         )
     def _setup_prompts(self):
         self.context_prompt = PromptTemplate(
             input_variables=["documents"],
             template="""Legal Documents Context:
-{documents}
+        {documents}
 
-Use the above legal documents to answer the question accurately.""",
+        Use the above legal documents to answer the question accurately.""",
         )
 
         self.qa_prompt = PromptTemplate(
             input_variables=["question", "context"],
-            template="""You are an expert Indian legal advisor. Analyze the user's situation and provide practical legal guidance based on the context.
+            template="""You are an expert Indian legal advisor. Follow these EXACT rules:
 
-USER'S SITUATION: {question}
+IMPORTANT LAW MAPPING RULES:
+1. BNS (Bharatiya Nyaya Sanhita) replaced IPC from July 1, 2024
+2. BNSS (Bharatiya Nagarik Suraksha Sanhita) replaced CrPC from July 1, 2024
+3. BSA (Bharatiya Sakshya Adhiniyam) replaced Indian Evidence Act
 
-RELEVANT LEGAL CONTEXT:
+ANSWERING RULES:
+1. ANSWER THE USER'S QUESTION DIRECTLY based on context
+2. If user asks about IPC section: Explain IPC section, THEN add "Note: Replaced by BNS Section XXX from July 2024"
+3. If user asks about BNS section: Focus on BNS (current law)
+4. If context has both IPC and BNS: Mention BNS (current) and IPC (old) with mapping
+5. For procedure questions: Mention BNSS (current) and CrPC (old)
+6. For evidence questions: Mention BSA (current)
+
+QUESTION: {question}
+
+LEGAL CONTEXT:
 {context}
 
-IMPORTANT - FOLLOW THIS STRUCTURE EXACTLY:
+RESPONSE STRUCTURE (FOLLOW EXACTLY):
+- **Direct Answer**: [Clear answer addressing the question]
+- **Legal Basis**: [Sections with law mapping if applicable]
+- **Explanation**: [Simple explanation]
+- **Procedure**: [Steps if applicable]
+- **Important Notes**: [Law mapping note if relevant]
 
-Situation Analysis
-Briefly summarize the legal situation
-Identify key legal issues involved
-
-Applicable Laws & Sections
-List relevant legal provisions with section numbers
-Explain how each law applies to this situation
-
-Legal Rights & Remedies
-What legal rights does the person have?
-Available legal remedies and procedures
-
-Recommended Actions
-Step-by-step practical advice
-Timeline for actions
-Required documents/evidence
-
-Potential Outcomes
-Best-case and worst-case scenarios
-Typical resolution timeframes
-
-Important Caveats
-Limitations of this advice
-When to consult a practicing lawyer
-
-Legal References:
-Sections XXX, YYY of Relevant Act
-
-BASE YOUR ANSWER STRICTLY ON THE PROVIDED LEGAL CONTEXT. If the context doesn't cover specific situational aspects, acknowledge this limitation.
+EXAMPLE FORMATS:
+- For IPC question: "IPC Section 379: Theft... Note: Replaced by BNS 304 from July 2024"
+- For general theft: "BNS Section 304 (replaces IPC 379): Theft..."
 
 ANSWER:""",
         )
@@ -201,6 +250,19 @@ ANSWER:""",
         try:
             logger.info(f"Retrieving for: '{query}'")
 
+            # ✅ LAW CODE DETECTION
+            requested_law = None
+            query_lower = query.lower()
+
+            if "bharatiya nyaya" in query_lower or "bns" in query_lower:
+                requested_law = "BNS"
+            elif "bharatiya nagarik" in query_lower or "bnss" in query_lower:
+                requested_law = "BNSS"
+            elif "indian penal code" in query_lower or "ipc" in query_lower:
+                requested_law = "IPC"
+            elif "bharatiya sakshya" in query_lower or "bsa" in query_lower:
+                requested_law = "BSA"
+
             legal_keywords = [
                 "section",
                 "act",
@@ -225,14 +287,16 @@ ANSWER:""",
                 enhanced_query += " legal law section act rights remedies"
 
             query_embedding = self.provider.get_embeddings([enhanced_query])[0]
-
             results = self.vstore.query(query_embedding, n_results=k * 2)
 
             docs = results.get("documents", [[]])[0]
             metas = results.get("metadatas", [[]])[0]
             dists = results.get("distances", [[]])[0]
+            ids = results.get("ids", [[]])[0]
 
-            print(f"Initial retrieval: {len(docs)} documents")
+            print(
+                f"Initial retrieval: {len(docs)} documents, Requested law: {requested_law}"
+            )
 
             if not docs:
                 return {
@@ -247,8 +311,28 @@ ANSWER:""",
             filtered_dists = []
             filtered_ids = []
 
-            for i, (doc, meta, distance) in enumerate(zip(docs, metas, dists)):
+            for i, (doc, meta, distance, chunk_id) in enumerate(
+                zip(docs, metas, dists, ids)
+            ):
                 if doc and meta:
+                    # ✅ PRIORITIZE REQUESTED LAW
+                    if requested_law:
+                        doc_act = meta.get("act", "").upper()
+                        doc_text_lower = doc.lower()
+
+                        law_matches = (
+                            requested_law in doc_act
+                            or requested_law.lower() in doc_text_lower
+                        )
+
+                        if law_matches:
+                            filtered_docs.append(doc)
+                            filtered_metas.append(meta)
+                            filtered_dists.append(distance)
+                            filtered_ids.append(chunk_id)  # ✅ FIX 1: Use chunk_id
+                            continue
+
+                    # Original filtering
                     doc_lower = doc.lower()
                     query_lower = query.lower()
 
@@ -264,15 +348,13 @@ ANSWER:""",
                         filtered_docs.append(doc)
                         filtered_metas.append(meta)
                         filtered_dists.append(distance)
-                        filtered_ids.append(meta.get("doc_id", f"doc_{i}"))
+                        filtered_ids.append(chunk_id)  # ✅ FIX 1: Use chunk_id
 
             if not filtered_docs and docs:
                 filtered_docs = docs[:k]
                 filtered_metas = metas[:k]
                 filtered_dists = dists[:k]
-                filtered_ids = [
-                    meta.get("doc_id", f"doc_{i}") for i, meta in enumerate(metas[:k])
-                ]
+                filtered_ids = ids[:k]  # ✅ FIX 2: Use ids, not metadata
 
             print(f"Final filtered: {len(filtered_docs)} documents")
 
@@ -292,9 +374,7 @@ ANSWER:""",
                 "ids": [[]],
             }
 
-    def generate_answer(
-        self, question: str, retrieved: Dict
-    ) -> Tuple[str, List[SourceItem]]:
+    def generate_answer(self, question: str, retrieved: Dict) -> Tuple[str, List[SourceItem]]:
         try:
             docs = retrieved.get("documents", [[]])[0]
             metas = retrieved.get("metadatas", [[]])[0]
@@ -303,13 +383,16 @@ ANSWER:""",
 
             if not docs:
                 return (
-                    "I couldn't find any relevant legal documents to answer your question. Please try rephrasing or check if relevant documents have been ingested.",
+                    "I couldn't find any relevant legal documents...",
                     [],
                 )
 
             context = self._format_context(docs, metas, ids, dists)
 
-            formatted_prompt = self.qa_prompt.format(question=question, context=context)
+            formatted_prompt = self.qa_prompt.format(
+                question=question, 
+                context=context  # Just use original context
+            )
 
             answer = self.provider.generate(
                 formatted_prompt,
@@ -339,21 +422,123 @@ ANSWER:""",
             logger.error(f"Answer generation failed: {e}")
             return f"Error generating answer: {str(e)}", []
 
-    def query(self, question: str, top_k: int = 4) -> ChatResponse:
-        try:
-            retrieved = self.retrieve(question, k=top_k)
+    # def query(self, question: str, top_k: int = 4) -> ChatResponse:
+    #     try:
+    #         retrieved = self.retrieve(question, k=top_k)
 
-            answer, sources = self.generate_answer(question, retrieved)
+    #         answer, sources = self.generate_answer(question, retrieved)
+
+    #         return ChatResponse(answer=answer, sources=sources)
+
+    #     except Exception as e:
+    #         logger.error(f"RAG query failed: {e}")
+    #         return ChatResponse(
+    #             answer=f"Sorry, I encountered an error while processing your question: {str(e)}",
+    #             sources=[],
+    #         )
+    def query(
+        self, question: str, top_k: int = 4, session_id: str = "default"
+    ) -> ChatResponse:
+        try:
+            # Initialize session memory
+            if session_id not in self.conversation_memory:
+                self.conversation_memory[session_id] = []
+
+            # Get session memory
+            session_memory = self.conversation_memory[session_id]
+
+            # Check if question references previous answer
+            enhanced_question = self._enhance_question_with_context(
+                question, session_memory
+            )
+
+            retrieved = self.retrieve(enhanced_question, k=top_k)
+            answer, sources = self.generate_answer(enhanced_question, retrieved)
+
+            # Store in memory
+            session_memory.append({"question": question, "answer": answer[:400]})
+
+            # Keep only last 8 exchanges
+            if len(session_memory) > self.max_memory_per_session:
+                self.conversation_memory[session_id] = session_memory[
+                    -self.max_memory_per_session :
+                ]
+
+            return ChatResponse(answer=answer, sources=sources)
 
             return ChatResponse(answer=answer, sources=sources)
 
         except Exception as e:
             logger.error(f"RAG query failed: {e}")
             return ChatResponse(
-                answer=f"Sorry, I encountered an error while processing your question: {str(e)}",
+                answer=f"Sorry, I encountered an error: {str(e)}",
                 sources=[],
             )
 
+    def _get_session_memory(self, session_id: str) -> list:
+        """Get or create session memory"""
+        if session_id not in self.conversation_memory:
+            self.conversation_memory[session_id] = []
+        return self.conversation_memory[session_id]
+
+    def _enhance_question_with_context(
+        self, question: str, session_memory: list
+    ) -> str:
+        """Enhance question with conversation context if it's a follow-up"""
+        if not session_memory:
+            return question
+
+        question_lower = question.lower()
+
+        # Check if this is a follow-up about previously mentioned sections
+        for exchange in reversed(session_memory):  # Check most recent first
+            prev_answer_lower = exchange["answer"].lower()
+
+            # Look for section references in previous answer
+            import re
+
+            section_matches = re.findall(r"section\s+(\d+[a-z]*)", prev_answer_lower)
+
+            # Check if current question asks about those sections
+            for section in section_matches:
+                if f"section {section}" in question_lower or section in question_lower:
+                    return f"""Previous context mentioned Section {section.upper()}. 
+                    Current question: {question}
+                    
+                    Note: If Section {section.upper()} was mentioned earlier but isn't in the legal documents, 
+                    I might not have detailed information about it."""
+
+        # Check for pronoun references (this, that, it)
+        if any(
+            pronoun in question_lower for pronoun in ["this", "that", "it", "he", "she"]
+        ):
+            last_exchange = session_memory[-1]
+            return f"""Following up on previous question about: {last_exchange['question'][:100]}...
+            Current question: {question}"""
+
+        return question
+
+    # function to save Conversation
+    def save_conversation(self, session_id: str, user_id: str = "anonymous"):
+        """Save completed conversation"""
+        if session_id in self.conversation_memory:
+            conversation = self.conversation_memory[session_id]
+
+            if user_id not in self.conversation_history:
+                self.conversation_history[user_id] = []
+
+            self.conversation_history[user_id].append(
+                {
+                    "session_id": session_id,
+                    "timestamp": datetime.now().isoformat(),
+                    "exchanges": conversation,
+                    "preview": (
+                        conversation[0]["question"][:100] if conversation else ""
+                    ),
+                }
+            )
+
+    # Provides stats about Working
     def get_stats(self) -> Dict:
         try:
             total_chunks = self.vstore.collection.count()
@@ -422,7 +607,13 @@ ANSWER:""",
         except Exception as e:
             return {"status": "unhealthy", "error": str(e)}
 
-    def query_with_language(self, question: str, language: str = "en", top_k: int = 4):
+    def query_with_language(
+        self,
+        question: str,
+        language: str = "en",
+        top_k: int = 4,
+        session_id: str = "default",
+    ):
         try:
             logger.info(f"Processing question in {language}: {question}")
 
@@ -438,7 +629,9 @@ ANSWER:""",
                         f"Question translation failed, using original: {trans_error}"
                     )
 
-            response = self.query(question=processed_question, top_k=top_k)
+            response = self.query(
+                question=processed_question, top_k=top_k, session_id=session_id
+            )
 
             if language != "en":
                 try:
@@ -465,6 +658,7 @@ ANSWER:""",
                 except:
                     pass
             return ChatResponse(answer=error_msg, sources=[])
+
 
 def get_rag_engine(provider: ProviderClient = None) -> RAGEngine:
     return RAGEngine(provider)

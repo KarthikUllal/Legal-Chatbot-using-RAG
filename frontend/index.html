@@ -201,27 +201,27 @@
         }
 
         /* Add this to your existing CSS */
-.bot-message-casual {
-    border-left: 4px solid #10b981 !important;
-    background: linear-gradient(to right, #f0fdf4, #dcfce7) !important;
-}
+        .bot-message-casual {
+            border-left: 4px solid #10b981 !important;
+            background: linear-gradient(to right, #f0fdf4, #dcfce7) !important;
+        }
 
-.bot-message-casual .message-content {
-    color: #065f46 !important;
-}
+        .bot-message-casual .message-content {
+            color: #065f46 !important;
+        }
 
-.bot-message-casual strong {
-    color: #047857 !important;
-}
+        .bot-message-casual strong {
+            color: #047857 !important;
+        }
 
-/* Quick styling for casual responses */
-.bg-gradient-to-br.from-green-50.to-emerald-50 {
-    color: #065f46;
-}
+        /* Quick styling for casual responses */
+        .bg-gradient-to-br.from-green-50.to-emerald-50 {
+            color: #065f46;
+        }
 
-.bg-gradient-to-br.from-green-50.to-emerald-50 strong {
-    color: #047857;
-}
+        .bg-gradient-to-br.from-green-50.to-emerald-50 strong {
+            color: #047857;
+        }
 
         /* css for maximizing chatarea */
         /* Maximized chat styles */
@@ -570,13 +570,30 @@
                             Online - Ready to help
                         </p>
                     </div>
+
                     <div class="flex gap-2">
+                        <!--New chat btn-->
+                        <button id="newChatBtn"
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition text-sm flex items-center gap-2"
+                            title="Start New Conversation">
+                            <i class="fas fa-plus"></i> New Chat
+                        </button>
+
                         <!-- Maximize Button -->
                         <button id="maximizeBtn"
                             class="bg-white/20 hover:bg-white/30 px-3 py-2 rounded-lg transition text-sm flex items-center gap-2"
                             title="Maximize Chat">
                             <i class="fas fa-expand"></i>
                         </button>
+
+                        <!--History Button-->
+                        <button id="historyBtn"
+                            class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg transition text-sm flex items-center gap-2"
+                            onclick="showHistory()" title="View Chat History">
+                            <i class="fas fa-history"></i>
+                            <span class="hidden md:inline">History</span>
+                        </button>
+
                         <!-- Language Selector -->
                         <div class="relative">
                             <button id="languageBtn"
@@ -886,6 +903,17 @@
     <script>
         const BACKEND_URL = "http://localhost:8000"; // Your FastAPI backend URL
 
+
+        // Generate a session ID when page loads
+        let sessionId = localStorage.getItem('legal_chat_session_id');
+        if (!sessionId) {
+            sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('legal_chat_session_id', sessionId);
+        }
+        console.log('Session ID:', sessionId); // Optional: for debugging
+
+
+
         // Casual phrase handler for greetings
         const casualPhrases = {
             'hi': 'Hello! I\'m your legal assistant. What legal question can I help you with?',
@@ -945,7 +973,7 @@
         const refreshStats = document.getElementById("refreshStats");
         const clearAllData = document.getElementById("clearAllData");
         const testConnection = document.getElementById("testConnection");
-
+        const newChatBtn = document.getElementById('newChatBtn');
 
         const languageMap = {
             en: { name: "English", flag: "🇺🇸", native: "English" },
@@ -969,6 +997,10 @@
             userInput.addEventListener("keypress", (e) => {
                 if (e.key === "Enter") handleSend();
             });
+
+            //new chat button 
+            newChatBtn.addEventListener('click', startNewChat);
+
 
             //maximize toggle functionality
             maximizeBtn.addEventListener("click", toggleMaximizeChat);
@@ -1752,14 +1784,12 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        // Find this function and REPLACE it completely:
         async function handleSend() {
             const message = userInput.value.trim();
             if (message === "") return;
 
             const input = message.toLowerCase().trim();
 
-            // ========== ADD THIS CHECK ==========
             // Check if it's a casual phrase (exact match)
             if (casualPhrases[input]) {
                 addMessage(message, true);
@@ -1782,7 +1812,6 @@
                     return;
                 }
             }
-            // ========== END OF CHECK ==========
 
             // Only call API for legal queries
             addMessage(message, true);
@@ -1791,14 +1820,15 @@
             showTypingIndicator();
 
             try {
-                // ✅ SIMPLE FIX: Use only query parameters, NO body
+                // ========== UPDATED API CALL ==========
+                // Add session_id parameter
                 const response = await fetch(
-                    `${BACKEND_URL}/chat-translate?language=${currentLanguage}&question=${encodeURIComponent(message)}&top_k=4`,
+                    `${BACKEND_URL}/chat-translate?language=${currentLanguage}&question=${encodeURIComponent(message)}&top_k=4&session_id=${sessionId}`,
                     {
                         method: 'POST',
-                        // NO headers, NO body - just use URL parameters
                     }
                 );
+                // ======================================
 
                 const typingElement = document.getElementById("typing");
                 if (typingElement) {
@@ -1824,6 +1854,7 @@
                 addMessage(`Sorry, I encountered an error. Please try again. (${error.message})`, false, 'error');
             }
         }
+
 
         function clearChat() {
             const welcomeMsg = chatBox.querySelector(".chat-message");
@@ -2060,7 +2091,232 @@
         // Call this in your initialization
         loadNewsPreview();
 
+
+        //added on 4 - 12 - 2023 @ 11:45 pm
+        function startNewChat() {
+            if (confirm("Start new conversation? Current chat will be saved to history.")) {
+                // Save current chat first
+                saveCurrentChat();
+
+                // Generate new session ID
+                sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('legal_chat_session_id', sessionId);
+
+                console.log("New session ID:", sessionId);
+
+                // Clear chat display with welcome message
+                const welcomeMsg = `
+            <div class="chat-message mb-6">
+                <div class="flex gap-4">
+                    <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <i class="fas fa-robot text-lg"></i>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl rounded-tl-none shadow-md max-w-3xl border border-gray-100 flex-1">
+                        <p class="text-gray-800 text-base leading-relaxed">👋 New conversation started! I'm your AI Legal Assistant. What would you like to know?</p>
+                        <p class="text-sm text-gray-500 mt-3 flex items-center gap-2">
+                            <i class="fas fa-clock"></i> Just now
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                chatBox.innerHTML = welcomeMsg;
+
+                // Show confirmation
+                showNotification("New conversation started!");
+            }
+        }
+
+
+        //ChatHistory sidebar Javascripts
+        function showHistory() {
+            document.getElementById('historySidebar').classList.remove('hidden');
+            document.getElementById('sidebarOverlay').classList.remove('hidden');
+            loadHistory();
+        }
+
+        function closeHistory() {
+            document.getElementById('historySidebar').classList.add('hidden');
+            document.getElementById('sidebarOverlay').classList.add('hidden');
+        }
+
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+
+            if (history.length === 0) {
+                historyList.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-comments text-3xl mb-3"></i>
+                    <p>No saved conversations yet</p>
+                    <p class="text-sm mt-2">Your conversations will appear here</p>
+                </div>
+            `;
+                return;
+            }
+
+            let html = '';
+            history.forEach((item, index) => {
+                const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const date = new Date(item.timestamp).toLocaleDateString();
+
+                html += `
+                <div class="mb-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition" 
+                     onclick="loadConversation('${item.id}')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-sm font-medium text-gray-800 truncate">${item.preview || 'Conversation'}</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${index + 1}</span>
+                    </div>
+                    <div class="text-xs text-gray-500 flex items-center gap-2">
+                        <i class="far fa-clock"></i>
+                        ${date} ${time}
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200" 
+                                onclick="event.stopPropagation(); loadConversation('${item.id}')">
+                            <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                        <button class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200" 
+                                onclick="event.stopPropagation(); deleteConversation('${item.id}')">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        function loadConversation(sessionId) {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            const conversation = history.find(h => h.id === sessionId);
+
+            if (conversation && conversation.html) {
+                // Load the HTML
+                chatBox.innerHTML = conversation.html;
+
+                // Set session ID to continue where left off
+                sessionId = conversation.id;
+                localStorage.setItem('legal_chat_session_id', sessionId);
+
+                closeHistory();
+                showNotification("Conversation loaded!");
+
+                // Scroll to bottom
+                setTimeout(() => {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 100);
+            }
+        }
+
+        function deleteConversation(sessionId) {
+            if (confirm("Delete this conversation from history?")) {
+                let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+                history = history.filter(h => h.id !== sessionId);
+                localStorage.setItem('chatHistory', JSON.stringify(history));
+                loadHistory();
+                showNotification("Conversation deleted");
+            }
+        }
+
+        function clearAllHistory() {
+            if (confirm("Delete ALL conversation history? This cannot be undone.")) {
+                localStorage.removeItem('chatHistory');
+                loadHistory();
+                showNotification("All history cleared");
+            }
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Auto-save on new chat
+        function saveCurrentChat() {
+            const chatHTML = chatBox.innerHTML;
+            const sessionId = localStorage.getItem('legal_chat_session_id');
+            const timestamp = new Date().toISOString();
+
+            // Get first user message as preview
+            const userMessages = chatBox.querySelectorAll('.chat-message .bg-gradient-to-r.from-blue-500.to-purple-500');
+            let preview = 'Legal Conversation';
+
+            if (userMessages.length > 0) {
+                const firstMsg = userMessages[0].textContent.trim();
+                preview = firstMsg.substring(0, 60) + (firstMsg.length > 60 ? '...' : '');
+            }
+
+            // Get history
+            let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+
+            // Remove if already exists (update)
+            history = history.filter(h => h.id !== sessionId);
+
+            // Add to beginning
+            history.unshift({
+                id: sessionId,
+                timestamp: timestamp,
+                preview: preview,
+                html: chatHTML
+            });
+
+            // Keep only last 20 conversations
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+
+            localStorage.setItem('chatHistory', JSON.stringify(history));
+        }
+
+        // Auto-save when user sends message
+        const originalHandleSend = handleSend;
+        handleSend = async function () {
+            await originalHandleSend.apply(this, arguments);
+            setTimeout(saveCurrentChat, 1000); // Save after response
+        };
+
+        // Auto-save on page unload
+        window.addEventListener('beforeunload', saveCurrentChat);
     </script>
+
+    <!--ChatHistory sidebar-->
+    <div id="historySidebar" class="hidden fixed right-0 top-0 h-full w-80 bg-white shadow-lg z-50 overflow-y-auto">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                <i class="fas fa-history text-blue-600"></i>
+                Chat History
+            </h3>
+            <button onclick="closeHistory()" class="text-gray-500 hover:text-gray-700 text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="historyList" class="p-4">
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-comments text-3xl mb-3"></i>
+                <p>No saved conversations yet</p>
+                <p class="text-sm mt-2">Your conversations will appear here</p>
+            </div>
+        </div>
+        <div class="p-4 border-t bg-gray-50">
+            <button onclick="clearAllHistory()" class="text-sm text-red-600 hover:text-red-800 w-full text-center">
+                <i class="fas fa-trash-alt mr-2"></i>Clear All History
+            </button>
+        </div>
+    </div>
+
+    <!-- Add overlay for sidebar -->
+    <div id="sidebarOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40" onclick="closeHistory()"></div>
+
+
 </body>
 
 </html>

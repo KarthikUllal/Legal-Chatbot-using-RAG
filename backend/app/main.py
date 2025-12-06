@@ -128,7 +128,7 @@ async def ingest_text(payload: IngestPayload):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, session_id: str = "default"):
     """
     Ask a legal question and get an AI-powered answer
     """
@@ -136,7 +136,7 @@ async def chat(req: ChatRequest):
         logger.info(f"Processing chat request: {req.question[:50]}...")
         
         # Use the complete RAG pipeline (retrieve + generate)
-        response = engine.query(question=req.question, top_k=req.top_k)
+        response = engine.query(question=req.question, top_k=req.top_k, session_id=session_id)
         
         logger.info(f"Chat response generated with {len(response.sources)} sources")
         return response
@@ -178,7 +178,7 @@ async def startup_event():
 
 #langauage translation route
 @app.post("/chat-translate", response_model=ChatResponse)
-async def chat_with_translation(question: str, language: str = "en", top_k: int = 4):
+async def chat_with_translation(question: str, language: str = "en", top_k: int = 4, session_id: str = "default"):
     """
     Chat endpoint with language translation
     - question: User's question in any language
@@ -192,7 +192,8 @@ async def chat_with_translation(question: str, language: str = "en", top_k: int 
         response = engine.query_with_language(
             question=question, 
             language=language, 
-            top_k=top_k
+            top_k=top_k,
+            session_id=session_id 
         )
         
         logger.info(f"Generated response in {language}")

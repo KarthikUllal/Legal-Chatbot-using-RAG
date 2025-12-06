@@ -207,7 +207,7 @@ The system is analyzing the legal documents and preparing your response.
 Please check the reference sources below for immediate information while the detailed analysis completes."""
 
 
-# In provider_client.py 
+# In provider_client.py
 class OpenRouterProvider(ProviderClient):
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv("OPENROUTER_API_KEY")
@@ -494,40 +494,6 @@ class NVIDIAProvider(ProviderClient):
 
     def generate(self, prompt: str, max_tokens: int = 1000, **kwargs) -> str:
         """Generate legal analysis using NVIDIA NIM with structured prompt"""
-        # Your legal prompt template for NVIDIA
-        legal_prompt = f"""You are an Indian legal expert. Analyze this legal context and provide structured guidance.
-
-LEGAL CONTEXT:
-{prompt}
-
-CRITICAL FORMATTING RULES (MUST FOLLOW):
-1. Use ONLY plain text - NO brackets, NO markdown, NO HTML
-2. ABSOLUTELY NO [BBOX] or any bracketed formatting
-3. Use this EXACT structure with these EXACT headings:
-Legal Analysis
-[2-3 sentence summary]
-
-Applicable Provisions
-• [Law 1 - Section X] - [Brief explanation]
-• [Law 2 - Section Y] - [Brief explanation]
-
-Rights & Remedies
-• [Right/Remedy 1]
-• [Right/Remedy 2]
-
-Recommended Actions
-• [Step 1 - Practical action]
-• [Step 2 - Practical action]
-
-Important Notes
-[Limitations and when to consult lawyer]
-
-Legal References:
-[Sections and acts used from context]
-
-BASE YOUR ANSWER STRICTLY ON THE PROVIDED LEGAL CONTEXT. Use plain text only - no brackets, no markdown.
-
-ANSWER:"""
 
         try:
             logger.info(f"Generating legal analysis via NVIDIA NIM ({self.model})...")
@@ -536,9 +502,9 @@ ANSWER:"""
             messages = [
                 {
                     "role": "system",
-                    "content": "You are an expert Indian legal advisor. Provide accurate, structured legal guidance based strictly on the provided context.",
+                    "content": "You are an expert Indian legal advisor. Provide accurate, helpful legal guidance based strictly on the provided context.",
                 },
-                {"role": "user", "content": legal_prompt},
+                {"role": "user", "content": prompt},
             ]
 
             start_time = time.time()

@@ -34,7 +34,7 @@ class VectorStore:
         return self.collection.query(
             query_embeddings=[query_embedding], 
             n_results=n_results,
-            include=["documents", "metadatas", "distances"]  # Removed "ids"
+            include=["documents", "metadatas", "distances"]  # changes on 6 dec 2026 time : 3.11 pm
         )
 
     def count(self):

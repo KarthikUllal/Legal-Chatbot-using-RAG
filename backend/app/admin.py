@@ -3,17 +3,18 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import Dict
 import logging
 
+
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-# ✅ LAZY INITIALIZATION - No circular imports
+# LAZY INITIALIZATION - No circular imports
 def get_engine():
     from .rag_engine import get_rag_engine
 
     return get_rag_engine()
 
-
+#To check System health and stats
 @router.get("/stats")
 async def get_admin_stats(engine=Depends(get_engine)):
     """Get detailed admin statistics"""
@@ -121,28 +122,6 @@ async def debug_retrieval(query: str, engine=Depends(get_engine)):
         return {"status": "error", "error": str(e)}
 
 
-@router.get("/documents")
-async def list_documents(engine=Depends(get_engine)):
-    """List all ingested documents"""
-    try:
-        # This would need enhancement to track documents properly
-        return {
-            "status": "success",
-            "documents": [
-                {
-                    "id": "ipc",
-                    "name": "Indian Penal Code",
-                    "status": "ingested",
-                    "chunks": 100,
-                    "ingestion_date": "2025-01-01",
-                }
-            ],
-        }
-    except Exception as e:
-        logger.error(f"Document listing failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @router.delete("/documents/{doc_id}")
 async def delete_document(doc_id: str, engine=Depends(get_engine)):
     """Delete a specific document"""
@@ -188,3 +167,4 @@ async def find_section(section_number: str, engine=Depends(get_engine)):
         "matches_found": len(section_matches),
         "matches": section_matches
     }
+

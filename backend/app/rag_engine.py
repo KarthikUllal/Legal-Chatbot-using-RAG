@@ -23,6 +23,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+# Main RAG engine class - handles document ingestion, retrieval, and generation
 class RAGEngine:
     def __init__(self, provider: ProviderClient = None):
         self.provider = provider or get_best_provider()
@@ -111,7 +112,7 @@ IMPORTANT LAW MAPPING RULES:
 3. BSA (Bharatiya Sakshya Adhiniyam) replaced Indian Evidence Act
 
 ANSWERING RULES:
-1. ANSWER THE USER'S QUESTION DIRECTLY based on context
+1. ANSWER THE USER'S QUESTION DIRECTLY based on context. Greet the user appropriately.
 2. If user asks about IPC section: Explain IPC section, THEN add "Note: Replaced by BNS Section XXX from July 2024"
 3. If user asks about BNS section: Focus on BNS (current law)
 4. If context has both IPC and BNS: Mention BNS (current) and IPC (old) with mapping
@@ -133,6 +134,9 @@ RESPONSE STRUCTURE (FOLLOW EXACTLY):
 EXAMPLE FORMATS:
 - For IPC question: "IPC Section 379: Theft... Note: Replaced by BNS 304 from July 2024"
 - For general theft: "BNS Section 304 (replaces IPC 379): Theft..."
+
+NOTES:
+-If the context doesnt contain enough data to answer the question. Use your own knowledge to answer it.
 
 ANSWER:""",
         )
@@ -436,6 +440,8 @@ ANSWER:""",
     #             answer=f"Sorry, I encountered an error while processing your question: {str(e)}",
     #             sources=[],
     #         )
+
+
     def query(
         self, question: str, top_k: int = 4, session_id: str = "default"
     ) -> ChatResponse:
@@ -659,6 +665,6 @@ ANSWER:""",
                     pass
             return ChatResponse(answer=error_msg, sources=[])
 
-
+# Factory function to get configured RAG engine instance
 def get_rag_engine(provider: ProviderClient = None) -> RAGEngine:
     return RAGEngine(provider)

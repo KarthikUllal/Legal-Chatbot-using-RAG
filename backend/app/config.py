@@ -6,8 +6,7 @@ class Settings(BaseSettings):
     DATA_DIR: str = "./datas"
     CHROMA_DIR: str = "./chroma_db"
     EMBED_MODEL: str= "models/embedding-001"
-    LLM_PROVIDER: str = "gemini"  
-        # fill via env
+
     CHUNK_SIZE: int = 800
     CHUNK_OVERLAP: int = 120
     BATCH_SIZE: int = 32
@@ -20,11 +19,10 @@ class Settings(BaseSettings):
     NVIDIA_MODEL: str = os.getenv("NVIDIA_MODEL", "meta/llama-3.1-8b-instruct")
     USE_NVIDIA: bool = os.getenv("USE_NVIDIA", "true").lower() == "true"
 
-
+    #OpenRouter Configuration
     OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY")
     OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
     USE_OPENROUTER: bool = os.getenv("USE_OPENROUTER", "false").lower() == "true"
-
 
     class Config:
         env_file = ".env"

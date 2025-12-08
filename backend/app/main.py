@@ -12,6 +12,8 @@ from .admin import router as admin_router
 from .translation import translator
 from .voice_processor import voice_processor
 from .news_routes import news_router
+from .ingestion import fetch_html_text
+from datetime import datetime
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -37,10 +39,13 @@ app.include_router(news_router)
 # Initialize RAG engine with best available provider
 engine = get_rag_engine()
 
+
 @app.get("/")
 async def root():
     return {"message": "Legal RAG Chatbot API is running!"}
 
+
+#To check whether all the endpoints works or not
 @app.get("/health")
 async def health():
     """Health check endpoint"""
@@ -55,6 +60,8 @@ async def health():
         logger.error(f"Health check failed: {e}")
         return {"status": "unhealthy", "error": str(e)}
 
+
+#function to ingest file or pdf into vectordb
 @app.post("/ingest-file")
 async def ingest_file(file: UploadFile = File(...), act_name: str = None):
     """
@@ -102,6 +109,8 @@ async def ingest_file(file: UploadFile = File(...), act_name: str = None):
             logger.error(f"File cleanup failed: {cleanup_error}")
         raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")
 
+
+#To ingest text into vectordb
 @app.post("/ingest-text")
 async def ingest_text(payload: IngestPayload):
     """
@@ -126,7 +135,35 @@ async def ingest_text(payload: IngestPayload):
     except Exception as e:
         logger.error(f"Text ingestion failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+    
 
+
+#To add Sources from legal website just like how we do it for pdf upload
+@app.post("/ingest-url")
+async def ingest_url(url: str, doc_id: str, act_name: str = None):
+    """Ingest legal content from a URL"""
+    try:
+        text = fetch_html_text(url)
+        
+        # Use existing ingest_text function
+        success = engine.ingest_text(
+            doc_id=doc_id,
+            text=text,
+            metadata={
+                "act": act_name or doc_id,
+                "source_type": "webpage",
+                "url": url,
+                "ingestion_date": datetime.now().isoformat()
+            }
+        )
+        
+        return {"status": "success" if success else "failed"}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+#Chat Route : For actual conversation
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, session_id: str = "default"):
     """
@@ -145,6 +182,8 @@ async def chat(req: ChatRequest, session_id: str = "default"):
         logger.error(f"Chat request failed: {e}")
         raise HTTPException(status_code=500, detail=f"Failed to process question: {str(e)}")
 
+
+#To get System Stats
 @app.get("/stats")
 async def get_stats():
     """Get system statistics"""
@@ -155,6 +194,8 @@ async def get_stats():
         logger.error(f"Stats retrieval failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+#function to clear all docs from vector db
 @app.delete("/clear")
 async def clear_knowledge_base():
     """Clear all documents from the knowledge base"""
@@ -168,6 +209,7 @@ async def clear_knowledge_base():
         logger.error(f"Clear operation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
 # Startup event
 @app.on_event("startup")
 async def startup_event():
@@ -175,6 +217,7 @@ async def startup_event():
     logger.info(f"Using provider: {type(engine.provider).__name__}")
     stats = engine.get_stats()
     logger.info(f"Initial documents count: {stats.get('total_documents', 0)}")
+
 
 #langauage translation route
 @app.post("/chat-translate", response_model=ChatResponse)
@@ -205,7 +248,8 @@ async def chat_with_translation(question: str, language: str = "en", top_k: int 
         if language != "en":
             error_msg = translator.translate_legal_response(error_msg, language)
         raise HTTPException(status_code=500, detail=error_msg)
-    
+
+
 #voice 
 @app.post("/voice/process")
 async def process_voice(audio_data: str, language: str = "en"):
@@ -223,6 +267,8 @@ async def process_voice(audio_data: str, language: str = "en"):
         logger.error(f"Voice processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+#To get list of supported languages
 @app.get("/voice/supported-languages")
 async def get_supported_languages():
     """

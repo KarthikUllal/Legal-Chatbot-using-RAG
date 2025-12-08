@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field, HttpUrl
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
+
+# Basic legal news/article structure with required and optional fields
 class LegalArticleBase(BaseModel):
     """Base schema for legal article"""
     id: str
@@ -21,6 +23,8 @@ class LegalArticleBase(BaseModel):
     image: Optional[str] = None
     read_time: int = Field(default=1, ge=1)
 
+
+# Extended article response with authors, keywords for frontend display 
 class LegalArticleResponse(LegalArticleBase):
     """Response schema for legal article"""
     authors: Optional[List[str]] = None
@@ -33,6 +37,8 @@ class LegalArticleResponse(LegalArticleBase):
     class Config:
         arbitrary_types_allowed = True  # Allow non-standard types
 
+
+# Legal news source definition (LiveLaw, BarAndBench) for scraping config
 class NewsSource(BaseModel):
     """Schema for news source"""
     id: str
@@ -41,6 +47,8 @@ class NewsSource(BaseModel):
     type: str
     enabled: bool = True
 
+
+# Legal news categories (Supreme Court, Criminal Law) for organization
 class NewsCategory(BaseModel):
     """Schema for news category"""
     id: str
@@ -48,6 +56,7 @@ class NewsCategory(BaseModel):
     description: Optional[str] = None
     icon: Optional[str] = None
 
+# Request schema for searching legal news with query/filters
 class NewsSearchRequest(BaseModel):
     """Schema for news search request"""
     query: str
@@ -55,6 +64,8 @@ class NewsSearchRequest(BaseModel):
     source: Optional[str] = None
     limit: int = Field(default=20, ge=1, le=100)
 
+
+# Advanced filtering with multiple categories, sources, date ranges
 class NewsFilterRequest(BaseModel):
     """Schema for news filter request"""
     categories: Optional[List[str]] = None
@@ -63,6 +74,8 @@ class NewsFilterRequest(BaseModel):
     date_to: Optional[str] = None
     limit: int = Field(default=20, ge=1, le=100)
 
+    
+# Response for news update operations showing status and results
 class NewsUpdateResponse(BaseModel):
     """Schema for news update response"""
     status: str = "success"

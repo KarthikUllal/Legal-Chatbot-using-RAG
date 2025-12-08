@@ -30,7 +30,7 @@ class VectorStore:
         )
 
     def query(self, query_embedding: List[float], n_results: int = 4) -> Dict:
-        """Query the vector store - FIXED VERSION"""
+        """Query the vector store """
         return self.collection.query(
             query_embeddings=[query_embedding], 
             n_results=n_results,

@@ -1,27 +1,35 @@
-from backend.app.vector_store import VectorStore as v
-from backend.app.provider_client import NVIDIAProvider as NP
-from backend.app.config import settings
+# Check how many pages your PDF has and what's on later pages
+from pypdf import PdfReader
+from pathlib import Path
 
-try:
-    provider = NP(settings.NVIDIA_API_KEY)
-except Exception as e:
-    print("Provider error:", e)
-
-# Get embedding
-query_text = "Tell me about IPC Section 420?"
-query_embedding = provider.get_embeddings([query_text])[0]
-
-print("Embedding created successfully")
-
-# Create VectorStore instance
-store = v()
-
-# Query vector database
-result = store.query(query_embedding=query_embedding, n_results=5)
-
-print(result.get("documents", "not found"))
-print(" ")
-print(result.get("metadatas", "not found"))
-
-print(" ")
-print(result.get("distance","not found"))
+bns_path = Path("./datas/bharathiya nyaya sanhita.pdf")
+if bns_path.exists():
+    reader = PdfReader(str(bns_path))
+    
+    print(f"📄 BNS PDF has {len(reader.pages)} pages")
+    
+    # Check different sections of the PDF
+    page_samples = [
+        (1, "First page"),
+        (5, "Page 5"),
+        (10, "Page 10"),
+        (20, "Page 20"),
+        (50, "Page 50"),
+        (100, "Page 100")
+    ]
+    
+    for page_num, desc in page_samples:
+        if page_num < len(reader.pages):
+            text = reader.pages[page_num].extract_text()
+            print(f"\n{'='*60}")
+            print(f"{desc} (Page {page_num}):")
+            print(f"Text length: {len(text)} chars")
+            print(f"Preview: {text[:300]}...")
+            
+            # Check content type
+            if "section 304" in text.lower() and "whoever" in text.lower():
+                print("✅ Contains ACTUAL LAW TEXT for Section 304!")
+            elif "section" in text.lower() and len(text) < 500:
+                print("⚠️ Likely TABLE OF CONTENTS")
+            else:
+                print("📝 Other content")

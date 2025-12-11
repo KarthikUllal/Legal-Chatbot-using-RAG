@@ -452,7 +452,7 @@ class NVIDIAProvider(ProviderClient):
         self._test_connection()
 
         logger.info(f"✅ NVIDIA NIM Provider initialized with model: {self.model}")
-        logger.info(f"📊 Available models: {list(self.available_models.keys())}")
+        # logger.info(f"📊 Available models: {list(self.available_models.keys())}")
 
     def _test_connection(self):
         """Test NVIDIA NIM API connection"""
@@ -472,9 +472,9 @@ class NVIDIAProvider(ProviderClient):
                             model["id"]: model.get("description", "NVIDIA Model")
                             for model in api_models
                         }
-                        logger.info(
-                            f"📋 Updated models from NVIDIA API: {list(self.available_models.keys())}"
-                        )
+                        # logger.info(
+                        #     f"📋 Updated models from NVIDIA API: {list(self.available_models.keys())}"
+                        # )
                 except:
                     logger.info("Using predefined model list")
             else:

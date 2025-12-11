@@ -1,35 +1,35 @@
-# Check how many pages your PDF has and what's on later pages
-from pypdf import PdfReader
-from pathlib import Path
+from backend.app.provider_client import NVIDIAProvider
+from backend.app.vector_store import VectorStore
 
-bns_path = Path("./datas/bharathiya nyaya sanhita.pdf")
-if bns_path.exists():
-    reader = PdfReader(str(bns_path))
-    
-    print(f"📄 BNS PDF has {len(reader.pages)} pages")
-    
-    # Check different sections of the PDF
-    page_samples = [
-        (1, "First page"),
-        (5, "Page 5"),
-        (10, "Page 10"),
-        (20, "Page 20"),
-        (50, "Page 50"),
-        (100, "Page 100")
-    ]
-    
-    for page_num, desc in page_samples:
-        if page_num < len(reader.pages):
-            text = reader.pages[page_num].extract_text()
-            print(f"\n{'='*60}")
-            print(f"{desc} (Page {page_num}):")
-            print(f"Text length: {len(text)} chars")
-            print(f"Preview: {text[:300]}...")
-            
-            # Check content type
-            if "section 304" in text.lower() and "whoever" in text.lower():
-                print("✅ Contains ACTUAL LAW TEXT for Section 304!")
-            elif "section" in text.lower() and len(text) < 500:
-                print("⚠️ Likely TABLE OF CONTENTS")
-            else:
-                print("📝 Other content")
+n = NVIDIAProvider()
+v = VectorStore()
+query = "What is section 63 of BNS?"
+q_embed = n.get_embeddings([query])[0]  # Note: get_embeddings expects a list
+res = v.query(q_embed, n_results=6)
+
+# FIX THIS LINE - "documents" not "document"
+docs = res.get("documents", [[]])[0]  # ✅ CORRECTED
+metas = res.get("metadatas", [[]])[0]
+
+print(f"\n🔍 DEBUG RETRIEVAL FOR: '{query}'")
+print("=" * 50)
+
+if not docs:
+    print("❌ NO DOCUMENTS RETRIEVED!")
+else:
+    for i, (doc, meta) in enumerate(zip(docs, metas)):
+        print(f"\n📄 Chunk {i+1}:")
+        print(f"   Metadata: {meta}")
+        if doc:
+            print(f"   Content preview: {doc[:200]}...")
+            doc_lower = doc.lower()
+            print(f"   Contains 'motor': {'motor' in doc_lower}")
+            print(f"   Contains 'vehicle': {'vehicle' in doc_lower}")
+            print(f"   Contains 'rape': {'rape' in doc_lower}")
+            print(f"   Contains 'bharatiya': {'bharatiya' in doc_lower}")
+            print(f"   Contains 'nyaya': {'nyaya' in doc_lower}")
+            print(f"   Contains 'sanhita': {'sanhita' in doc_lower}")
+            print(f"   Contains 'section 63': {'section 63' in doc_lower}")
+        else:
+            print("   ❌ EMPTY DOCUMENT")
+        print("-" * 30)

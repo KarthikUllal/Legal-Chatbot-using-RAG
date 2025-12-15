@@ -48,6 +48,7 @@
         .news-card:hover .news-image {
             transform: scale(1.1);
         }
+        
     </style>
 </head>
 
@@ -77,10 +78,6 @@
                         class="text-blue-600 font-medium flex items-center gap-2 border-b-2 border-blue-600 pb-1">
                         <i class="fas fa-newspaper"></i> News
                     </a>
-                    <!-- <a href="#profile"
-                        class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2">
-                        <i class="fas fa-user"></i> Profile
-                    </a> -->
                 </div>
             </div>
         </div>
@@ -121,70 +118,23 @@
             </div>
         </section>
 
-        <!-- Search & Filters -->
-        <section class="mb-8">
-            <div class="bg-white rounded-2xl shadow-xl p-6">
-                <!-- Search Bar -->
-                <div class="mb-6">
-                    <div class="relative">
-                        <input type="text" id="newsSearch"
-                            class="w-full px-6 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-lg"
-                            placeholder="Search legal news, judgments, amendments...">
-                        <i class="fas fa-search absolute right-6 top-5 text-gray-400 text-lg"></i>
-                    </div>
-                </div>
 
-                <!-- Category Filters -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fas fa-filter text-blue-600"></i> Filter by Category
-                    </h3>
-                    <div class="flex flex-wrap gap-3" id="categoryFilters">
-                        <!-- Categories will be loaded here -->
-                    </div>
-                </div>
-
-                <!-- Source Filters -->
-                <div class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fas fa-newspaper text-blue-600"></i> News Sources
-                    </h3>
-                    <div class="flex flex-wrap gap-3" id="sourceFilters">
-                        <!-- Sources will be loaded here -->
-                    </div>
-                </div>
-
-                <!-- Active Filters -->
-                <div id="activeFilters" class="hidden">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fas fa-tags text-blue-600"></i> Active Filters
-                    </h3>
-                    <div class="flex flex-wrap gap-2" id="filterTags">
-                        <!-- Active filters will appear here -->
-                    </div>
-                </div>
-            </div>
-        </section>
 
         <!-- News Grid -->
         <section class="mb-8">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fas fa-bolt text-yellow-500"></i> Latest Updates
-                    <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded" id="filterStatus">All News</span>
+                    <i class="fas fa-bolt text-yellow-500"></i> Latest Legal Updates
+                    <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                        id="articleCountDisplay">Loading...</span>
                 </h2>
                 <div class="flex gap-3">
-                    <button id="gridView" class="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                    <button id="gridView" class="p-2 bg-blue-100 text-blue-600 rounded-lg" title="Grid View">
                         <i class="fas fa-th-large"></i>
                     </button>
-                    <button id="listView" class="p-2 bg-gray-100 text-gray-600 rounded-lg">
+                    <button id="listView" class="p-2 bg-gray-100 text-gray-600 rounded-lg" title="List View">
                         <i class="fas fa-list"></i>
                     </button>
-                    <select id="sortBy" class="border border-gray-300 rounded-lg px-3 py-2">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="relevance">Most Relevant</option>
-                    </select>
                 </div>
             </div>
 
@@ -204,8 +154,8 @@
             <!-- No Results -->
             <div id="noResults" class="hidden text-center py-12">
                 <i class="fas fa-newspaper text-4xl text-gray-400 mb-4"></i>
-                <h3 class="text-xl font-bold text-gray-600 mb-2">No articles found</h3>
-                <p class="text-gray-500">Try changing your filters or search terms</p>
+                <h3 class="text-xl font-bold text-gray-600 mb-2">No articles available</h3>
+                <p class="text-gray-500">Check back later for new updates</p>
             </div>
 
             <!-- Load More -->
@@ -214,34 +164,6 @@
                     class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition font-medium hidden">
                     <i class="fas fa-plus mr-2"></i> Load More Articles
                 </button>
-            </div>
-        </section>
-
-        <!-- Trending Topics -->
-        <section id="trendingSection" class="mb-8 hidden">
-            <div class="bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl shadow-xl p-8 text-white">
-                <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                    <i class="fas fa-chart-line"></i> Trending Legal Topics
-                </h2>
-                <div id="trendingTopics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Trending topics will be loaded here -->
-                </div>
-            </div>
-        </section>
-
-        <!-- News Sources Info -->
-        <section class="mb-8">
-            <div class="bg-white rounded-2xl shadow-xl p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <i class="fas fa-info-circle text-blue-600"></i> About Our News Sources
-                </h2>
-                <p class="text-gray-600 mb-6">
-                    We aggregate legal news from trusted sources to provide you with comprehensive coverage of Indian
-                    legal developments.
-                </p>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="sourcesInfo">
-                    <!-- Sources info will be loaded here -->
-                </div>
             </div>
         </section>
     </main>
@@ -299,57 +221,33 @@
     <script>
         const API_BASE = "http://localhost:8000";
 
-        // State management
+        // State management - SIMPLIFIED
         let newsState = {
             articles: [],
-            filteredArticles: [],
-            categories: [],
-            sources: [],
-            activeFilters: {
-                categories: [],
-                sources: []
-            },
-            viewMode: 'grid', // 'grid' or 'list'
             currentPage: 1,
             pageSize: 12,
-            searchQuery: '',
-            sortBy: 'newest',
+            viewMode: 'grid', // 'grid' or 'list'
             isLoading: false
         };
 
-        // DOM Elements
-        const newsSearch = document.getElementById('newsSearch');
-        const categoryFilters = document.getElementById('categoryFilters');
-        const sourceFilters = document.getElementById('sourceFilters');
-        const activeFilters = document.getElementById('activeFilters');
-        const filterTags = document.getElementById('filterTags');
-        const filterStatus = document.getElementById('filterStatus');
+        // DOM Elements - SIMPLIFIED
         const loadingNews = document.getElementById('loadingNews');
         const newsGrid = document.getElementById('newsGrid');
         const noResults = document.getElementById('noResults');
         const loadMoreBtn = document.getElementById('loadMore');
         const refreshNewsBtn = document.getElementById('refreshNews');
-        const trendingBtn = document.getElementById('trendingBtn');
-        const trendingSection = document.getElementById('trendingSection');
         const articleCount = document.getElementById('articleCount');
+        const articleCountDisplay = document.getElementById('articleCountDisplay');
         const lastUpdated = document.getElementById('lastUpdated');
         const gridViewBtn = document.getElementById('gridView');
         const listViewBtn = document.getElementById('listView');
-        const sortBySelect = document.getElementById('sortBy');
+        const trendingBtn = document.getElementById('trendingBtn');
+        const trendingSection = document.getElementById('trendingSection');
         const newsModal = document.getElementById('newsModal');
         const closeModal = document.getElementById('closeModal');
         const modalContent = document.getElementById('modalContent');
         const readFullArticleBtn = document.getElementById('readFullArticle');
         const shareArticleBtn = document.getElementById('shareArticle');
-
-
-        const WEBSITE_URLS = {
-            "scc_blog": "https://www.scconline.com/blog/",
-            "lawctopus": "https://www.lawctopus.com/",
-            "legal_bites": "https://www.legalbites.in/",
-            "indian_express": "https://indianexpress.com/section/law-and-policy/",
-            "live_law": "https://www.livelaw.in/"
-        };
 
         // Current article for modal
         let currentArticle = null;
@@ -365,12 +263,7 @@
 
             try {
                 // Load news data
-                await Promise.all([
-                    loadNews(),
-                    loadCategories(),
-                    loadSources()
-                ]);
-
+                await loadNews();
                 updateUI();
 
             } catch (error) {
@@ -387,10 +280,12 @@
                 if (response.ok) {
                     const data = await response.json();
                     newsState.articles = data.articles || [];
-                    newsState.filteredArticles = [...newsState.articles];
 
                     // Update counters
                     articleCount.textContent = newsState.articles.length;
+                    if (articleCountDisplay) {
+                        articleCountDisplay.textContent = `${newsState.articles.length} articles`;
+                    }
                     lastUpdated.textContent = formatTimeAgo(data.last_updated);
 
                     renderNewsArticles();
@@ -401,369 +296,13 @@
             }
         }
 
-        async function loadCategories() {
-            try {
-                const response = await fetch(`${API_BASE}/news/categories`);
-                if (response.ok) {
-                    const data = await response.json();
-                    newsState.categories = Object.entries(data.categories || {});
-                    renderCategoryFilters();
-                }
-            } catch (error) {
-                console.error('Error loading categories:', error);
-            }
-        }
-
-        async function loadSources() {
-            try {
-                const response = await fetch(`${API_BASE}/news/sources`);
-                if (response.ok) {
-                    const data = await response.json();
-                    newsState.sources = Object.entries(data.sources || {});
-                    renderSourceFilters();
-                    renderSourcesInfo();
-                }
-            } catch (error) {
-                console.error('Error loading sources:', error);
-            }
-        }
-
-        function renderCategoryFilters() {
-            categoryFilters.innerHTML = '';
-
-            // "All" filter
-            const allFilter = document.createElement('button');
-            allFilter.className = 'category-filter active px-4 py-2 rounded-lg font-medium border border-blue-600 text-blue-600 hover:bg-blue-50';
-            allFilter.innerHTML = '<i class="fas fa-layer-group mr-2"></i>All Categories';
-            allFilter.addEventListener('click', () => {
-                clearCategoryFilters();
-                updateCategoryFilter('all', allFilter);
-            });
-            categoryFilters.appendChild(allFilter);
-
-            // Category filters
-            newsState.categories.forEach(([id, name]) => {
-                const filter = document.createElement('button');
-                filter.className = 'category-filter px-4 py-2 rounded-lg font-medium border border-gray-300 text-gray-700 hover:bg-gray-50';
-                filter.innerHTML = `<i class="fas fa-folder mr-2"></i>${name}`;
-                filter.dataset.category = id;
-
-                filter.addEventListener('click', () => {
-                    toggleCategoryFilter(id, filter);
-                });
-
-                categoryFilters.appendChild(filter);
-            });
-        }
-
-        function renderSourceFilters() {
-            sourceFilters.innerHTML = '';
-
-            // "All" filter for sources
-            const allSourceFilter = document.createElement('button');
-            allSourceFilter.className = 'category-filter active px-4 py-2 rounded-lg font-medium border border-purple-600 text-purple-600 hover:bg-purple-50';
-            allSourceFilter.innerHTML = '<i class="fas fa-globe mr-2"></i>All Sources';
-            allSourceFilter.addEventListener('click', () => {
-                clearSourceFilters();
-                updateSourceFilter('all', allSourceFilter);
-            });
-            sourceFilters.appendChild(allSourceFilter);
-
-            // Source filters
-            newsState.sources.forEach(([id, source]) => {
-                const filter = document.createElement('button');
-                filter.className = 'category-filter px-4 py-2 rounded-lg font-medium border border-gray-300 text-gray-700 hover:bg-gray-50';
-                filter.innerHTML = `<i class="fas fa-newspaper mr-2"></i>${source.name}`;
-                filter.dataset.source = id;
-
-                filter.addEventListener('click', () => {
-                    toggleSourceFilter(id, filter);
-                });
-
-                sourceFilters.appendChild(filter);
-            });
-        }
-
-        function renderSourcesInfo() {
-            const sourcesInfo = document.getElementById('sourcesInfo');
-            sourcesInfo.innerHTML = '';
-
-            newsState.sources.forEach(([id, source]) => {
-                // Now source should have website_url if backend is updated
-                const websiteUrl = source.website_url || WEBSITE_URLS[id] || source.url;
-                const rssUrl = source.rss_url || source.url;
-
-                const sourceCard = document.createElement('div');
-                sourceCard.className = 'bg-gray-50 p-4 rounded-lg border border-gray-200';
-                sourceCard.innerHTML = `
-            <div class="flex items-center gap-3 mb-2">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
-                    <i class="fas fa-newspaper text-white"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-gray-800">${source.name}</h4>
-                    <p class="text-xs text-gray-500">${source.type === 'rss' ? 'RSS Feed' : 'Web Scraper'}</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <a href="${websiteUrl}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 flex-1">
-                    <i class="fas fa-external-link-alt mr-1"></i> Visit Website
-                </a>
-                <button onclick="showRssInfo('${source.name}', '${rssUrl}')" 
-                        class="text-sm text-gray-600 hover:text-gray-800 px-2 py-1 rounded hover:bg-gray-100"
-                        title="View RSS Feed">
-                    <i class="fas fa-rss"></i>
-                </button>
-            </div>
-        `;
-
-                sourcesInfo.appendChild(sourceCard);
-            });
-        }
-
-        function toggleCategoryFilter(categoryId, element) {
-            const index = newsState.activeFilters.categories.indexOf(categoryId);
-
-            if (index === -1) {
-                // Add filter
-                newsState.activeFilters.categories.push(categoryId);
-                element.classList.add('active');
-                element.classList.remove('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-                element.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50');
-            } else {
-                // Remove filter
-                newsState.activeFilters.categories.splice(index, 1);
-                element.classList.remove('active', 'border-blue-600', 'text-blue-600', 'hover:bg-blue-50');
-                element.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-            }
-
-            updateFilters();
-        }
-
-        function toggleSourceFilter(sourceId, element) {
-            const index = newsState.activeFilters.sources.indexOf(sourceId);
-
-            if (index === -1) {
-                // Add filter
-                newsState.activeFilters.sources.push(sourceId);
-                element.classList.add('active');
-                element.classList.remove('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-                element.classList.add('border-purple-600', 'text-purple-600', 'hover:bg-purple-50');
-            } else {
-                // Remove filter
-                newsState.activeFilters.sources.splice(index, 1);
-                element.classList.remove('active', 'border-purple-600', 'text-purple-600', 'hover:bg-purple-50');
-                element.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-            }
-
-            updateFilters();
-        }
-
-        function clearCategoryFilters() {
-            // Update state
-            newsState.activeFilters.categories = [];
-
-            // Update UI
-            document.querySelectorAll('#categoryFilters .category-filter').forEach(filter => {
-                if (filter.textContent.includes('All Categories')) {
-                    filter.classList.add('active');
-                    filter.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50');
-                } else {
-                    filter.classList.remove('active');
-                    filter.classList.remove('border-blue-600', 'text-blue-600', 'hover:bg-blue-50');
-                    filter.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-                }
-            });
-        }
-
-        function clearSourceFilters() {
-            // Update state
-            newsState.activeFilters.sources = [];
-
-            // Update UI
-            document.querySelectorAll('#sourceFilters .category-filter').forEach(filter => {
-                if (filter.textContent.includes('All Sources')) {
-                    filter.classList.add('active');
-                    filter.classList.add('border-purple-600', 'text-purple-600', 'hover:bg-purple-50');
-                } else {
-                    filter.classList.remove('active');
-                    filter.classList.remove('border-purple-600', 'text-purple-600', 'hover:bg-purple-50');
-                    filter.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-                }
-            });
-        }
-
-        function updateCategoryFilter(category, element) {
-            // Update all category filter buttons
-            document.querySelectorAll('#categoryFilters .category-filter').forEach(filter => {
-                if (filter === element) {
-                    filter.classList.add('active');
-                    filter.classList.add('border-blue-600', 'text-blue-600', 'hover:bg-blue-50');
-                } else {
-                    filter.classList.remove('active');
-                    filter.classList.remove('border-blue-600', 'text-blue-600', 'hover:bg-blue-50');
-                    filter.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-                }
-            });
-        }
-
-        function updateSourceFilter(source, element) {
-            // Update all source filter buttons
-            document.querySelectorAll('#sourceFilters .category-filter').forEach(filter => {
-                if (filter === element) {
-                    filter.classList.add('active');
-                    filter.classList.add('border-purple-600', 'text-purple-600', 'hover:bg-purple-50');
-                } else {
-                    filter.classList.remove('active');
-                    filter.classList.remove('border-purple-600', 'text-purple-600', 'hover:bg-purple-50');
-                    filter.classList.add('border-gray-300', 'text-gray-700', 'hover:bg-gray-50');
-                }
-            });
-        }
-
-        function updateFilters() {
-            // Apply filters
-            let filtered = [...newsState.articles];
-
-            // Apply category filters
-            if (newsState.activeFilters.categories.length > 0) {
-                filtered = filtered.filter(article => {
-                    const categoryId = Object.keys(newsState.categories).find(
-                        key => newsState.categories[key] === article.category
-                    );
-                    return newsState.activeFilters.categories.includes(categoryId);
-                });
-            }
-
-            // Apply source filters
-            if (newsState.activeFilters.sources.length > 0) {
-                filtered = filtered.filter(article =>
-                    newsState.activeFilters.sources.includes(article.source_id)
-                );
-            }
-
-            // Apply search query
-            if (newsState.searchQuery) {
-                const query = newsState.searchQuery.toLowerCase();
-                filtered = filtered.filter(article =>
-                    article.title.toLowerCase().includes(query) ||
-                    article.description.toLowerCase().includes(query) ||
-                    article.category.toLowerCase().includes(query)
-                );
-            }
-
-            // Apply sorting
-            filtered = sortArticles(filtered, newsState.sortBy);
-
-            newsState.filteredArticles = filtered;
-
-            // Update filter tags
-            renderFilterTags();
-
-            // Update status text
-            updateFilterStatus();
-
-            // Render articles
-            renderNewsArticles();
-        }
-
-        function renderFilterTags() {
-            filterTags.innerHTML = '';
-
-            const hasFilters = newsState.activeFilters.categories.length > 0 ||
-                newsState.activeFilters.sources.length > 0 ||
-                newsState.searchQuery;
-
-            activeFilters.classList.toggle('hidden', !hasFilters);
-
-            if (!hasFilters) return;
-
-            // Category tags
-            newsState.activeFilters.categories.forEach(categoryId => {
-                const categoryName = newsState.categories[categoryId];
-                if (categoryName) {
-                    const tag = createFilterTag(categoryName, 'category', categoryId);
-                    filterTags.appendChild(tag);
-                }
-            });
-
-            // Source tags
-            newsState.activeFilters.sources.forEach(sourceId => {
-                const source = newsState.sources.find(([id]) => id === sourceId);
-                if (source) {
-                    const tag = createFilterTag(source[1].name, 'source', sourceId);
-                    filterTags.appendChild(tag);
-                }
-            });
-
-            // Search tag
-            if (newsState.searchQuery) {
-                const tag = createFilterTag(`Search: "${newsState.searchQuery}"`, 'search', newsState.searchQuery);
-                filterTags.appendChild(tag);
-            }
-        }
-
-        function createFilterTag(text, type, value) {
-            const tag = document.createElement('div');
-            tag.className = 'inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-2 rounded-lg';
-            tag.innerHTML = `
-                <span>${text}</span>
-                <button class="text-blue-600 hover:text-blue-800" data-type="${type}" data-value="${value}">
-                    <i class="fas fa-times text-sm"></i>
-                </button>
-            `;
-
-            tag.querySelector('button').addEventListener('click', function () {
-                const type = this.dataset.type;
-                const value = this.dataset.value;
-
-                if (type === 'category') {
-                    const index = newsState.activeFilters.categories.indexOf(value);
-                    if (index !== -1) {
-                        newsState.activeFilters.categories.splice(index, 1);
-                    }
-                } else if (type === 'source') {
-                    const index = newsState.activeFilters.sources.indexOf(value);
-                    if (index !== -1) {
-                        newsState.activeFilters.sources.splice(index, 1);
-                    }
-                } else if (type === 'search') {
-                    newsState.searchQuery = '';
-                    newsSearch.value = '';
-                }
-
-                updateFilters();
-            });
-
-            return tag;
-        }
-
-        function updateFilterStatus() {
-            const total = newsState.articles.length;
-            const filtered = newsState.filteredArticles.length;
-
-            if (total === filtered) {
-                filterStatus.textContent = `All News (${total})`;
-            } else {
-                filterStatus.textContent = `Filtered: ${filtered} of ${total}`;
-            }
-
-            // Show/hide load more button
-            const hasMoreArticles = filtered > newsState.currentPage * newsState.pageSize;
-            loadMoreBtn.classList.toggle('hidden', !hasMoreArticles);
-
-            // Show/hide no results message
-            noResults.classList.toggle('hidden', filtered > 0);
-            newsGrid.classList.toggle('hidden', filtered === 0);
-        }
-
         function renderNewsArticles() {
             newsGrid.innerHTML = '';
 
             // Calculate pagination
             const startIndex = (newsState.currentPage - 1) * newsState.pageSize;
             const endIndex = startIndex + newsState.pageSize;
-            const articlesToShow = newsState.filteredArticles.slice(startIndex, endIndex);
+            const articlesToShow = newsState.articles.slice(startIndex, endIndex);
 
             if (articlesToShow.length === 0) {
                 noResults.classList.remove('hidden');
@@ -785,6 +324,10 @@
                 const card = createNewsCard(article);
                 newsGrid.appendChild(card);
             });
+
+            // Show/hide load more button
+            const hasMoreArticles = newsState.articles.length > newsState.currentPage * newsState.pageSize;
+            loadMoreBtn.classList.toggle('hidden', !hasMoreArticles);
         }
 
         function createNewsCard(article) {
@@ -793,80 +336,79 @@
                 ? 'news-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300'
                 : 'news-card bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 flex flex-col md:flex-row';
 
-            const publishedDate = formatDate(article.published);
             const timeAgo = formatTimeAgo(article.published);
 
             card.innerHTML = newsState.viewMode === 'grid'
                 ? `
-                    <!-- Grid View -->
-                    <div class="relative h-48 overflow-hidden">
+                <!-- Grid View -->
+                <div class="relative h-48 overflow-hidden">
+                    ${article.image ?
+                    `<img src="${article.image}" alt="${article.title}" class="news-image w-full h-full object-cover">` :
+                    `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                        <i class="fas fa-newspaper text-white text-4xl"></i>
+                    </div>`
+                }
+                    <div class="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/70 to-transparent">
+                        <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">${article.category}</span>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
+                        <span class="text-sm"><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2">${article.title}</h3>
+                    <p class="text-gray-600 mb-4 line-clamp-3">${article.description || ''}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-500"><i class="fas fa-newspaper mr-1"></i>${article.source}</span>
+                        <span class="text-sm text-gray-500"><i class="fas fa-book-reader mr-1"></i>${article.read_time} min read</span>
+                    </div>
+                    <div class="mt-4 flex gap-2">
+                        <button class="read-more-btn flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition" data-id="${article.id}">
+                            <i class="fas fa-eye mr-2"></i>Read More
+                        </button>
+                        <a href="${article.link}" target="_blank" class="source-link p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" title="View Original">
+                            <i class="fas fa-external-link-alt"></i>
+                        </a>
+                    </div>
+                </div>
+            `
+                : `
+                <!-- List View -->
+                <div class="md:w-1/3">
+                    <div class="relative h-48 md:h-full overflow-hidden">
                         ${article.image ?
                     `<img src="${article.image}" alt="${article.title}" class="news-image w-full h-full object-cover">` :
                     `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                                <i class="fas fa-newspaper text-white text-4xl"></i>
-                            </div>`
+                            <i class="fas fa-newspaper text-white text-4xl"></i>
+                        </div>`
                 }
                         <div class="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/70 to-transparent">
                             <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">${article.category}</span>
                         </div>
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent text-white">
-                            <span class="text-sm"><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
-                        </div>
                     </div>
-                    <div class="p-6">
-                        <h3 class="text-xl font-bold text-gray-800 mb-3 line-clamp-2">${article.title}</h3>
-                        <p class="text-gray-600 mb-4 line-clamp-3">${article.description || ''}</p>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-500"><i class="fas fa-newspaper mr-1"></i>${article.source}</span>
-                            <span class="text-sm text-gray-500"><i class="fas fa-book-reader mr-1"></i>${article.read_time} min read</span>
-                        </div>
-                        <div class="mt-4 flex gap-2">
-                            <button class="read-more-btn flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition" data-id="${article.id}">
-                                <i class="fas fa-eye mr-2"></i>Read More
-                            </button>
-                            <a href="${article.link}" target="_blank" class="source-link p-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition" title="View Original">
-                                <i class="fas fa-external-link-alt"></i>
-                            </a>
-                        </div>
+                </div>
+                <div class="md:w-2/3 p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-3">${article.title}</h3>
+                    <p class="text-gray-600 mb-4">${article.description || ''}</p>
+                    <div class="flex flex-wrap gap-4 mb-4">
+                        <span class="text-sm text-gray-500"><i class="fas fa-newspaper mr-1"></i>${article.source}</span>
+                        <span class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
+                        <span class="text-sm text-gray-500"><i class="fas fa-book-reader mr-1"></i>${article.read_time} min read</span>
+                        <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">${article.category}</span>
                     </div>
-                `
-                : `
-                    <!-- List View -->
-                    <div class="md:w-1/3">
-                        <div class="relative h-48 md:h-full overflow-hidden">
-                            ${article.image ?
-                    `<img src="${article.image}" alt="${article.title}" class="news-image w-full h-full object-cover">` :
-                    `<div class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                                    <i class="fas fa-newspaper text-white text-4xl"></i>
-                                </div>`
-                }
-                            <div class="absolute top-0 left-0 right-0 p-4 bg-gradient-to-b from-black/70 to-transparent">
-                                <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">${article.category}</span>
-                            </div>
-                        </div>
+                    <div class="flex gap-2">
+                        <button class="read-more-btn bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition" data-id="${article.id}">
+                            <i class="fas fa-eye mr-2"></i>Read Full Article
+                        </button>
+                        <a href="${article.link}" target="_blank" class="source-link px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-external-link-alt mr-2"></i>Original Source
+                        </a>
+                        <button class="share-btn px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
                     </div>
-                    <div class="md:w-2/3 p-6">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-3">${article.title}</h3>
-                        <p class="text-gray-600 mb-4">${article.description || ''}</p>
-                        <div class="flex flex-wrap gap-4 mb-4">
-                            <span class="text-sm text-gray-500"><i class="fas fa-newspaper mr-1"></i>${article.source}</span>
-                            <span class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
-                            <span class="text-sm text-gray-500"><i class="fas fa-book-reader mr-1"></i>${article.read_time} min read</span>
-                            <span class="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">${article.category}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button class="read-more-btn bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition" data-id="${article.id}">
-                                <i class="fas fa-eye mr-2"></i>Read Full Article
-                            </button>
-                            <a href="${article.link}" target="_blank" class="source-link px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                                <i class="fas fa-external-link-alt mr-2"></i>Original Source
-                            </a>
-                            <button class="share-btn px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                                <i class="fas fa-share-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
+                </div>
+            `;
 
             // Add event listeners
             card.querySelector('.read-more-btn').addEventListener('click', function () {
@@ -880,51 +422,6 @@
             return card;
         }
 
-        function sortArticles(articles, sortBy) {
-            const sorted = [...articles];
-
-            switch (sortBy) {
-                case 'newest':
-                    return sorted.sort((a, b) => new Date(b.published || 0) - new Date(a.published || 0));
-                case 'oldest':
-                    return sorted.sort((a, b) => new Date(a.published || 0) - new Date(b.published || 0));
-                case 'relevance':
-                    // Simple relevance scoring
-                    return sorted.sort((a, b) => {
-                        const scoreA = calculateRelevanceScore(a);
-                        const scoreB = calculateRelevanceScore(b);
-                        return scoreB - scoreA;
-                    });
-                default:
-                    return sorted;
-            }
-        }
-
-        function calculateRelevanceScore(article) {
-            let score = 0;
-
-            // Recent articles get higher score
-            if (article.published) {
-                const daysAgo = (Date.now() - new Date(article.published).getTime()) / (1000 * 60 * 60 * 24);
-                if (daysAgo < 1) score += 100;
-                else if (daysAgo < 7) score += 50;
-                else if (daysAgo < 30) score += 25;
-            }
-
-            // Articles with images get higher score
-            if (article.image) score += 20;
-
-            // Longer content gets higher score
-            if (article.description && article.description.length > 200) score += 10;
-
-            // Supreme Court and High Court articles get bonus
-            if (article.category.includes('Supreme Court') || article.category.includes('High Court')) {
-                score += 30;
-            }
-
-            return score;
-        }
-
         async function openArticleModal(articleId) {
             try {
                 showLoading(true, 'modal');
@@ -935,50 +432,50 @@
                     currentArticle = article;
 
                     modalContent.innerHTML = `
+                    <div class="mb-6">
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${article.category}</span>
+                            <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">${article.source}</span>
+                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"><i class="fas fa-clock mr-1"></i>${article.read_time} min read</span>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">${article.title}</h2>
+                        <div class="flex items-center gap-4 text-gray-600 mb-6">
+                            <span><i class="fas fa-calendar mr-2"></i>${formatDate(article.published)}</span>
+                            <span><i class="fas fa-user-edit mr-2"></i>${article.authors ? article.authors.join(', ') : 'Legal Reporter'}</span>
+                        </div>
+                    </div>
+                    
+                    ${article.top_image ? `
                         <div class="mb-6">
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">${article.category}</span>
-                                <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">${article.source}</span>
-                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"><i class="fas fa-clock mr-1"></i>${article.read_time} min read</span>
-                            </div>
-                            <h2 class="text-3xl font-bold text-gray-800 mb-4">${article.title}</h2>
-                            <div class="flex items-center gap-4 text-gray-600 mb-6">
-                                <span><i class="fas fa-calendar mr-2"></i>${formatDate(article.published)}</span>
-                                <span><i class="fas fa-user-edit mr-2"></i>${article.authors ? article.authors.join(', ') : 'Legal Reporter'}</span>
-                            </div>
+                            <img src="${article.top_image}" alt="${article.title}" class="w-full h-auto rounded-lg shadow-lg">
+                            <p class="text-sm text-gray-500 mt-2 text-center">Source: ${article.source}</p>
                         </div>
-                        
-                        ${article.top_image ? `
-                            <div class="mb-6">
-                                <img src="${article.top_image}" alt="${article.title}" class="w-full h-auto rounded-lg shadow-lg">
-                                <p class="text-sm text-gray-500 mt-2 text-center">Source: ${article.source}</p>
+                    ` : ''}
+                    
+                    <div class="prose max-w-none">
+                        ${article.content ? `
+                            <div class="text-gray-700 leading-relaxed">
+                                ${article.content.split('\n').map(p => `<p class="mb-4">${p}</p>`).join('')}
                             </div>
-                        ` : ''}
-                        
-                        <div class="prose max-w-none">
-                            ${article.content ? `
-                                <div class="text-gray-700 leading-relaxed">
-                                    ${article.content.split('\n').map(p => `<p class="mb-4">${p}</p>`).join('')}
-                                </div>
-                            ` : `
-                                <div class="text-gray-700 leading-relaxed">
-                                    <p class="mb-4">${article.description || article.summary || ''}</p>
-                                    <p class="text-gray-500 italic">Full content available at the original source.</p>
-                                </div>
-                            `}
-                        </div>
-                        
-                        ${article.keywords && article.keywords.length > 0 ? `
-                            <div class="mt-8 pt-6 border-t">
-                                <h4 class="font-bold text-gray-800 mb-3">Keywords:</h4>
-                                <div class="flex flex-wrap gap-2">
-                                    ${article.keywords.map(keyword =>
+                        ` : `
+                            <div class="text-gray-700 leading-relaxed">
+                                <p class="mb-4">${article.description || article.summary || ''}</p>
+                                <p class="text-gray-500 italic">Full content available at the original source.</p>
+                            </div>
+                        `}
+                    </div>
+                    
+                    ${article.keywords && article.keywords.length > 0 ? `
+                        <div class="mt-8 pt-6 border-t">
+                            <h4 class="font-bold text-gray-800 mb-3">Keywords:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${article.keywords.map(keyword =>
                         `<span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">${keyword}</span>`
                     ).join('')}
-                                </div>
                             </div>
-                        ` : ''}
-                    `;
+                        </div>
+                    ` : ''}
+                `;
 
                     readFullArticleBtn.onclick = () => window.open(article.link, '_blank');
                     shareArticleBtn.onclick = () => shareArticle(article);
@@ -992,15 +489,15 @@
             } catch (error) {
                 console.error('Error opening article:', error);
                 modalContent.innerHTML = `
-                    <div class="text-center py-8">
-                        <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">Failed to load article</h3>
-                        <p class="text-gray-600">Please try again or read the original article.</p>
-                        <a href="${currentArticle?.link}" target="_blank" class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                            <i class="fas fa-external-link-alt mr-2"></i>Go to Original
-                        </a>
-                    </div>
-                `;
+                <div class="text-center py-8">
+                    <i class="fas fa-exclamation-triangle text-4xl text-yellow-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Failed to load article</h3>
+                    <p class="text-gray-600">Please try again or read the original article.</p>
+                    <a href="${currentArticle?.link}" target="_blank" class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                        <i class="fas fa-external-link-alt mr-2"></i>Go to Original
+                    </a>
+                </div>
+            `;
             } finally {
                 showLoading(false, 'modal');
             }
@@ -1050,20 +547,20 @@
                 const topicCard = document.createElement('div');
                 topicCard.className = 'bg-white/20 backdrop-blur p-4 rounded-xl';
                 topicCard.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <h4 class="font-bold text-lg">${topic.topic}</h4>
-                        <span class="bg-white/30 px-2 py-1 rounded text-sm">${topic.count} articles</span>
-                    </div>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-sm ${topic.trend === 'rising' ? 'text-green-300' : topic.trend === 'falling' ? 'text-red-300' : 'text-yellow-300'}">
-                            <i class="fas fa-${topic.trend === 'rising' ? 'arrow-up' : topic.trend === 'falling' ? 'arrow-down' : 'minus'} mr-1"></i>
-                            ${topic.trend}
-                        </span>
-                    </div>
-                    <div class="text-sm text-white/80">
-                        Featured in ${topic.articles.length} articles
-                    </div>
-                `;
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="font-bold text-lg">${topic.topic}</h4>
+                    <span class="bg-white/30 px-2 py-1 rounded text-sm">${topic.count} articles</span>
+                </div>
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-sm ${topic.trend === 'rising' ? 'text-green-300' : topic.trend === 'falling' ? 'text-red-300' : 'text-yellow-300'}">
+                        <i class="fas fa-${topic.trend === 'rising' ? 'arrow-up' : topic.trend === 'falling' ? 'arrow-down' : 'minus'} mr-1"></i>
+                        ${topic.trend}
+                    </span>
+                </div>
+                <div class="text-sm text-white/80">
+                    Featured in ${topic.articles.length} articles
+                </div>
+            `;
 
                 container.appendChild(topicCard);
             });
@@ -1119,11 +616,11 @@
             const errorDiv = document.createElement('div');
             errorDiv.className = 'fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-6 py-3 rounded-lg shadow-lg z-50';
             errorDiv.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span>${message}</span>
-                </div>
-            `;
+            <div class="flex items-center gap-3">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>${message}</span>
+            </div>
+        `;
 
             document.body.appendChild(errorDiv);
 
@@ -1135,18 +632,13 @@
 
         function updateUI() {
             renderNewsArticles();
-            updateFilterStatus();
+            if (articleCountDisplay) {
+                articleCountDisplay.textContent = `${newsState.articles.length} articles`;
+            }
             lastUpdated.textContent = 'Just now';
         }
 
         function setupEventListeners() {
-            // Search
-            newsSearch.addEventListener('input', debounce(() => {
-                newsState.searchQuery = newsSearch.value.trim();
-                newsState.currentPage = 1;
-                updateFilters();
-            }, 300));
-
             // Refresh news
             refreshNewsBtn.addEventListener('click', async () => {
                 try {
@@ -1190,18 +682,10 @@
                 renderNewsArticles();
             });
 
-            // Sort
-            sortBySelect.addEventListener('change', () => {
-                newsState.sortBy = sortBySelect.value;
-                newsState.currentPage = 1;
-                updateFilters();
-            });
-
             // Load more
             loadMoreBtn.addEventListener('click', () => {
                 newsState.currentPage++;
                 renderNewsArticles();
-                updateFilterStatus();
 
                 // Scroll to new articles
                 const newArticles = document.querySelectorAll('.news-card');
@@ -1231,18 +715,6 @@
                     document.body.style.overflow = 'auto';
                 }
             });
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
         }
     </script>
 </body>

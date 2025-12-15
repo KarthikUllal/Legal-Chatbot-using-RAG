@@ -39,60 +39,6 @@ class RAGEngine:
             f"RAG Engine initialized with provider: {type(self.provider).__name__}"
         )
 
-        # older prompt template ... if changed one fails then this will be replaced
-
-    #     def _setup_prompts(self):
-    #         self.context_prompt = PromptTemplate(
-    #             input_variables=["documents"],
-    #             template="""Legal Documents Context:
-    # {documents}
-
-    # Use the above legal documents to answer the question accurately.""",
-    #         )
-
-    #         self.qa_prompt = PromptTemplate(
-    #             input_variables=["question", "context"],
-    #             template="""You are an expert Indian legal advisor. Analyze the user's situation and provide practical legal guidance based on the context.
-
-    # USER'S SITUATION: {question}
-
-    # RELEVANT LEGAL CONTEXT:
-    # {context}
-
-    # IMPORTANT - FOLLOW THIS STRUCTURE EXACTLY:
-
-    # Situation Analysis
-    # Briefly summarize the legal situation
-    # Identify key legal issues involved
-
-    # Applicable Laws & Sections
-    # List relevant legal provisions with section numbers
-    # Explain how each law applies to this situation
-
-    # Legal Rights & Remedies
-    # What legal rights does the person have?
-    # Available legal remedies and procedures
-
-    # Recommended Actions
-    # Step-by-step practical advice
-    # Timeline for actions
-    # Required documents/evidence
-
-    # Potential Outcomes
-    # Best-case and worst-case scenarios
-    # Typical resolution timeframes
-
-    # Important Caveats
-    # Limitations of this advice
-    # When to consult a practicing lawyer
-
-    # Legal References:
-    # Sections XXX, YYY of Relevant Act
-
-    # BASE YOUR ANSWER STRICTLY ON THE PROVIDED LEGAL CONTEXT. If the context doesn't cover specific situational aspects, acknowledge this limitation.
-
-    # ANSWER:""",
-    #         )
 
     def _setup_prompts(self):
         self.context_prompt = PromptTemplate(
@@ -103,28 +49,6 @@ class RAGEngine:
 Use the above legal documents to answer the question accurately.""",
         )
 
-#         self.qa_prompt = PromptTemplate(
-#             input_variables=["question", "context"],
-#             template="""You are "Nyaya Mitra" - India's legal expert.
-
-# **Understanding the Situation:**
-# - User Query: "{question}"
-# - Available Legal Context: {context}
-
-# **Key Insight:**
-# If the user's query contains only casual language (greetings, thanks, casual conversation) and doesn't mention legal topics, then the legal context is NOT relevant for this query.
-
-# **Response Approach:**
-# 1. **For casual conversation** (hi, hello, thanks, how are you, etc.): Give a simple, friendly response. Do not reference legal topics.
-# 2. **For legal inquiries** (questions about laws, sections, rights, procedures): Use the provided legal context to give accurate information.
-# 3. **BNS vs IPC**: When discussing laws, mention if information comes from BNS (new law) or IPC (old law).
-
-# **Examples of correct behavior:**
-# - When user says "hello" and context has legal documents: Respond with "Hello! How can I help?"
-# - When user asks "what is section 420?" and context has IPC: Explain Section 420 of IPC.
-
-# **Now respond naturally to this query:**""",
-#         )
         self.qa_prompt = PromptTemplate(
     input_variables=["question", "context"],
     template="""You are "Nyaya Mitra" - India's legal expert.
@@ -135,7 +59,7 @@ Available Legal Context: {context}
 **Response Decision:**
 1. If query is purely casual (greetings, thanks, farewells): Respond with simple, consistent friendly response.
 2. If query contains legal content: Use the context to provide helpful legal information.
-3. Avoid giving "Response :" label while answering
+3. Avoid giving "Response :" label while answering  
 
 **Casual Response Examples (be consistent):**
 - "hello" → "Hello! How can I help?"
@@ -144,6 +68,7 @@ Available Legal Context: {context}
 
 **Legal Response Approach:**
 - Use relevant laws from context
+-And when explaining about procedure to file complaint , please give it in step by step manner.
 - Be practical and helpful
 - Mention BNS/IPC when applicable
 - BNS vs IPC: When discussing laws, mention if information comes from BNS (new law) or IPC (old law).
@@ -414,21 +339,7 @@ Available Legal Context: {context}
                 max_tokens=1000,
             )
             answer = self._clean_response(answer)
-
-            # if "Reference Sources:" not in answer and "Sources:" not in answer:
-            #     answer += "\n\nReference Sources: See cited legal documents below"
-
             sources = []
-            # for i, (doc_id, meta, doc_text) in enumerate(zip(ids, metas, docs)):
-            #     sources.append(
-            #         SourceItem(
-            #             id=doc_id,
-            #             source=meta,
-            #             snippet=(
-            #                 doc_text[:300] + "..." if len(doc_text) > 300 else doc_text
-            #             ),
-            #         )
-            #     )
 
             logger.info(f"Generated answer with NO sources (by design)")
             return answer, sources  # Always empty list
@@ -436,21 +347,6 @@ Available Legal Context: {context}
         except Exception as e:
             logger.error(f"Answer generation failed: {e}")
             return f"Error generating answer: {str(e)}", []  # Empty sources
-
-    # def query(self, question: str, top_k: int = 4) -> ChatResponse:
-    #     try:
-    #         retrieved = self.retrieve(question, k=top_k)
-
-    #         answer, sources = self.generate_answer(question, retrieved)
-
-    #         return ChatResponse(answer=answer, sources=sources)
-
-    #     except Exception as e:
-    #         logger.error(f"RAG query failed: {e}")
-    #         return ChatResponse(
-    #             answer=f"Sorry, I encountered an error while processing your question: {str(e)}",
-    #             sources=[],
-    #         )
 
     def query(
         self, question: str, top_k: int = 4, session_id: str = "default"

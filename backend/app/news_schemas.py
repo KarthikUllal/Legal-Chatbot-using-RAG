@@ -49,32 +49,32 @@ class NewsSource(BaseModel):
 
 
 # Legal news categories (Supreme Court, Criminal Law) for organization
-class NewsCategory(BaseModel):
-    """Schema for news category"""
-    id: str
-    name: str
-    description: Optional[str] = None
-    icon: Optional[str] = None
+# class NewsCategory(BaseModel):
+#     """Schema for news category"""
+#     id: str
+#     name: str
+#     description: Optional[str] = None
+#     icon: Optional[str] = None
 
-# Request schema for searching legal news with query/filters
-class NewsSearchRequest(BaseModel):
-    """Schema for news search request"""
-    query: str
-    category: Optional[str] = None
-    source: Optional[str] = None
-    limit: int = Field(default=20, ge=1, le=100)
+# # Request schema for searching legal news with query/filters
+# class NewsSearchRequest(BaseModel):
+#     """Schema for news search request"""
+#     query: str
+#     category: Optional[str] = None
+#     source: Optional[str] = None
+#     limit: int = Field(default=20, ge=1, le=100)
 
 
-# Advanced filtering with multiple categories, sources, date ranges
-class NewsFilterRequest(BaseModel):
-    """Schema for news filter request"""
-    categories: Optional[List[str]] = None
-    sources: Optional[List[str]] = None
-    date_from: Optional[str] = None
-    date_to: Optional[str] = None
-    limit: int = Field(default=20, ge=1, le=100)
+# # Advanced filtering with multiple categories, sources, date ranges
+# class NewsFilterRequest(BaseModel):
+#     """Schema for news filter request"""
+#     categories: Optional[List[str]] = None
+#     sources: Optional[List[str]] = None
+#     date_from: Optional[str] = None
+#     date_to: Optional[str] = None
+#     limit: int = Field(default=20, ge=1, le=100)
 
-    
+
 # Response for news update operations showing status and results
 class NewsUpdateResponse(BaseModel):
     """Schema for news update response"""

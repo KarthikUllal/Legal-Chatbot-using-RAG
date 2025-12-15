@@ -3,8 +3,7 @@
 from chromadb import logger
 from .news_service import news_service
 from .news_schemas import (
-    LegalArticleResponse, NewsSearchRequest, 
-    NewsFilterRequest, NewsUpdateResponse
+    LegalArticleResponse,  NewsUpdateResponse
 )
 import logging
 from fastapi import FastAPI,  HTTPException, Query

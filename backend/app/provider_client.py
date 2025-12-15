@@ -74,9 +74,11 @@ class LocalProvider(ProviderClient):
         except Exception as e:
             logger.error(f"❌ Ollama connection test failed: {e}")
 
+
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         logger.info(f"Generating embeddings for {len(texts)} texts")
         return self.embeddings.embed_documents(texts)
+    
 
     def generate(self, prompt: str, max_tokens: int = 600, **kwargs) -> str:
         """Use the EXACT working prompt from your original code"""
@@ -412,6 +414,7 @@ Legal References:
 See the source documents below for specific sections and details."""
 
 
+
 # NVIDIA NIM Provider Class
 class NVIDIAProvider(ProviderClient):
     def __init__(self, api_key: str = None):
@@ -486,11 +489,14 @@ class NVIDIAProvider(ProviderClient):
         except Exception as e:
             logger.error(f"❌ NVIDIA NIM connection test failed: {e}")
             raise ConnectionError(f"Cannot connect to NVIDIA NIM: {e}")
+        
 
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         """Get embeddings using local HuggingFace model"""
         logger.info(f"Generating embeddings for {len(texts)} texts (using local model)")
         return self.embeddings.embed_documents(texts)
+    
+
 
     def generate(self, prompt: str, max_tokens: int = 1000, **kwargs) -> str:
         """Generate legal analysis using NVIDIA NIM with structured prompt"""
@@ -638,62 +644,6 @@ Providing information based on retrieved legal documents.
 
 Please check your internet connection and try again."""
 
-
-# def get_best_provider():
-#     logger.info("PROVIDER SELECTION START")
-
-#     force_local = os.getenv("FORCE_LOCAL", "true").lower() in ("true", "1", "yes")
-#     logger.info(f"FORCE_LOCAL = {force_local}")
-
-#     if force_local:
-#         logger.info("Using LocalProvider")
-#         try:
-#             provider = LocalProvider()
-#             logger.info("LocalProvider SUCCESS")
-#             return provider
-#         except Exception as e:
-#             logger.error(f"LocalProvider FAILED: {e}")
-#             raise
-
-#     raise Exception("No providers available")
-
-
-# def get_best_provider():
-#     logger.info("PROVIDER SELECTION START")
-
-#     # Check if OpenRouter should be used
-#     use_openrouter = os.getenv("USE_OPENROUTER", "false").lower() in (
-#         "true",
-#         "1",
-#         "yes",
-#     )
-#     openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
-
-#     if use_openrouter and openrouter_key:
-#         logger.info("Attempting OpenRouter provider...")
-#         try:
-#             # Simple test without get_available_models
-#             provider = OpenRouterProvider()
-#             logger.info(
-#                 f"✅ OpenRouter provider initialized successfully with model: {provider.model}"
-#             )
-#             return provider
-#         except Exception as e:
-#             logger.error(f"OpenRouter initialization failed: {e}")
-#             logger.info("Falling back to LocalProvider...")
-#     else:
-#         logger.info(
-#             f"OpenRouter not enabled or no API key. USE_OPENROUTER={use_openrouter}"
-#         )
-
-#     # Fallback to local
-#     try:
-#         provider = LocalProvider()
-#         logger.info("✅ LocalProvider initialized successfully")
-#         return provider
-#     except Exception as e:
-#         logger.error(f"LocalProvider failed: {e}")
-#         raise Exception("No providers available")
 
 
 def get_best_provider():

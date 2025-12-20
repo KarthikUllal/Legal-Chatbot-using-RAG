@@ -90,23 +90,60 @@
                 display: none !important;
             }
 
-            /* Maximized chat for mobile */
+            /* Replace your current .chat-maximized CSS with this: */
             .chat-maximized {
+                /* Reset all positioning */
+                all: initial !important;
+
+                /* Force full viewport coverage */
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
-                width: 100% !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
                 height: 100vh !important;
                 margin: 0 !important;
+                padding: 0 !important;
+
+                /* Visual reset */
+                border: none !important;
                 border-radius: 0 !important;
-                z-index: 9999 !important;
+                box-shadow: none !important;
+
+                /* Ensure it's on top */
+                z-index: 999999 !important;
+
+                /* Background */
+                background: white !important;
+
+                /* Remove any flex/grid constraints */
+                display: block !important;
+                flex: none !important;
+                grid-area: unset !important;
             }
 
+            /* Also fix the chat box inside */
             .chat-maximized #chatBox {
                 height: calc(100vh - 160px) !important;
-                flex: 1 !important;
+                width: 100% !important;
+                max-height: none !important;
                 min-height: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
             }
+
+            /* Lock the HTML too for good measure */
+            html.chat-maximized-active,
+            body.chat-maximized-active {
+                overflow: hidden !important;
+                height: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+
 
             /* History sidebar for mobile */
             #historySidebar {
@@ -1052,7 +1089,7 @@
             setTimeout(() => tempMsg.remove(), 3000);
         }
 
-        
+
         // Maximize functionality
         let isChatMaximized = false;
 
@@ -1062,27 +1099,65 @@
             const maximizeIcon = maximizeBtn.querySelector("i");
 
             if (!isChatMaximized) {
-                // Maximize
+                // ========== MAXIMIZE ==========
+
+                // Add classes to multiple elements
                 chatSection.classList.add("chat-maximized");
+                document.documentElement.classList.add("chat-maximized-active"); // HTML
+                document.body.classList.add("chat-maximized-active"); // Body
+
+                // Lock all scrolling
+                document.documentElement.style.overflow = "hidden";
                 document.body.style.overflow = "hidden";
 
-                // Change icon
+                // Force set dimensions (in case CSS fails)
+                chatSection.style.position = "fixed";
+                chatSection.style.top = "0";
+                chatSection.style.left = "0";
+                chatSection.style.width = "100vw";
+                chatSection.style.height = "100vh";
+                chatSection.style.zIndex = "999999";
+                chatSection.style.margin = "0";
+                chatSection.style.padding = "0";
+
+                // Update UI
                 maximizeIcon.className = "fas fa-compress";
                 maximizeBtn.title = "Minimize Chat";
                 maximizeBtn.classList.add("maximized");
 
                 isChatMaximized = true;
+
+
             } else {
-                // Minimize
+                // ========== MINIMIZE ==========
+
+                // Remove classes
                 chatSection.classList.remove("chat-maximized");
+                document.documentElement.classList.remove("chat-maximized-active");
+                document.body.classList.remove("chat-maximized-active");
+
+                // Restore scrolling
+                document.documentElement.style.overflow = "";
                 document.body.style.overflow = "";
 
-                // Change icon back
+                // Remove inline styles
+                chatSection.style.position = "";
+                chatSection.style.top = "";
+                chatSection.style.left = "";
+                chatSection.style.width = "";
+                chatSection.style.height = "";
+                chatSection.style.zIndex = "";
+                chatSection.style.margin = "";
+                chatSection.style.padding = "";
+
+                // Update UI
                 maximizeIcon.className = "fas fa-expand";
                 maximizeBtn.title = "Maximize Chat";
                 maximizeBtn.classList.remove("maximized");
 
                 isChatMaximized = false;
+
+                console.log("✅ Chat minimized");
             }
 
             // Scroll to bottom
@@ -1104,7 +1179,7 @@
                     <i class="fas fa-robot text-sm md:text-lg"></i>
                 </div>
                 <div class="bg-white p-4 md:p-6 rounded-2xl rounded-tl-none shadow-md max-w-full md:max-w-3xl border border-gray-100 flex-1">
-                    <p class="text-gray-800 text-sm md:text-base leading-relaxed">👋 Hello! I'm your AI Legal Assistant. What would you like to know?</p>
+                    <p class="text-gray-800 text-sm md:text-base leading-relaxed">👋 Hello! I'm your AI Legal Assistant.  What would you like to know?</p>
                     <p class="text-xs md:text-sm text-gray-500 mt-2 md:mt-3 flex items-center gap-2">
                         <i class="fas fa-clock"></i> Just now
                     </p>

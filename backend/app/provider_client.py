@@ -11,7 +11,7 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
+    
 
 class ProviderClient:
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
@@ -74,11 +74,9 @@ class LocalProvider(ProviderClient):
         except Exception as e:
             logger.error(f"❌ Ollama connection test failed: {e}")
 
-
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         logger.info(f"Generating embeddings for {len(texts)} texts")
         return self.embeddings.embed_documents(texts)
-    
 
     def generate(self, prompt: str, max_tokens: int = 600, **kwargs) -> str:
         """Use the EXACT working prompt from your original code"""
@@ -414,7 +412,6 @@ Legal References:
 See the source documents below for specific sections and details."""
 
 
-
 # NVIDIA NIM Provider Class
 class NVIDIAProvider(ProviderClient):
     def __init__(self, api_key: str = None):
@@ -489,14 +486,11 @@ class NVIDIAProvider(ProviderClient):
         except Exception as e:
             logger.error(f"❌ NVIDIA NIM connection test failed: {e}")
             raise ConnectionError(f"Cannot connect to NVIDIA NIM: {e}")
-        
 
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         """Get embeddings using local HuggingFace model"""
         logger.info(f"Generating embeddings for {len(texts)} texts (using local model)")
         return self.embeddings.embed_documents(texts)
-    
-
 
     def generate(self, prompt: str, max_tokens: int = 1000, **kwargs) -> str:
         """Generate legal analysis using NVIDIA NIM with structured prompt"""
@@ -643,7 +637,6 @@ Cannot connect to the NVIDIA AI service at this time.
 Providing information based on retrieved legal documents.
 
 Please check your internet connection and try again."""
-
 
 
 def get_best_provider():

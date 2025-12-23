@@ -267,10 +267,3 @@ async def process_voice(audio_data: str, language: str = "en"):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# To get list of supported languages
-@app.get("/voice/supported-languages")
-async def get_supported_languages():
-    """
-    Get list of supported languages for voice recognition
-    """
-    return {"status": "success", "languages": voice_processor.supported_languages}

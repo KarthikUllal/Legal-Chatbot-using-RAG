@@ -12,6 +12,7 @@ import re
 from datetime import datetime
 
 
+
 try:
     from langchain_core.prompts import PromptTemplate
     from langchain_core.runnables import RunnablePassthrough
@@ -374,6 +375,7 @@ Available Legal Context: {context}
             session_memory.append({"question": question, "answer": answer[:400]})
 
 
+
             # Keep only last 8 exchanges
             if len(session_memory) > self.max_memory_per_session:
                 self.conversation_memory[session_id] = session_memory[
@@ -388,6 +390,8 @@ Available Legal Context: {context}
                 answer=f"Sorry, I encountered an error: {str(e)}",
                 sources=[],
             )
+    
+    
 
     def _get_session_memory(self, session_id: str) -> list:
         """Get or create session memory"""

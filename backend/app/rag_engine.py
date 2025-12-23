@@ -11,6 +11,7 @@ from .translation import translator
 import re
 from datetime import datetime
 
+
 try:
     from langchain_core.prompts import PromptTemplate
     from langchain_core.runnables import RunnablePassthrough
@@ -32,13 +33,15 @@ class RAGEngine:
         self.conversation_memory = {}  # session_id -> list of exchanges
         self.max_memory_per_session = 8  # Store last 8 exchanges
 
+
+
         self._setup_prompts()
         self._setup_chain()
 
         logger.info(
             f"RAG Engine initialized with provider: {type(self.provider).__name__}"
         )
-
+    
 
     def _setup_prompts(self):
         self.context_prompt = PromptTemplate(
@@ -370,6 +373,7 @@ Available Legal Context: {context}
             # Store in memory
             session_memory.append({"question": question, "answer": answer[:400]})
 
+
             # Keep only last 8 exchanges
             if len(session_memory) > self.max_memory_per_session:
                 self.conversation_memory[session_id] = session_memory[
@@ -568,7 +572,6 @@ Available Legal Context: {context}
                 except:
                     pass
             return ChatResponse(answer=error_msg, sources=[])
-
 
 # Factory function to get configured RAG engine instance
 def get_rag_engine(provider: ProviderClient = None) -> RAGEngine:

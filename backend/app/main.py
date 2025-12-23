@@ -14,6 +14,7 @@ from .voice_processor import voice_processor
 from .news_routes import news_router
 from .ingestion import fetch_html_text
 from datetime import datetime
+from fastapi.responses import FileResponse, Response
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Legal RAG Chatbot",
     description="AI-powered legal assistant using RAG technology",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # CORS middleware - FIXED VERSION
@@ -29,11 +30,11 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow ALL origins
     allow_credentials=True,
-    allow_methods=["*"],   # Allow ALL methods
-    allow_headers=["*"],   # Allow ALL headers
+    allow_methods=["*"],  # Allow ALL methods
+    allow_headers=["*"],  # Allow ALL headers
 )
 app.include_router(admin_router)
-#new router
+# new router
 app.include_router(news_router)
 
 # Initialize RAG engine with best available provider
@@ -45,7 +46,7 @@ async def root():
     return {"message": "Legal RAG Chatbot API is running!"}
 
 
-#To check whether all the endpoints works or not
+# To check whether all the endpoints works or not
 @app.get("/health")
 async def health():
     """Health check endpoint"""
@@ -54,51 +55,49 @@ async def health():
         return {
             "status": "healthy",
             "provider": type(engine.provider).__name__,
-            "documents_count": stats.get("total_documents", 0)
+            "documents_count": stats.get("total_documents", 0),
         }
     except Exception as e:
         logger.error(f"Health check failed: {e}")
         return {"status": "unhealthy", "error": str(e)}
 
 
-#function to ingest file or pdf into vectordb
+# function to ingest file or pdf into vectordb
 @app.post("/ingest-file")
 async def ingest_file(file: UploadFile = File(...), act_name: str = None):
     """
     Upload and ingest a PDF file into the knowledge base
     """
     # Validate file type
-    if not file.filename.lower().endswith('.pdf'):
+    if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
-    
+
     data_dir = Path(settings.DATA_DIR)
     data_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Save uploaded file
     dst = data_dir / file.filename
     try:
         with dst.open("wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        
+
         logger.info(f"File saved: {dst}")
-        
+
         # Ingest file into RAG engine
         success = engine.ingest_file(
-            file_path=str(dst),
-            doc_id=dst.stem, 
-            act_name=act_name or dst.stem
+            file_path=str(dst), doc_id=dst.stem, act_name=act_name or dst.stem
         )
-        
+
         if success:
             return {
-                "status": "success", 
+                "status": "success",
                 "message": "File ingested successfully",
                 "file": file.filename,
-                "doc_id": dst.stem
+                "doc_id": dst.stem,
             }
         else:
             raise HTTPException(status_code=500, detail="Failed to ingest file")
-            
+
     except Exception as e:
         logger.error(f"File ingestion failed: {e}")
         # Clean up uploaded file if ingestion fails
@@ -110,7 +109,7 @@ async def ingest_file(file: UploadFile = File(...), act_name: str = None):
         raise HTTPException(status_code=500, detail=f"Failed to process file: {str(e)}")
 
 
-#To ingest text into vectordb
+# To ingest text into vectordb
 @app.post("/ingest-text")
 async def ingest_text(payload: IngestPayload):
     """
@@ -120,31 +119,30 @@ async def ingest_text(payload: IngestPayload):
         success = engine.ingest_text(
             doc_id=payload.doc_id,
             text=payload.text,
-            metadata={"act": payload.act_name, "source_type": "direct_text"}
+            metadata={"act": payload.act_name, "source_type": "direct_text"},
         )
-        
+
         if success:
             return {
                 "status": "success",
                 "message": "Text ingested successfully",
-                "doc_id": payload.doc_id
+                "doc_id": payload.doc_id,
             }
         else:
             raise HTTPException(status_code=500, detail="Failed to ingest text")
-            
+
     except Exception as e:
         logger.error(f"Text ingestion failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-    
 
 
-#To add Sources from legal website just like how we do it for pdf upload
+# To add Sources from legal website just like how we do it for pdf upload
 @app.post("/ingest-url")
 async def ingest_url(url: str, doc_id: str, act_name: str = None):
     """Ingest legal content from a URL"""
     try:
         text = fetch_html_text(url)
-        
+
         # Use existing ingest_text function
         success = engine.ingest_text(
             doc_id=doc_id,
@@ -153,17 +151,17 @@ async def ingest_url(url: str, doc_id: str, act_name: str = None):
                 "act": act_name or doc_id,
                 "source_type": "webpage",
                 "url": url,
-                "ingestion_date": datetime.now().isoformat()
-            }
+                "ingestion_date": datetime.now().isoformat(),
+            },
         )
-        
+
         return {"status": "success" if success else "failed"}
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-#Chat Route : For actual conversation
+# Chat Route : For actual conversation
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest, session_id: str = "default"):
     """
@@ -171,19 +169,23 @@ async def chat(req: ChatRequest, session_id: str = "default"):
     """
     try:
         logger.info(f"Processing chat request: {req.question[:50]}...")
-        
+
         # Use the complete RAG pipeline (retrieve + generate)
-        response = engine.query(question=req.question, top_k=req.top_k, session_id=session_id)
-        
+        response = engine.query(
+            question=req.question, top_k=req.top_k, session_id=session_id
+        )
+
         logger.info(f"Chat response generated with {len(response.sources)} sources")
         return response
-        
+
     except Exception as e:
         logger.error(f"Chat request failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to process question: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Failed to process question: {str(e)}"
+        )
 
 
-#To get System Stats
+# To get System Stats
 @app.get("/stats")
 async def get_stats():
     """Get system statistics"""
@@ -195,7 +197,7 @@ async def get_stats():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-#function to clear all docs from vector db
+# function to clear all docs from vector db
 @app.delete("/clear")
 async def clear_knowledge_base():
     """Clear all documents from the knowledge base"""
@@ -204,7 +206,9 @@ async def clear_knowledge_base():
         if success:
             return {"status": "success", "message": "Knowledge base cleared"}
         else:
-            raise HTTPException(status_code=500, detail="Failed to clear knowledge base")
+            raise HTTPException(
+                status_code=500, detail="Failed to clear knowledge base"
+            )
     except Exception as e:
         logger.error(f"Clear operation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -219,9 +223,11 @@ async def startup_event():
     logger.info(f"Initial documents count: {stats.get('total_documents', 0)}")
 
 
-#langauage translation route
+# langauage translation route
 @app.post("/chat-translate", response_model=ChatResponse)
-async def chat_with_translation(question: str, language: str = "en", top_k: int = 4, session_id: str = "default"):
+async def chat_with_translation(
+    question: str, language: str = "en", top_k: int = 4, session_id: str = "default"
+):
     """
     Chat endpoint with language translation
     - question: User's question in any language
@@ -230,18 +236,15 @@ async def chat_with_translation(question: str, language: str = "en", top_k: int 
     """
     try:
         logger.info(f"Translation chat: '{question[:50]}...' in {language}")
-        
+
         # Use the simple translation approach
         response = engine.query_with_language(
-            question=question, 
-            language=language, 
-            top_k=top_k,
-            session_id=session_id 
+            question=question, language=language, top_k=top_k, session_id=session_id
         )
-        
+
         logger.info(f"Generated response in {language}")
         return response
-        
+
     except Exception as e:
         logger.error(f"Translation chat failed: {e}")
         error_msg = f"Failed to process question: {str(e)}"
@@ -250,7 +253,7 @@ async def chat_with_translation(question: str, language: str = "en", top_k: int 
         raise HTTPException(status_code=500, detail=error_msg)
 
 
-#voice 
+# voice
 @app.post("/voice/process")
 async def process_voice(audio_data: str, language: str = "en"):
     """
@@ -258,24 +261,16 @@ async def process_voice(audio_data: str, language: str = "en"):
     """
     try:
         text = voice_processor.process_audio(audio_data, language)
-        return {
-            "status": "success",
-            "text": text,
-            "language": language
-        }
+        return {"status": "success", "text": text, "language": language}
     except Exception as e:
         logger.error(f"Voice processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-#To get list of supported languages
+# To get list of supported languages
 @app.get("/voice/supported-languages")
 async def get_supported_languages():
     """
     Get list of supported languages for voice recognition
     """
-    return {
-        "status": "success",
-        "languages": voice_processor.supported_languages
-    }
-
+    return {"status": "success", "languages": voice_processor.supported_languages}

@@ -545,6 +545,14 @@
                             <span class="hidden md:inline">History</span>
                         </button>
 
+                        <!--Download Transcript-->
+                        <Button id="download"
+                            class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
+                            title="Download Chat Report">
+                            <i class="fas fa-download text-xs md:text-sm"></i>
+                            <span class="hidden md:inline">Download</span>
+                        </Button>
+
                         <!-- Maximize Button -->
                         <button id="maximizeBtn"
                             class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
@@ -1630,6 +1638,119 @@
 
         // Load news on page load
         loadNewsPreview();
+
+        //==========Download Transcript Functionalities=================//
+
+        // Download Transcript code begins here 
+        document.getElementById('download')?.addEventListener('click', async function () {
+            await downloadSessionTranscript();
+        });
+
+        async function downloadSessionTranscript() {
+            try {
+                const btn = document.getElementById('download');
+                const originalText = btn.innerHTML;
+
+                // Show loading
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                // Get current session ID (from your global variable at top of file)
+                // You already have: let sessionId = localStorage.getItem('legal_chat_session_id');
+                const currentSessionId = sessionId || "default";
+
+                // Call backend to download transcript
+                const response = await fetch(`${BACKEND_URL}/transcript/download/${currentSessionId}`);
+
+                if (response.ok) {
+                    // Get filename from headers or create one
+                    let filename = `legal_chat_${currentSessionId}_${Date.now()}.txt`;
+                    const contentDisposition = response.headers.get('Content-Disposition');
+
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                        if (match) filename = match[1];
+                    }
+
+                    // Get the text content
+                    const text = await response.text();
+
+                    // Create and download file
+                    const blob = new Blob([text], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+
+                    showNotification('Transcript downloaded successfully!', 'success');
+
+                } else if (response.status === 404) {
+                    showNotification('No conversation found to download', 'warning');
+                } else {
+                    throw new Error(`Download failed: ${response.status}`);
+                }
+
+            } catch (error) {
+                console.error('Download error:', error);
+                showNotification('Failed to download transcript', 'error');
+            } finally {
+                // Reset button - using YOUR button ID "download"
+                setTimeout(() => {
+                    const btn = document.getElementById('download');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-download text-xs md:text-sm"></i><span class="hidden md:inline">Download</span>';
+                        btn.disabled = false;
+                    }
+                }, 1000);
+            }
+        }
+
+        //notification functionalities
+        function showNotification(message, type = 'success') {
+            const colors = {
+                success: "bg-green-600",
+                error: "bg-red-600",
+                warning: "bg-yellow-600",
+                info: "bg-blue-600"
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50`;
+            notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+            document.body.appendChild(notification);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+
+        //Copy to clipboard
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showNotification('Copied to clipboard!', 'success');
+            } catch (error) {
+                console.error('Copy failed:', error);
+                showNotification('Failed to copy', 'error');
+            }
+        }
+
+
+
     </script>
 
     <!-- Chat History Sidebar -->

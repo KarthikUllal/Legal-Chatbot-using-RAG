@@ -266,4 +266,3 @@ async def process_voice(audio_data: str, language: str = "en"):
         logger.error(f"Voice processing failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-

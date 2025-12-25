@@ -36,6 +36,7 @@ feedparser
 newspaper3k 
 lxml 
 python-dateutil
+reportlab
 
 
 Run command

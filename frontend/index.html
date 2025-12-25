@@ -151,16 +151,6 @@
                 max-width: 100% !important;
             }
 
-            /* News section adjustments */
-            .grid-cols-1 {
-                grid-template-columns: 1fr !important;
-            }
-
-            #legal-news .grid-cols-3 {
-                grid-template-columns: 1fr !important;
-                gap: 1rem !important;
-            }
-
             /* About section adjustments */
             .md\:grid-cols-2 {
                 grid-template-columns: 1fr !important;
@@ -440,11 +430,11 @@
                     class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base">
                     <i class="fas fa-comments"></i> <span class="hidden sm:inline">Chatbot</span>
                 </a>
-                <a href="admin-login.html"
+                <!-- <a href="admin-login.html"
                     class="text-gray-600 hover:text-red-600 transition font-medium flex items-center gap-1 text-sm lg:text-base">
                     <i class="fas fa-shield-alt text-sm"></i>
                     <span class="hidden sm:inline">Admin</span>
-                </a>
+                </a> -->
                 <a href="#about"
                     class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base">
                     <i class="fas fa-info-circle"></i> <span class="hidden sm:inline">About</span>
@@ -467,9 +457,9 @@
                 <a href="#chatbot" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
                     <i class="fas fa-comments w-5"></i> Chatbot
                 </a>
-                <a href="admin-login.html" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
+                <!-- <a href="admin-login.html" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
                     <i class="fas fa-shield-alt w-5"></i> Admin
-                </a>
+                </a> -->
                 <a href="#about" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
                     <i class="fas fa-info-circle w-5"></i> About
                 </a>
@@ -502,10 +492,10 @@
                         class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition shadow-lg font-medium flex items-center justify-center gap-2 text-sm md:text-base">
                         <i class="fas fa-rocket"></i> Start Chatting
                     </a>
-                    <a href="admin-login.html"
+                    <!-- <a href="admin-login.html"
                         class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl hover:from-green-700 hover:to-teal-700 transition shadow-lg font-medium flex items-center justify-center gap-2 text-sm md:text-base">
                         <i class="fas fa-cog"></i> Admin Panel
-                    </a>
+                    </a> -->
                 </div>
                 <div class="scroll-indicator mt-8">
                     <i class="fas fa-chevron-down text-gray-400 text-2xl"></i>
@@ -670,7 +660,7 @@
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6" id="newsPreview">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6" id="newsPreview">
                 <!-- News preview will be loaded here -->
                 <div class="text-center py-8">
                     <i class="fas fa-spinner loading-spinner text-3xl text-blue-600 mb-3"></i>
@@ -1571,7 +1561,7 @@
         // Load news preview
         async function loadNewsPreview() {
             try {
-                const response = await fetch(`${BACKEND_URL}/news?limit=3`);
+                const response = await fetch(`${BACKEND_URL}/news/?limit=3`);
                 if (response.ok) {
                     const data = await response.json();
                     renderNewsPreview(data.articles);

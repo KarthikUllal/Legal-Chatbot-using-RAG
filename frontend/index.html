@@ -546,12 +546,18 @@
                         </button>
 
                         <!--Download Transcript-->
-                        <Button id="download"
+                        <button id="download"
                             class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
                             title="Download Chat Report">
                             <i class="fas fa-download text-xs md:text-sm"></i>
                             <span class="hidden md:inline">Download</span>
-                        </Button>
+                        </button>
+
+                        <!--Pdf Transcript -->
+                        <button id="downloadPdf" class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg">
+                            <i class="fas fa-file-pdf"></i>
+                            <span class="hidden md:inline">PDF</span>
+                        </button>
 
                         <!-- Maximize Button -->
                         <button id="maximizeBtn"
@@ -1749,6 +1755,28 @@
             }
         }
 
+        //pdf transcript downloader
+        document.getElementById('downloadPdf')?.addEventListener('click', async () => {
+            const response = await fetch(
+                `${BACKEND_URL}/transcript/download/pdf/${sessionId}`
+            );
+
+            if (!response.ok) {
+                showNotification('No transcript available', 'warning');
+                return;
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+
+            a.href = url;
+            a.download = `legal_consultation_${sessionId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        });
 
 
     </script>

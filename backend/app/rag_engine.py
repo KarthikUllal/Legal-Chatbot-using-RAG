@@ -34,6 +34,8 @@ class RAGEngine:
         self.conversation_memory = {}  # session_id -> list of exchanges
         self.max_memory_per_session = 8  # Store last 8 exchanges
 
+        self.conversation_transcripts = {}  # session_id -> full lawyer-style transcript
+
 
 
         self._setup_prompts()
@@ -382,6 +384,13 @@ Available Legal Context: {context}
                     -self.max_memory_per_session :
                 ]
 
+            # FULL transcript (for download)
+            self.conversation_transcripts.setdefault(session_id, []).append({
+                "timestamp": datetime.now().isoformat(),
+                "user_query": question,
+                "legal_response": answer
+            })
+
             return ChatResponse(answer=answer, sources=sources)
 
         except Exception as e:
@@ -390,6 +399,9 @@ Available Legal Context: {context}
                 answer=f"Sorry, I encountered an error: {str(e)}",
                 sources=[],
             )
+        
+    def get_full_transcript(self, session_id: str):
+        return self.conversation_transcripts.get(session_id, [])
     
     
 

@@ -8,7 +8,66 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        /* Base styles */
+        /* Base styles and variables */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #4299e1 0%, #667eea 100%);
+            --success-gradient: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            --warning-gradient: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        /* Smooth animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide-in-up {
+            animation: slideInUp 0.3s ease-out;
+        }
+
+        .slide-in-down {
+            animation: slideInDown 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Chat message animations */
         .chat-message {
             animation: slideIn 0.3s ease-out;
             font-size: 14px;
@@ -16,237 +75,6 @@
             margin-bottom: 1rem;
         }
 
-        /* Mobile responsive adjustments */
-        @media (max-width: 768px) {
-
-            .chat-message .bg-white,
-            .chat-message .bg-gradient-to-r {
-                padding: 1rem !important;
-                max-width: 100% !important;
-                font-size: 15px !important;
-                line-height: 1.5 !important;
-            }
-
-            .chat-message .flex {
-                gap: 0.75rem !important;
-            }
-
-            .chat-message .w-12 {
-                width: 2.5rem !important;
-                height: 2.5rem !important;
-                font-size: 0.875rem !important;
-            }
-
-            .chat-message .text-base {
-                font-size: 15px !important;
-            }
-
-            /* Adjust chat box height for mobile */
-            #chatBox {
-                height: 400px !important;
-                padding: 1rem !important;
-            }
-
-            /* Mobile header adjustments */
-            .container {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-
-            /* Chat control buttons - responsive */
-            .chat-header-buttons {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-                justify-content: flex-end;
-            }
-
-            .chat-header-buttons button {
-                padding: 0.375rem 0.5rem !important;
-                font-size: 0.75rem !important;
-                min-width: auto !important;
-            }
-
-            .chat-header-buttons button span {
-                display: none;
-            }
-
-            .chat-header-buttons button i {
-                margin: 0 !important;
-            }
-
-            /* Input area adjustments */
-            .p-6 {
-                padding: 1rem !important;
-            }
-
-            #userInput {
-                font-size: 14px !important;
-                padding: 0.75rem !important;
-            }
-
-            /* Quick questions hidden on mobile */
-            .quick-question {
-                display: none !important;
-            }
-
-            /* Replace your current .chat-maximized CSS with this: */
-            .chat-maximized {
-                /* Reset all positioning */
-                all: initial !important;
-
-                /* Force full viewport coverage */
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                bottom: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-                margin: 0 !important;
-                padding: 0 !important;
-
-                /* Visual reset */
-                border: none !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
-
-                /* Ensure it's on top */
-                z-index: 999999 !important;
-
-                /* Background */
-                background: white !important;
-
-                /* Remove any flex/grid constraints */
-                display: block !important;
-                flex: none !important;
-                grid-area: unset !important;
-            }
-
-            /* Also fix the chat box inside */
-            .chat-maximized #chatBox {
-                height: calc(100vh - 160px) !important;
-                width: 100% !important;
-                max-height: none !important;
-                min-height: 0 !important;
-                display: flex !important;
-                flex-direction: column !important;
-            }
-
-            /* Lock the HTML too for good measure */
-            html.chat-maximized-active,
-            body.chat-maximized-active {
-                overflow: hidden !important;
-                height: 100% !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-
-
-            /* History sidebar for mobile */
-            #historySidebar {
-                width: 100% !important;
-                max-width: 100% !important;
-            }
-
-            /* About section adjustments */
-            .md\:grid-cols-2 {
-                grid-template-columns: 1fr !important;
-            }
-
-            /* Laws grid adjustments */
-            .grid-cols-2.md\:grid-cols-5 {
-                grid-template-columns: repeat(2, 1fr) !important;
-                gap: 0.5rem !important;
-            }
-
-            .grid-cols-2.md\:grid-cols-5 div {
-                padding: 0.75rem !important;
-            }
-
-            .grid-cols-2.md\:grid-cols-5 .text-4xl {
-                font-size: 1.5rem !important;
-                margin-bottom: 0.5rem !important;
-            }
-
-            /* Footer adjustments */
-            .md\:grid-cols-3 {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            #chatBox {
-                height: 350px !important;
-            }
-
-            .chat-header-buttons {
-                gap: 0.25rem;
-            }
-
-            .chat-header-buttons button {
-                padding: 0.25rem 0.375rem !important;
-                font-size: 0.7rem !important;
-            }
-
-            /* Hide text on very small screens, show only icons */
-            .chat-header-buttons #clearChat span,
-            .chat-header-buttons #historyBtn span {
-                display: none !important;
-            }
-
-            .chat-header-buttons button i {
-                margin-right: 0 !important;
-            }
-
-            /* Input buttons */
-            #voiceBtn,
-            #sendBtn {
-                min-width: 45px !important;
-                padding-left: 0.5rem !important;
-                padding-right: 0.5rem !important;
-            }
-
-            /* Reduce padding in sections */
-            .p-8 {
-                padding: 1.5rem !important;
-            }
-
-            .py-8 {
-                padding-top: 1rem !important;
-                padding-bottom: 1rem !important;
-            }
-
-            /* Hero section adjustments */
-            .text-4xl {
-                font-size: 1.75rem !important;
-            }
-
-            .text-lg {
-                font-size: 1rem !important;
-            }
-
-            .px-8 {
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
-            }
-        }
-
-        /* Chat message specific adjustments */
-        .chat-message .bg-white p {
-            font-size: 15px;
-            color: #374151;
-        }
-
-        /* Button states */
-        #maximizeBtn.maximized i {
-            transform: rotate(180deg);
-        }
-
-        /* Animation keyframes */
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -259,26 +87,15 @@
             }
         }
 
-        @keyframes typing {
-
-            0%,
-            60%,
-            100% {
-                transform: translateY(0);
-            }
-
-            30% {
-                transform: translateY(-10px);
-            }
-        }
-
+        /* Gradient text */
         .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
+        /* Floating animation */
         .floating {
             animation: floating 3s ease-in-out infinite;
         }
@@ -295,6 +112,7 @@
             }
         }
 
+        /* Typing indicator */
         .typing-indicator {
             display: flex;
             gap: 4px;
@@ -316,92 +134,254 @@
             animation-delay: 0.4s;
         }
 
-        /* Mobile menu fix */
-        #mobileMenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+            }
+
+            30% {
+                transform: translateY(-10px);
+            }
         }
 
-        #mobileMenu.hidden {
-            max-height: 0;
-        }
-
-        #mobileMenu:not(.hidden) {
-            max-height: 300px;
-        }
-
-        /* Voice button recording animation */
-        .voice-recording {
-            animation: pulse 1.5s infinite;
-        }
-
+        /* Pulse animation */
         @keyframes pulse {
-            0% {
+
+            0%,
+            100% {
                 transform: scale(1);
+                opacity: 1;
             }
 
             50% {
-                transform: scale(1.1);
-            }
-
-            100% {
-                transform: scale(1);
+                transform: scale(1.05);
+                opacity: 0.8;
             }
         }
 
-        /* History sidebar responsive */
-        @media (max-width: 768px) {
-            #historySidebar {
-                width: 100% !important;
-                right: 0 !important;
-                left: 0 !important;
-                border-radius: 0 !important;
-            }
+        .pulse {
+            animation: pulse 2s infinite;
         }
 
-        /* Language dropdown responsive */
-        @media (max-width: 768px) {
-            #languageDropdown {
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 90% !important;
-                max-width: 300px !important;
-            }
+        /* Glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Chat input area responsive */
+        /* Improved maximize functionality */
+        .chat-maximized {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            z-index: 9999 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: white !important;
+        }
+
+        .chat-maximized #chatBox {
+            height: calc(100vh - 200px) !important;
+            /* Increased from 180px to 200px */
+            max-height: none !important;
+            padding: 1rem !important;
+        }
+
+        .chat-maximized #chatbot>div:nth-child(3) {
+            /* Chat input area */
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: white !important;
+            border-top: 1px solid #e5e7eb !important;
+            padding: 1rem !important;
+            z-index: 10000 !important;
+        }
+
+        .chat-maximized #chatbot>div:first-child {
+            /* Header */
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: linear-gradient(to right, #4f46e5, #7c3aed, #4338ca) !important;
+            z-index: 10000 !important;
+        }
+
+        /* Mobile responsive adjustments */
         @media (max-width: 768px) {
-            .flex.gap-3.items-stretch {
-                flex-wrap: wrap;
+
+            .chat-message .bg-white,
+            .chat-message .bg-gradient-to-r {
+                padding: 0.875rem !important;
+                font-size: 14px !important;
+            }
+
+            .chat-message .flex {
                 gap: 0.5rem !important;
             }
 
-            #userInput {
-                flex: 1 0 100%;
-                margin-bottom: 0.5rem;
+            .chat-message .w-12 {
+                width: 2rem !important;
+                height: 2rem !important;
+                font-size: 0.75rem !important;
             }
 
-            #voiceBtn,
-            #sendBtn {
-                flex: 1;
+            #chatBox {
+                height: 350px !important;
+                padding: 0.75rem !important;
+            }
+
+            /* Mobile menu */
+            #mobileMenu {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+            }
+
+            #mobileMenu:not(.hidden) {
+                max-height: 300px;
+            }
+
+            /* Chat header buttons */
+            .chat-header-buttons button span {
+                display: none !important;
+            }
+
+            .chat-header-buttons button {
+                padding: 0.375rem 0.5rem !important;
+                min-width: auto !important;
+            }
+
+            /* History sidebar */
+            #historySidebar {
+                width: 100% !important;
+            }
+
+            /* Laws grid */
+            .grid-cols-2.md\:grid-cols-5 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.5rem !important;
+            }
+
+            /* Hide quick questions on mobile */
+            .quick-question {
+                display: none !important;
             }
         }
 
-        /* Ensure buttons are visible on mobile */
-        @media (max-width: 640px) {
-            .chat-header-buttons {
-                position: absolute;
-                top: 50%;
-                right: 0.5rem;
-                transform: translateY(-50%);
+        @media (max-width: 480px) {
+            #chatBox {
+                height: 320px !important;
             }
 
-            #chatbot>div:first-child {
-                position: relative;
-                padding-right: 120px;
+            .text-4xl {
+                font-size: 1.75rem !important;
+            }
+
+            .text-lg {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #764ba2, #667eea);
+        }
+
+        /* Button hover effects */
+        .btn-hover {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Card hover effects */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Notification styles */
+        .notification {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
             }
         }
     </style>
@@ -409,11 +389,11 @@
 
 <body class="bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white/80 backdrop-blur-md shadow-md sticky top-0 z-50">
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
         <div class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div
-                    class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl font-bold shadow-lg">
+                    class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-lg sm:text-xl font-bold shadow-lg btn-hover">
                     <i class="fas fa-balance-scale"></i>
                 </div>
                 <div>
@@ -423,47 +403,43 @@
             </div>
             <nav class="hidden md:flex gap-4 lg:gap-6">
                 <a href="#home"
-                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base">
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base btn-hover">
                     <i class="fas fa-home"></i> <span class="hidden sm:inline">Home</span>
                 </a>
                 <a href="#chatbot"
-                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base">
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base btn-hover">
                     <i class="fas fa-comments"></i> <span class="hidden sm:inline">Chatbot</span>
                 </a>
-                <!-- <a href="admin-login.html"
-                    class="text-gray-600 hover:text-red-600 transition font-medium flex items-center gap-1 text-sm lg:text-base">
-                    <i class="fas fa-shield-alt text-sm"></i>
-                    <span class="hidden sm:inline">Admin</span>
-                </a> -->
                 <a href="#about"
-                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base">
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base btn-hover">
                     <i class="fas fa-info-circle"></i> <span class="hidden sm:inline">About</span>
                 </a>
                 <a href="news.html"
-                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base">
+                    class="text-gray-600 hover:text-blue-600 transition font-medium flex items-center gap-2 text-sm lg:text-base btn-hover">
                     <i class="fas fa-newspaper"></i> <span class="hidden sm:inline">News</span>
                 </a>
             </nav>
-            <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-blue-600 text-xl">
+            <button id="mobileMenuBtn" class="md:hidden text-gray-600 hover:text-blue-600 text-xl btn-hover">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
         <!-- Mobile Menu -->
-        <div id="mobileMenu" class="md:hidden bg-white border-t border-gray-200 hidden">
+        <div id="mobileMenu" class="md:hidden bg-white border-t border-gray-100 hidden">
             <div class="container mx-auto px-6 py-4 flex flex-col gap-3">
-                <a href="#home" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
+                <a href="#home"
+                    class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-blue-50">
                     <i class="fas fa-home w-5"></i> Home
                 </a>
-                <a href="#chatbot" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
+                <a href="#chatbot"
+                    class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-blue-50">
                     <i class="fas fa-comments w-5"></i> Chatbot
                 </a>
-                <!-- <a href="admin-login.html" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
-                    <i class="fas fa-shield-alt w-5"></i> Admin
-                </a> -->
-                <a href="#about" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
+                <a href="#about"
+                    class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-blue-50">
                     <i class="fas fa-info-circle w-5"></i> About
                 </a>
-                <a href="news.html" class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2">
+                <a href="news.html"
+                    class="text-gray-600 hover:text-blue-600 transition flex items-center gap-2 py-2 px-3 rounded-lg hover:bg-blue-50">
                     <i class="fas fa-newspaper w-5"></i> News
                 </a>
             </div>
@@ -474,10 +450,14 @@
     <main class="container mx-auto px-4 sm:px-6 py-6 md:py-8">
         <!-- Hero Section -->
         <section id="home"
-            class="bg-white rounded-2xl shadow-xl p-6 md:p-12 mb-6 md:mb-8 fade-in relative overflow-hidden">
+            class="bg-white rounded-2xl shadow-lg p-6 md:p-12 mb-6 md:mb-8 fade-in relative overflow-hidden card-hover">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-purple-50/50"></div>
             <div class="text-center max-w-3xl mx-auto relative z-10">
                 <div class="floating mb-6">
-                    <i class="fas fa-gavel text-4xl md:text-6xl text-blue-600"></i>
+                    <div
+                        class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-20 h-20 md:w-24 md:h-24 rounded-full flex items-center justify-center mx-auto shadow-xl">
+                        <i class="fas fa-gavel text-3xl md:text-4xl"></i>
+                    </div>
                 </div>
                 <h2 class="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
                     Understand <span class="gradient-text">Indian Laws</span> Easily
@@ -489,22 +469,18 @@
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <a href="#chatbot"
-                        class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition shadow-lg font-medium flex items-center justify-center gap-2 text-sm md:text-base">
+                        class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl font-medium flex items-center justify-center gap-2 text-sm md:text-base btn-hover">
                         <i class="fas fa-rocket"></i> Start Chatting
                     </a>
-                    <!-- <a href="admin-login.html"
-                        class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-xl hover:from-green-700 hover:to-teal-700 transition shadow-lg font-medium flex items-center justify-center gap-2 text-sm md:text-base">
-                        <i class="fas fa-cog"></i> Admin Panel
-                    </a> -->
                 </div>
-                <div class="scroll-indicator mt-8">
-                    <i class="fas fa-chevron-down text-gray-400 text-2xl"></i>
+                <div class="scroll-indicator mt-8 animate-bounce">
+                    <i class="fas fa-chevron-down text-blue-500 text-2xl"></i>
                 </div>
             </div>
         </section>
 
         <!-- Chatbot Section -->
-        <section id="chatbot" class="bg-white rounded-2xl shadow-xl overflow-hidden mb-6 md:mb-8">
+        <section id="chatbot" class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 md:mb-8 card-hover">
             <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white p-4 md:p-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
                     <div class="flex-1">
@@ -517,74 +493,70 @@
                         </p>
                     </div>
 
-                    <!-- Chat Control Buttons - Responsive -->
+                    <!-- Chat Control Buttons -->
                     <div class="chat-header-buttons flex flex-wrap gap-2 justify-end">
-                        <!-- New Chat -->
                         <button id="newChatBtn"
-                            class="bg-green-600 hover:bg-green-700 text-white px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover"
                             title="Start New Conversation">
-                            <i class="fas fa-plus text-xs md:text-sm"></i>
+                            <i class="fas fa-plus"></i>
                             <span class="hidden md:inline">New Chat</span>
                         </button>
 
-                        <!-- History Button -->
                         <button id="historyBtn"
-                            class="bg-green-600 hover:bg-green-700 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
+                            class="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover"
                             title="View Chat History">
-                            <i class="fas fa-history text-xs md:text-sm"></i>
+                            <i class="fas fa-history"></i>
                             <span class="hidden md:inline">History</span>
                         </button>
 
-                        <!--Download Transcript-->
                         <button id="download"
-                            class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
+                            class="glass hover:bg-white/40 px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover"
                             title="Download Chat Report">
-                            <i class="fas fa-download text-xs md:text-sm"></i>
+                            <i class="fas fa-download"></i>
                             <span class="hidden md:inline">Download</span>
                         </button>
 
-                        <!--Pdf Transcript -->
-                        <button id="downloadPdf" class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg">
+                        <button id="downloadPdf"
+                            class="glass hover:bg-white/40 px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover"
+                            title="Download PDF">
                             <i class="fas fa-file-pdf"></i>
                             <span class="hidden md:inline">PDF</span>
                         </button>
 
-                        <!-- Maximize Button -->
                         <button id="maximizeBtn"
-                            class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2"
+                            class="glass hover:bg-white/40 px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover"
                             title="Maximize Chat">
-                            <i class="fas fa-expand text-xs md:text-sm"></i>
+                            <i class="fas fa-expand"></i>
                             <span class="hidden md:inline">Maximize</span>
                         </button>
 
-                        <!-- Language Selector -->
                         <div class="relative">
                             <button id="languageBtn"
-                                class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2">
-                                <i class="fas fa-language text-xs md:text-sm"></i>
+                                class="glass hover:bg-white/40 px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover">
+                                <i class="fas fa-language"></i>
                                 <span id="currentLanguage" class="hidden sm:inline">EN</span>
                                 <i class="fas fa-chevron-down text-xs ml-1"></i>
                             </button>
                             <div id="languageDropdown"
-                                class="hidden absolute top-full right-0 mt-1 bg-white/50 text-black rounded-lg shadow-xl z-50 min-w-48">
+                                class="hidden absolute top-full right-0 mt-1 bg-white text-gray-800 rounded-lg shadow-xl z-50 min-w-48 border border-gray-200">
                                 <div class="p-2 space-y-1">
                                     <button
-                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm"
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm transition-colors"
                                         data-lang="en">
                                         <span>🇺🇸 English</span>
                                     </button>
                                     <button
-                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm"
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm transition-colors"
                                         data-lang="kn">
                                         <span>🇮🇳 Kannada</span>
                                     </button>
                                     <button
-                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm"
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm transition-colors"
                                         data-lang="hi">
                                         <span>🇮🇳 Hindi</span>
                                     </button>
                                     <button
-                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm"
+                                        class="language-option w-full text-left px-3 py-2 rounded hover:bg-blue-50 flex items-center gap-2 text-sm transition-colors"
                                         data-lang="ta">
                                         <span>🇮🇳 Tamil</span>
                                     </button>
@@ -592,10 +564,9 @@
                             </div>
                         </div>
 
-                        <!-- Clear Chat Button -->
                         <button id="clearChat"
-                            class="bg-white/20 hover:bg-white/30 px-2 py-2 md:px-3 rounded-lg transition text-xs md:text-sm flex items-center gap-1 md:gap-2">
-                            <i class="fas fa-trash-alt text-xs md:text-sm"></i>
+                            class="glass hover:bg-white/40 px-3 py-2 rounded-lg transition-all duration-200 text-sm flex items-center gap-2 btn-hover">
+                            <i class="fas fa-trash-alt"></i>
                             <span class="hidden md:inline">Clear</span>
                         </button>
                     </div>
@@ -603,18 +574,17 @@
             </div>
 
             <!-- Chat Messages Area -->
-            <div id="chatBox"
-                class="h-[400px] md:h-[500px] overflow-y-auto p-4 md:p-6 bg-gradient-to-b from-gray-50 to-white">
-                <div class="chat-message mb-6">
+            <div id="chatBox" class="h-[400px] md:h-[500px] overflow-y-auto p-4 md:p-6 bg-gray-100">
+                <div class="chat-message mb-6 slide-in-up">
                     <div class="flex gap-3 md:gap-4">
                         <div
                             class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                             <i class="fas fa-robot text-sm md:text-lg"></i>
                         </div>
                         <div
-                            class="bg-blue-50 p-4 md:p-6 rounded-2xl rounded-tl-none shadow-md max-w-full md:max-w-3xl border border-gray-100 flex-1">
-                            <p class="text-gray-800 text-sm md:text-base leading-relaxed">👋 Hello! I'm your AI Legal
-                                Assistant. What would you like to know?</p>
+                            class="bg-white p-4 md:p-6 rounded-2xl rounded-tl-none shadow-sm max-w-full md:max-w-3xl border border-gray-100 flex-1">
+                            <p class="text-black-800 text-md font-bold md:text-base leading-relaxed">👋 Hello! I'm your AI Legal
+                                Assistant. What would you like to know about Indian laws today?</p>
                             <p class="text-xs md:text-sm text-gray-500 mt-2 md:mt-3 flex items-center gap-2">
                                 <i class="fas fa-clock text-xs"></i> Just now
                             </p>
@@ -624,44 +594,44 @@
             </div>
 
             <!-- Chat Input Area -->
-            <div class="p-4 md:p-6 bg-white border-t border-gray-200">
+            <div class="p-4 md:p-6 bg-gray-200 border-t border-black-700">
                 <div class="flex flex-col sm:flex-row gap-3 items-stretch">
                     <input type="text" id="userInput" placeholder="Type your legal question here..."
-                        class="flex-1 border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm md:text-base" />
+                        class="flex-1 border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-sm md:text-base placeholder-gray-400" />
                     <div class="flex gap-3 sm:gap-2">
                         <button id="voiceBtn"
-                            class="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-teal-600 transition shadow-lg font-medium flex items-center justify-center min-w-[50px] md:min-w-[60px]"
+                            class="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-3 rounded-xl hover:from-green-600 hover:to-teal-600 transition-all duration-200 shadow-lg hover:shadow-xl font-medium flex items-center justify-center min-w-[50px] md:min-w-[60px] btn-hover"
                             title="Voice Search">
                             <i class="fas fa-microphone text-sm md:text-lg"></i>
                         </button>
+
                         <button id="sendBtn"
-                            class="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 md:px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-600 transition shadow-lg font-medium flex items-center justify-center min-w-[60px] md:min-w-[80px]">
+                            class="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 md:px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl font-medium flex items-center justify-center min-w-[60px] md:min-w-[80px] btn-hover">
                             <i class="fas fa-paper-plane text-sm md:text-lg"></i>
                         </button>
                     </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-3 text-center flex items-center justify-center gap-2">
+                <p class="text-sm text-gray-500 mt-3 text-center flex items-center justify-center gap-2">
                     <i class="fas fa-shield-alt text-yellow-500"></i>
                     This chatbot provides general legal information only, not legal advice.
                 </p>
             </div>
         </section>
 
-        <!-- Legal news update section -->
-        <section id="legal-news" class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-6 md:mb-8">
+        <!-- Legal News Update Section -->
+        <section id="legal-news" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 card-hover">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
                 <h2 class="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-3">
                     <i class="fas fa-newspaper text-red-500"></i>
                     Latest Legal Updates
                 </h2>
                 <a href="news.html"
-                    class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 text-sm md:text-base">
+                    class="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 text-sm md:text-base btn-hover">
                     View All <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6" id="newsPreview">
-                <!-- News preview will be loaded here -->
                 <div class="text-center py-8">
                     <i class="fas fa-spinner loading-spinner text-3xl text-blue-600 mb-3"></i>
                     <p class="text-gray-600">Loading legal updates...</p>
@@ -671,7 +641,7 @@
 
         <!-- Laws We Cover Section -->
         <section
-            class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl shadow-xl p-6 md:p-8 mb-6 md:mb-8 text-white">
+            class="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 rounded-2xl shadow-lg p-6 md:p-8 mb-6 md:mb-8 text-white card-hover">
             <h2
                 class="text-xl md:text-2xl lg:text-3xl font-bold text-center mb-2 flex items-center justify-center gap-2">
                 <i class="fas fa-book-open"></i> Laws We Cover
@@ -681,7 +651,7 @@
             </p>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
                 <div
-                    class="bg-white/20 backdrop-blur rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    class="glass rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer card-hover">
                     <div class="text-2xl md:text-3xl lg:text-4xl mb-2 md:mb-3">
                         <i class="fas fa-file-contract"></i>
                     </div>
@@ -689,7 +659,7 @@
                     <p class="text-xs text-blue-100 mt-1">Indian Penal Code</p>
                 </div>
                 <div
-                    class="bg-white/20 backdrop-blur rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    class="glass rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer card-hover">
                     <div class="text-2xl md:text-3xl lg:text-4xl mb-2 md:mb-3">
                         <i class="fas fa-balance-scale"></i>
                     </div>
@@ -697,13 +667,13 @@
                     <p class="text-xs text-blue-100 mt-1">Bhartiya Nyaya Sanhita</p>
                 </div>
                 <div
-                    class="bg-white/20 backdrop-blur rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    class="glass rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer card-hover">
                     <div class="text-2xl md:text-3xl lg:text-4xl mb-2 md:mb-3"><i class="fas fa-laptop-code"></i></div>
                     <p class="font-bold text-base md:text-lg">IT Act 2000</p>
                     <p class="text-xs text-blue-100 mt-1">Information Technology</p>
                 </div>
                 <div
-                    class="bg-white/20 backdrop-blur rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    class="glass rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer card-hover">
                     <div class="text-2xl md:text-3xl lg:text-4xl mb-2 md:mb-3">
                         <i class="fas fa-shopping-cart"></i>
                     </div>
@@ -711,7 +681,7 @@
                     <p class="text-xs text-blue-100 mt-1">Protection Act</p>
                 </div>
                 <div
-                    class="bg-white/20 backdrop-blur rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition transform hover:-translate-y-1 cursor-pointer">
+                    class="glass rounded-xl p-4 md:p-5 text-center hover:bg-white/30 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer card-hover">
                     <div class="text-2xl md:text-3xl lg:text-4xl mb-2 md:mb-3"><i class="fas fa-home"></i></div>
                     <p class="font-bold text-base md:text-lg">Domestic</p>
                     <p class="text-xs text-blue-100 mt-1">Violence Act</p>
@@ -720,7 +690,7 @@
         </section>
 
         <!-- About Section -->
-        <section id="about" class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+        <section id="about" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 card-hover">
             <h2 class="text-xl md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 text-gray-800 flex items-center gap-3">
                 <i class="fas fa-info-circle text-blue-600"></i> About This Project
             </h2>
@@ -775,19 +745,19 @@
 
                     <div class="grid grid-cols-3 gap-2 md:gap-3">
                         <div
-                            class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 md:p-4 text-center shadow-sm">
+                            class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 md:p-4 text-center shadow-sm card-hover">
                             <i class="fas fa-book text-xl md:text-2xl text-blue-600 mb-2"></i>
                             <p class="text-xl md:text-2xl font-bold text-blue-600">5+</p>
                             <p class="text-xs text-gray-600">Laws</p>
                         </div>
                         <div
-                            class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 md:p-4 text-center shadow-sm">
+                            class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 md:p-4 text-center shadow-sm card-hover">
                             <i class="fas fa-brain text-xl md:text-2xl text-purple-600 mb-2"></i>
                             <p class="text-xl md:text-2xl font-bold text-purple-600">RAG</p>
                             <p class="text-xs text-gray-600">Tech</p>
                         </div>
                         <div
-                            class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 md:p-4 text-center shadow-sm">
+                            class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 md:p-4 text-center shadow-sm card-hover">
                             <i class="fas fa-heart text-xl md:text-2xl text-green-600 mb-2"></i>
                             <p class="text-xl md:text-2xl font-bold text-green-600">Free</p>
                             <p class="text-xs text-gray-600">Access</p>
@@ -819,20 +789,21 @@
                         <i class="fas fa-link"></i> Quick Links
                     </h4>
                     <div class="space-y-2 text-xs md:text-sm">
-                        <a href="#home" class="block text-gray-400 hover:text-white transition flex items-center gap-1">
+                        <a href="#home"
+                            class="block text-gray-400 hover:text-white transition flex items-center gap-1 hover:translate-x-1 duration-200">
                             <i class="fas fa-chevron-right text-xs mr-1"></i>Home
                         </a>
                         <a href="#chatbot"
-                            class="block text-gray-400 hover:text-white transition flex items-center gap-1">
+                            class="block text-gray-400 hover:text-white transition flex items-center gap-1 hover:translate-x-1 duration-200">
                             <i class="fas fa-chevron-right text-xs mr-1"></i>Chatbot
                         </a>
-                        <a href="admin-login.html"
-                            class="block text-gray-400 hover:text-white transition flex items-center gap-1">
-                            <i class="fas fa-chevron-right text-xs mr-1"></i>Admin
-                        </a>
                         <a href="#about"
-                            class="block text-gray-400 hover:text-white transition flex items-center gap-1">
+                            class="block text-gray-400 hover:text-white transition flex items-center gap-1 hover:translate-x-1 duration-200">
                             <i class="fas fa-chevron-right text-xs mr-1"></i>About
+                        </a>
+                        <a href="news.html"
+                            class="block text-gray-400 hover:text-white transition flex items-center gap-1 hover:translate-x-1 duration-200">
+                            <i class="fas fa-chevron-right text-xs mr-1"></i>News
                         </a>
                     </div>
                 </div>
@@ -857,25 +828,12 @@
 
     <!-- Backend Configuration -->
     <script>
-        const BACKEND_URL = "http://localhost:8000"; // Your FastAPI backend URL
-
-        // Generate a session ID when page loads
+        const BACKEND_URL = "http://localhost:8000";
         let sessionId = localStorage.getItem('legal_chat_session_id');
         if (!sessionId) {
             sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             localStorage.setItem('legal_chat_session_id', sessionId);
         }
-        console.log('Session ID:', sessionId); // Optional: for debugging
-
-        // API Endpoints
-        const API_ENDPOINTS = {
-            CHAT: `${BACKEND_URL}/chat`,
-            INGEST: `${BACKEND_URL}/ingest-file`,
-            ADMIN_STATS: `${BACKEND_URL}/admin/stats`,
-            TRANSLATE: `${BACKEND_URL}/multilingual/translate`,
-            VOICE_PROCESS: `${BACKEND_URL}/voice/process`,
-            LANGUAGES: `${BACKEND_URL}/multilingual/languages`,
-        };
     </script>
 
     <script>
@@ -894,8 +852,8 @@
         const maximizeBtn = document.getElementById("maximizeBtn");
         const newChatBtn = document.getElementById('newChatBtn');
         const historyBtn = document.getElementById("historyBtn");
-        const historySidebar = document.getElementById("historySidebar");
-        const sidebarOverlay = document.getElementById("sidebarOverlay");
+        const downloadBtn = document.getElementById("download");
+        const downloadPdfBtn = document.getElementById("downloadPdf");
 
         // Language map
         const languageMap = {
@@ -905,11 +863,18 @@
             ta: { name: "Tamil", flag: "🇮🇳", native: "தமிழ்" }
         };
 
+        // State variables
+        let currentLanguage = 'en';
+        let isChatMaximized = false;
+        let isRecording = false;
+        let mediaRecorder;
+
         // Initialize
         document.addEventListener("DOMContentLoaded", function () {
             setupEventListeners();
             checkVoiceSupport();
             updateLanguageDisplay();
+            loadNewsPreview();
         });
 
         function setupEventListeners() {
@@ -919,19 +884,19 @@
                 if (e.key === "Enter") handleSend();
             });
 
-            // New chat button 
+            // New chat
             newChatBtn.addEventListener('click', startNewChat);
 
-            // Maximize toggle functionality
+            // Maximize
             maximizeBtn.addEventListener("click", toggleMaximizeChat);
 
-            // Clear chat 
+            // Clear chat
             clearChatBtn.addEventListener("click", clearChat);
 
-            // Voice functionality
+            // Voice
             voiceBtn.addEventListener("click", toggleVoiceRecording);
 
-            // Language functionality
+            // Language
             languageBtn.addEventListener("click", toggleLanguageDropdown);
             languageOptions.forEach((option) => {
                 option.addEventListener("click", (e) => {
@@ -942,34 +907,24 @@
                 });
             });
 
-            // 7. HISTORY BUTTON - FIXED VERSION
-            const historyBtn = document.getElementById("historyBtn");
+            // History
             if (historyBtn) {
-                console.log("Found history button, setting up click handler");
-
-                // Remove any existing event listeners first
-                const newHistoryBtn = historyBtn.cloneNode(true);
-                historyBtn.parentNode.replaceChild(newHistoryBtn, historyBtn);
-
-                // Get fresh reference
-                const freshHistoryBtn = document.getElementById("historyBtn");
-
-                // Add click event listener
-                freshHistoryBtn.addEventListener("click", function (e) {
-                    console.log("History button clicked!");
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showHistory();
-                });
+                historyBtn.addEventListener("click", showHistory);
             }
 
+            // Download buttons
+            if (downloadBtn) {
+                downloadBtn.addEventListener("click", downloadSessionTranscript);
+            }
+            if (downloadPdfBtn) {
+                downloadPdfBtn.addEventListener("click", downloadPdfTranscript);
+            }
 
-            // Mobile menu functionality
+            // Mobile menu
             if (mobileMenuBtn && mobileMenu) {
                 mobileMenuBtn.addEventListener('click', function (e) {
                     e.stopPropagation();
                     mobileMenu.classList.toggle('hidden');
-                    // Toggle icon between bars and times
                     const icon = mobileMenuBtn.querySelector('i');
                     if (icon.classList.contains('fa-bars')) {
                         icon.classList.remove('fa-bars');
@@ -980,7 +935,7 @@
                     }
                 });
 
-                // Close menu when clicking on links
+                // Close menu on link click
                 const mobileLinks = mobileMenu.querySelectorAll('a');
                 mobileLinks.forEach(link => {
                     link.addEventListener('click', function () {
@@ -1030,7 +985,7 @@
                 });
             });
 
-            // Close history with Escape key
+            // Escape key handlers
             document.addEventListener("keydown", function (event) {
                 if (event.key === "Escape") {
                     if (isChatMaximized) {
@@ -1043,7 +998,7 @@
             });
         }
 
-        // Update language display for mobile
+        // Update language display
         function updateLanguageDisplay() {
             const isMobile = window.innerWidth < 768;
             const lang = currentLanguage || 'en';
@@ -1056,14 +1011,7 @@
             }
         }
 
-        // Window resize handler
-        window.addEventListener('resize', function () {
-            updateLanguageDisplay();
-        });
-
-        // Language Functions
-        let currentLanguage = 'en';
-
+        // Language functions
         function toggleLanguageDropdown(e) {
             e.stopPropagation();
             languageDropdown.classList.toggle("hidden");
@@ -1072,118 +1020,48 @@
         function setLanguage(lang) {
             currentLanguage = lang;
             updateLanguageDisplay();
-            showLanguageChangeMessage(languageMap[lang].name);
+            showNotification(`Language changed to ${languageMap[lang].name}`, 'info');
         }
-
-        function showLanguageChangeMessage(langName) {
-            const messages = {
-                'en': `Language changed to ${langName}`,
-                'hi': `भाषा ${langName} में बदल गई`,
-                'kn': `ಭಾಷೆ ${langName} ಗೆ ಬದಲಾಯಿತु`
-            };
-
-            const message = messages[currentLanguage] || messages['en'];
-
-            // Show temporary message
-            const tempMsg = document.createElement('div');
-            tempMsg.className = 'text-center text-sm text-blue-600 py-2';
-            tempMsg.innerHTML = `<i class="fas fa-language mr-2"></i>${message}`;
-
-            chatBox.appendChild(tempMsg);
-            setTimeout(() => tempMsg.remove(), 3000);
-        }
-
 
         // Maximize functionality
-        let isChatMaximized = false;
-
         function toggleMaximizeChat() {
             const chatSection = document.getElementById("chatbot");
-            const chatBox = document.getElementById("chatBox");
             const maximizeIcon = maximizeBtn.querySelector("i");
 
             if (!isChatMaximized) {
-                // ========== MAXIMIZE ==========
-
-                // Add classes to multiple elements
+                // Maximize
                 chatSection.classList.add("chat-maximized");
-                document.documentElement.classList.add("chat-maximized-active"); // HTML
-                document.body.classList.add("chat-maximized-active"); // Body
-
-                // Lock all scrolling
-                document.documentElement.style.overflow = "hidden";
                 document.body.style.overflow = "hidden";
-
-                // Force set dimensions (in case CSS fails)
-                chatSection.style.position = "fixed";
-                chatSection.style.top = "0";
-                chatSection.style.left = "0";
-                chatSection.style.width = "100vw";
-                chatSection.style.height = "100vh";
-                chatSection.style.zIndex = "999999";
-                chatSection.style.margin = "0";
-                chatSection.style.padding = "0";
-
-                // Update UI
                 maximizeIcon.className = "fas fa-compress";
                 maximizeBtn.title = "Minimize Chat";
-                maximizeBtn.classList.add("maximized");
-
                 isChatMaximized = true;
-
-
             } else {
-                // ========== MINIMIZE ==========
-
-                // Remove classes
+                // Minimize
                 chatSection.classList.remove("chat-maximized");
-                document.documentElement.classList.remove("chat-maximized-active");
-                document.body.classList.remove("chat-maximized-active");
-
-                // Restore scrolling
-                document.documentElement.style.overflow = "";
                 document.body.style.overflow = "";
-
-                // Remove inline styles
-                chatSection.style.position = "";
-                chatSection.style.top = "";
-                chatSection.style.left = "";
-                chatSection.style.width = "";
-                chatSection.style.height = "";
-                chatSection.style.zIndex = "";
-                chatSection.style.margin = "";
-                chatSection.style.padding = "";
-
-                // Update UI
                 maximizeIcon.className = "fas fa-expand";
                 maximizeBtn.title = "Maximize Chat";
-                maximizeBtn.classList.remove("maximized");
-
                 isChatMaximized = false;
-
-                console.log("✅ Chat minimized");
             }
 
-            // Scroll to bottom
             setTimeout(() => {
                 chatBox.scrollTop = chatBox.scrollHeight;
             }, 100);
         }
 
-        // Clear chat function
+        // Clear chat
         function clearChat() {
             if (!confirm("Are you sure you want to clear the chat history?")) {
                 return;
             }
 
             const welcomeMsgHTML = `
-        <div class="chat-message mb-6">
+        <div class="chat-message mb-6 slide-in-up">
             <div class="flex gap-3 md:gap-4">
                 <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                     <i class="fas fa-robot text-sm md:text-lg"></i>
                 </div>
-                <div class="bg-white p-4 md:p-6 rounded-2xl rounded-tl-none shadow-md max-w-full md:max-w-3xl border border-gray-100 flex-1">
-                    <p class="text-gray-800 text-sm md:text-base leading-relaxed">👋 Hello! I'm your AI Legal Assistant.  What would you like to know?</p>
+                <div class="bg-white p-4 md:p-6 rounded-2xl rounded-tl-none shadow-sm max-w-full md:max-w-3xl border border-gray-200 flex-1">                    <p class="text-gray-800 text-sm md:text-base leading-relaxed">👋 Hello! I'm your AI Legal Assistant. What would you like to know?</p>
                     <p class="text-xs md:text-sm text-gray-500 mt-2 md:mt-3 flex items-center gap-2">
                         <i class="fas fa-clock"></i> Just now
                     </p>
@@ -1195,15 +1073,10 @@
             chatBox.innerHTML = welcomeMsgHTML;
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Show success message
-            const tempMsg = document.createElement('div');
-            tempMsg.className = 'text-center text-sm text-green-600 py-2';
-            tempMsg.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Chat cleared successfully';
-            chatBox.appendChild(tempMsg);
-            setTimeout(() => tempMsg.remove(), 3000);
+            showNotification("Chat cleared successfully", 'success');
         }
 
-        // Start new chat
+        // New chat
         function startNewChat() {
             if (confirm("Start new conversation? Current chat will be saved to history.")) {
                 saveCurrentChat();
@@ -1212,13 +1085,13 @@
                 localStorage.setItem('legal_chat_session_id', sessionId);
 
                 const welcomeMsg = `
-        <div class="chat-message mb-6">
+        <div class="chat-message mb-6 slide-in-up">
             <div class="flex gap-3 md:gap-4">
                 <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                     <i class="fas fa-robot text-sm md:text-lg"></i>
                 </div>
-                <div class="bg-white p-4 md:p-6 rounded-2xl rounded-tl-none shadow-md max-w-full md:max-w-3xl border border-gray-100 flex-1">
-                    <p class="text-gray-800 text-sm md:text-base leading-relaxed">👋 New conversation started! I'm your AI Legal Assistant. What would you like to know?</p>
+                    <div class="bg-white p-4 md:p-6 rounded-2xl rounded-tl-none shadow-sm max-w-full md:max-w-3xl border border-gray-200 flex-1">                   
+                         <p class="text-black font-bold text-md md:text-base leading-relaxed">👋 New conversation started! I'm your AI Legal Assistant. What would you like to know?</p>
                     <p class="text-xs md:text-sm text-gray-500 mt-2 md:mt-3 flex items-center gap-2">
                         <i class="fas fa-clock"></i> Just now
                     </p>
@@ -1228,150 +1101,14 @@
     `;
 
                 chatBox.innerHTML = welcomeMsg;
-                showNotification("New conversation started!");
+                showNotification("New conversation started!", 'success');
             }
         }
 
-        // Chat History Functions
-        function showHistory() {
-            document.getElementById('historySidebar').classList.remove('hidden');
-            document.getElementById('sidebarOverlay').classList.remove('hidden');
-            loadHistory();
-        }
-
-        function closeHistory() {
-            document.getElementById('historySidebar').classList.add('hidden');
-            document.getElementById('sidebarOverlay').classList.add('hidden');
-        }
-
-        function loadHistory() {
-            const historyList = document.getElementById('historyList');
-            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-
-            if (history.length === 0) {
-                historyList.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-comments text-3xl mb-3"></i>
-                    <p>No saved conversations yet</p>
-                    <p class="text-sm mt-2">Your conversations will appear here</p>
-                </div>
-            `;
-                return;
-            }
-
-            let html = '';
-            history.forEach((item, index) => {
-                const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const date = new Date(item.timestamp).toLocaleDateString();
-
-                html += `
-                <div class="mb-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition" 
-                     onclick="loadConversation('${item.id}')">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="text-sm font-medium text-gray-800 truncate">${item.preview || 'Conversation'}</span>
-                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${index + 1}</span>
-                    </div>
-                    <div class="text-xs text-gray-500 flex items-center gap-2">
-                        <i class="far fa-clock"></i>
-                        ${date} ${time}
-                    </div>
-                    <div class="flex gap-2 mt-2">
-                        <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200" 
-                                onclick="event.stopPropagation(); loadConversation('${item.id}')">
-                            <i class="fas fa-eye mr-1"></i>View
-                        </button>
-                        <button class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200" 
-                                onclick="event.stopPropagation(); deleteConversation('${item.id}')">
-                            <i class="fas fa-trash mr-1"></i>Delete
-                        </button>
-                    </div>
-                </div>
-            `;
-            });
-
-            historyList.innerHTML = html;
-        }
-
-        function loadConversation(sessionId) {
-            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            const conversation = history.find(h => h.id === sessionId);
-
-            if (conversation && conversation.html) {
-                chatBox.innerHTML = conversation.html;
-                sessionId = conversation.id;
-                localStorage.setItem('legal_chat_session_id', sessionId);
-                closeHistory();
-                showNotification("Conversation loaded!");
-
-                setTimeout(() => {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }, 100);
-            }
-        }
-
-        function deleteConversation(sessionId) {
-            if (confirm("Delete this conversation from history?")) {
-                let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-                history = history.filter(h => h.id !== sessionId);
-                localStorage.setItem('chatHistory', JSON.stringify(history));
-                loadHistory();
-                showNotification("Conversation deleted");
-            }
-        }
-
-        function clearAllHistory() {
-            if (confirm("Delete ALL conversation history? This cannot be undone.")) {
-                localStorage.removeItem('chatHistory');
-                loadHistory();
-                showNotification("All history cleared");
-            }
-        }
-
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-            notification.innerHTML = `<i class="fas fa-check-circle mr-2"></i>${message}`;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // Save chat function
-        function saveCurrentChat() {
-            const chatHTML = chatBox.innerHTML;
-            const sessionId = localStorage.getItem('legal_chat_session_id');
-            const timestamp = new Date().toISOString();
-
-            const userMessages = chatBox.querySelectorAll('.chat-message .bg-gradient-to-r');
-            let preview = 'Legal Conversation';
-
-            if (userMessages.length > 0) {
-                const firstMsg = userMessages[0].textContent.trim();
-                preview = firstMsg.substring(0, 60) + (firstMsg.length > 60 ? '...' : '');
-            }
-
-            let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
-            history = history.filter(h => h.id !== sessionId);
-            history.unshift({
-                id: sessionId,
-                timestamp: timestamp,
-                preview: preview,
-                html: chatHTML
-            });
-
-            if (history.length > 20) {
-                history = history.slice(0, 20);
-            }
-
-            localStorage.setItem('chatHistory', JSON.stringify(history));
-        }
-
-        // Add message function
+        // Add message
         function addMessage(message, isUser) {
             const msgDiv = document.createElement('div');
-            msgDiv.className = 'chat-message mb-6';
+            msgDiv.className = 'chat-message mb-6 slide-in-up';
 
             const time = new Date().toLocaleTimeString("en-US", {
                 hour: "2-digit",
@@ -1381,14 +1118,14 @@
             if (isUser) {
                 msgDiv.innerHTML = `
             <div class="flex gap-3 md:gap-4 justify-end">
-                <div class="bg-gradient-to-r from-blue-400 to-blue-300 text-white p-4 md:p-6 rounded-2xl rounded-tr-none shadow-md max-w-full md:max-w-3xl">
-                    <p class="text-white font-medium text-sm md:text-base leading-relaxed">${message}</p>
+                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-4 md:p-6 rounded-2xl rounded-tr-none shadow-sm max-w-full md:max-w-3xl">
+                    <p class="text-black font-bold text-lg md:text-base leading-relaxed">${message}</p>
                     <p class="text-blue-100 text-xs md:text-sm mt-2 md:mt-3 flex items-center gap-2 justify-end">
                         ${time}
                     </p>
                 </div>
                 <div class="bg-gradient-to-br from-purple-500 to-pink-500 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg text-sm">
-                    User
+                    You
                 </div>
             </div>
         `;
@@ -1403,8 +1140,8 @@
                 <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
                     <i class="fas fa-robot text-sm md:text-base"></i>
                 </div>
-                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-6 rounded-2xl rounded-tl-none shadow-md max-w-full md:max-w-3xl border border-gray-100 flex-1">
-                    <div class="text-gray-800 text-sm md:text-base leading-relaxed">
+                <div class="bg-white p-4 md:p-8 rounded-2xl rounded-tl-none shadow-sm max-w-full md:max-w-3xl border border-gray-100 flex-1">
+                    <div class="text-black text-md font-bold md:text-base leading-relaxed">
                         ${formattedMessage}
                     </div>
                     <p class="text-gray-500 text-xs md:text-sm mt-2 md:mt-3 flex items-center gap-2">
@@ -1422,24 +1159,23 @@
         // Show typing indicator
         function showTypingIndicator() {
             const typingDiv = document.createElement("div");
-            typingDiv.className = "flex gap-3 mb-4";
+            typingDiv.className = "flex gap-3 mb-4 slide-in-up";
             typingDiv.id = "typing";
             typingDiv.innerHTML = `
-                <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="bg-white p-4 rounded-2xl shadow-md">
-                    <div class="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-            `;
+        <div class="bg-gradient-to-br from-blue-600 to-purple-600 text-white w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="bg-gray-50 p-4 rounded-2xl shadow-sm border border-gray-300">
+            <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
             chatBox.appendChild(typingDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
         // Handle send message
         async function handleSend() {
             const message = userInput.value.trim();
@@ -1478,10 +1214,7 @@
             }
         }
 
-        // Voice recording functions (simplified for mobile)
-        let isRecording = false;
-        let mediaRecorder;
-
+        // Voice recording
         async function toggleVoiceRecording() {
             if (!isRecording) {
                 await startVoiceRecording();
@@ -1492,7 +1225,7 @@
 
         async function startVoiceRecording() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                showVoiceError("Voice search is not supported in your browser.");
+                showNotification("Voice search is not supported in your browser.", 'warning');
                 return;
             }
 
@@ -1511,7 +1244,7 @@
 
                 mediaRecorder.start();
             } catch (error) {
-                showVoiceError("Microphone access denied. Please allow permissions.");
+                showNotification("Microphone access denied. Please allow permissions.", 'error');
             }
         }
 
@@ -1522,7 +1255,6 @@
                 updateVoiceUI(false);
                 addMessage("✅ Voice recording stopped. Processing...", false);
 
-                // For demo purposes - prompt user to type
                 setTimeout(() => {
                     userInput.placeholder = "Please type your question (voice processing demo)";
                     userInput.focus();
@@ -1544,12 +1276,6 @@
             }
         }
 
-        function showVoiceError(message) {
-            addMessage(`❌ ${message}`, false);
-            userInput.placeholder = "Please type your question instead";
-            userInput.focus();
-        }
-
         function checkVoiceSupport() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 voiceBtn.style.display = 'none';
@@ -1558,16 +1284,272 @@
             return true;
         }
 
-        // Load news preview
+        // History functions
+        function showHistory() {
+            document.getElementById('historySidebar').classList.remove('hidden');
+            document.getElementById('sidebarOverlay').classList.remove('hidden');
+            loadHistory();
+        }
+
+        function closeHistory() {
+            document.getElementById('historySidebar').classList.add('hidden');
+            document.getElementById('sidebarOverlay').classList.add('hidden');
+        }
+
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+
+            if (history.length === 0) {
+                historyList.innerHTML = `
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-comments text-3xl mb-3"></i>
+                    <p>No saved conversations yet</p>
+                    <p class="text-sm mt-2">Your conversations will appear here</p>
+                </div>
+            `;
+                return;
+            }
+
+            let html = '';
+            history.forEach((item, index) => {
+                const time = new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const date = new Date(item.timestamp).toLocaleDateString();
+
+                html += `
+                <div class="mb-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-all duration-200 card-hover" 
+                     onclick="loadConversation('${item.id}')">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-sm font-medium text-gray-800 truncate">${item.preview || 'Conversation'}</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">${index + 1}</span>
+                    </div>
+                    <div class="text-xs text-gray-500 flex items-center gap-2">
+                        <i class="far fa-clock"></i>
+                        ${date} ${time}
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200 transition-colors" 
+                                onclick="event.stopPropagation(); loadConversation('${item.id}')">
+                            <i class="fas fa-eye mr-1"></i>View
+                        </button>
+                        <button class="text-xs bg-red-100 text-red-700 px-2 py-1 rounded hover:bg-red-200 transition-colors" 
+                                onclick="event.stopPropagation(); deleteConversation('${item.id}')">
+                            <i class="fas fa-trash mr-1"></i>Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        function loadConversation(sessionId) {
+            const history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            const conversation = history.find(h => h.id === sessionId);
+
+            if (conversation && conversation.html) {
+                chatBox.innerHTML = conversation.html;
+                sessionId = conversation.id;
+                localStorage.setItem('legal_chat_session_id', sessionId);
+                closeHistory();
+                showNotification("Conversation loaded!", 'success');
+
+                setTimeout(() => {
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 100);
+            }
+        }
+
+        function deleteConversation(sessionId) {
+            if (confirm("Delete this conversation from history?")) {
+                let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+                history = history.filter(h => h.id !== sessionId);
+                localStorage.setItem('chatHistory', JSON.stringify(history));
+                loadHistory();
+                showNotification("Conversation deleted", 'success');
+            }
+        }
+
+        function clearAllHistory() {
+            if (confirm("Delete ALL conversation history? This cannot be undone.")) {
+                localStorage.removeItem('chatHistory');
+                loadHistory();
+                showNotification("All history cleared", 'success');
+            }
+        }
+
+        function saveCurrentChat() {
+            const chatHTML = chatBox.innerHTML;
+            const sessionId = localStorage.getItem('legal_chat_session_id');
+            const timestamp = new Date().toISOString();
+
+            const userMessages = chatBox.querySelectorAll('.chat-message .bg-gradient-to-r');
+            let preview = 'Legal Conversation';
+
+            if (userMessages.length > 0) {
+                const firstMsg = userMessages[0].textContent.trim();
+                preview = firstMsg.substring(0, 60) + (firstMsg.length > 60 ? '...' : '');
+            }
+
+            let history = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+            history = history.filter(h => h.id !== sessionId);
+            history.unshift({
+                id: sessionId,
+                timestamp: timestamp,
+                preview: preview,
+                html: chatHTML
+            });
+
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+
+            localStorage.setItem('chatHistory', JSON.stringify(history));
+        }
+
+        // Download functions
+        async function downloadSessionTranscript() {
+            try {
+                const btn = downloadBtn;
+                const originalHTML = btn.innerHTML;
+
+                // Show loading
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                const response = await fetch(`${BACKEND_URL}/transcript/download/${sessionId}`);
+
+                if (response.ok) {
+                    let filename = `legal_chat_${sessionId}_${Date.now()}.txt`;
+                    const contentDisposition = response.headers.get('Content-Disposition');
+
+                    if (contentDisposition) {
+                        const match = contentDisposition.match(/filename="?([^"]+)"?/);
+                        if (match) filename = match[1];
+                    }
+
+                    const text = await response.text();
+                    const blob = new Blob([text], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+
+                    showNotification('Transcript downloaded successfully!', 'success');
+                } else if (response.status === 404) {
+                    showNotification('No conversation found to download', 'warning');
+                } else {
+                    throw new Error(`Download failed: ${response.status}`);
+                }
+            } catch (error) {
+                console.error('Download error:', error);
+                showNotification('Failed to download transcript', 'error');
+            } finally {
+                // Reset button
+                setTimeout(() => {
+                    if (downloadBtn) {
+                        downloadBtn.innerHTML = '<i class="fas fa-download"></i><span class="hidden md:inline">Download</span>';
+                        downloadBtn.disabled = false;
+                    }
+                }, 1000);
+            }
+        }
+
+        async function downloadPdfTranscript() {
+            try {
+                const btn = downloadPdfBtn;
+                const originalHTML = btn.innerHTML;
+
+                // Show loading
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                btn.disabled = true;
+
+                const response = await fetch(`${BACKEND_URL}/transcript/download/pdf/${sessionId}`);
+
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showNotification('No transcript available', 'warning');
+                    } else {
+                        throw new Error(`Download failed: ${response.status}`);
+                    }
+                    return;
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `legal_consultation_${sessionId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                window.URL.revokeObjectURL(url);
+
+                showNotification('PDF downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('PDF download error:', error);
+                showNotification('Failed to download PDF', 'error');
+            } finally {
+                // Reset button
+                setTimeout(() => {
+                    if (downloadPdfBtn) {
+                        downloadPdfBtn.innerHTML = '<i class="fas fa-file-pdf"></i><span class="hidden md:inline">PDF</span>';
+                        downloadPdfBtn.disabled = false;
+                    }
+                }, 1000);
+            }
+        }
+
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const colors = {
+                success: "bg-green-600",
+                error: "bg-red-600",
+                warning: "bg-yellow-600",
+                info: "bg-blue-600"
+            };
+
+            const icons = {
+                success: "fa-check-circle",
+                error: "fa-exclamation-circle",
+                warning: "fa-exclamation-triangle",
+                info: "fa-info-circle"
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `notification fixed bottom-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 max-w-sm`;
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${icons[type]} mr-2"></i>
+                    <span class="text-sm">${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // News functions
         async function loadNewsPreview() {
             try {
                 const response = await fetch(`${BACKEND_URL}/news/?limit=3`);
                 if (response.ok) {
                     const data = await response.json();
-                    renderNewsPreview(data.articles);
+                    renderNewsPreview(data.articles || []);
                 }
             } catch (error) {
                 console.error('Error loading news preview:', error);
+                renderNewsPreview([]);
             }
         }
 
@@ -1576,11 +1558,11 @@
 
             if (!articles || articles.length === 0) {
                 container.innerHTML = `
-            <div class="col-span-3 text-center py-8">
-                <i class="fas fa-newspaper text-3xl text-gray-400 mb-3"></i>
-                <p class="text-gray-600">No recent updates available</p>
-            </div>
-        `;
+                <div class="col-span-3 text-center py-8">
+                    <i class="fas fa-newspaper text-3xl text-gray-400 mb-3"></i>
+                    <p class="text-gray-600">No recent updates available</p>
+                </div>
+            `;
                 return;
             }
 
@@ -1588,37 +1570,28 @@
             articles.forEach(article => {
                 const timeAgo = formatTimeAgo(article.published);
                 html += `
-            <div class="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition cursor-pointer news-preview-card" data-id="${article.id}">
-                <div class="flex items-center gap-2 mb-3">
-                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${article.category}</span>
-                    <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
+                <div class="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-all duration-200 cursor-pointer card-hover">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">${article.category || 'General'}</span>
+                        <span class="text-xs text-gray-500"><i class="fas fa-clock mr-1"></i>${timeAgo}</span>
+                    </div>
+                    <h3 class="font-bold text-gray-800 mb-2 line-clamp-2 text-sm md:text-base">${article.title}</h3>
+                    <p class="text-xs md:text-sm text-gray-600 mb-4 line-clamp-2">${article.description || ''}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-500"><i class="fas fa-newspaper mr-1"></i>${article.source || 'Legal News'}</span>
+                        <a href="news.html${article.id ? `?article=${article.id}` : ''}" class="text-blue-600 text-xs md:text-sm hover:text-blue-800 transition-colors">
+                            Read <i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                    </div>
                 </div>
-                <h3 class="font-bold text-gray-800 mb-2 line-clamp-2 text-sm md:text-base">${article.title}</h3>
-                <p class="text-xs md:text-sm text-gray-600 mb-4 line-clamp-2">${article.description || ''}</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-xs text-gray-500"><i class="fas fa-newspaper mr-1"></i>${article.source}</span>
-                    <button class="text-blue-600 text-xs md:text-sm hover:text-blue-800 read-preview" data-id="${article.id}">
-                        Read <i class="fas fa-chevron-right ml-1"></i>
-                    </button>
-                </div>
-            </div>
-        `;
+            `;
             });
 
             container.innerHTML = html;
-
-            document.querySelectorAll('.news-preview-card, .read-preview').forEach(element => {
-                element.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    const articleId = this.dataset.id;
-                    if (articleId) {
-                        window.location.href = `news.html?article=${articleId}`;
-                    }
-                });
-            });
         }
 
         function formatTimeAgo(dateString) {
+            if (!dateString) return 'Recently';
             const date = new Date(dateString);
             const now = new Date();
             const diffMs = now - date;
@@ -1632,154 +1605,19 @@
             return date.toLocaleDateString();
         }
 
-        // Load news on page load
-        loadNewsPreview();
-
-        //==========Download Transcript Functionalities=================//
-
-        // Download Transcript code begins here 
-        document.getElementById('download')?.addEventListener('click', async function () {
-            await downloadSessionTranscript();
-        });
-
-        async function downloadSessionTranscript() {
-            try {
-                const btn = document.getElementById('download');
-                const originalText = btn.innerHTML;
-
-                // Show loading
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-                btn.disabled = true;
-
-                // Get current session ID (from your global variable at top of file)
-                // You already have: let sessionId = localStorage.getItem('legal_chat_session_id');
-                const currentSessionId = sessionId || "default";
-
-                // Call backend to download transcript
-                const response = await fetch(`${BACKEND_URL}/transcript/download/${currentSessionId}`);
-
-                if (response.ok) {
-                    // Get filename from headers or create one
-                    let filename = `legal_chat_${currentSessionId}_${Date.now()}.txt`;
-                    const contentDisposition = response.headers.get('Content-Disposition');
-
-                    if (contentDisposition) {
-                        const match = contentDisposition.match(/filename="?([^"]+)"?/);
-                        if (match) filename = match[1];
-                    }
-
-                    // Get the text content
-                    const text = await response.text();
-
-                    // Create and download file
-                    const blob = new Blob([text], { type: 'text/plain' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-
-                    showNotification('Transcript downloaded successfully!', 'success');
-
-                } else if (response.status === 404) {
-                    showNotification('No conversation found to download', 'warning');
-                } else {
-                    throw new Error(`Download failed: ${response.status}`);
-                }
-
-            } catch (error) {
-                console.error('Download error:', error);
-                showNotification('Failed to download transcript', 'error');
-            } finally {
-                // Reset button - using YOUR button ID "download"
-                setTimeout(() => {
-                    const btn = document.getElementById('download');
-                    if (btn) {
-                        btn.innerHTML = '<i class="fas fa-download text-xs md:text-sm"></i><span class="hidden md:inline">Download</span>';
-                        btn.disabled = false;
-                    }
-                }, 1000);
-            }
-        }
-
-        //notification functionalities
-        function showNotification(message, type = 'success') {
-            const colors = {
-                success: "bg-green-600",
-                error: "bg-red-600",
-                warning: "bg-yellow-600",
-                info: "bg-blue-600"
-            };
-
-            const notification = document.createElement('div');
-            notification.className = `fixed bottom-4 right-4 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50`;
-            notification.innerHTML = `
-        <div class="flex items-center">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
-            <span>${message}</span>
-        </div>
-    `;
-
-            document.body.appendChild(notification);
-
-            // Auto-remove after 3 seconds
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 3000);
-        }
-
-
-        //Copy to clipboard
-        async function copyToClipboard(text) {
-            try {
-                await navigator.clipboard.writeText(text);
-                showNotification('Copied to clipboard!', 'success');
-            } catch (error) {
-                console.error('Copy failed:', error);
-                showNotification('Failed to copy', 'error');
-            }
-        }
-
-        //pdf transcript downloader
-        document.getElementById('downloadPdf')?.addEventListener('click', async () => {
-            const response = await fetch(
-                `${BACKEND_URL}/transcript/download/pdf/${sessionId}`
-            );
-
-            if (!response.ok) {
-                showNotification('No transcript available', 'warning');
-                return;
-            }
-
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-
-            a.href = url;
-            a.download = `legal_consultation_${sessionId}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        });
-
-
+        // Window resize handler
+        window.addEventListener('resize', updateLanguageDisplay);
     </script>
 
     <!-- Chat History Sidebar -->
     <div id="historySidebar"
-        class="hidden fixed right-0 top-0 h-full w-full md:w-80 bg-white shadow-lg z-50 overflow-y-auto">
-        <div class="p-4 border-b flex justify-between items-center">
+        class="hidden fixed right-0 top-0 h-full w-full md:w-80 bg-white shadow-lg z-50 overflow-y-auto slide-in-up">
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
             <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
                 <i class="fas fa-history text-blue-600"></i>
                 Chat History
             </h3>
-            <button onclick="closeHistory()" class="text-gray-500 hover:text-gray-700 text-xl">
+            <button onclick="closeHistory()" class="text-gray-500 hover:text-gray-700 text-xl transition-colors">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -1790,8 +1628,9 @@
                 <p class="text-sm mt-2">Your conversations will appear here</p>
             </div>
         </div>
-        <div class="p-4 border-t bg-gray-50">
-            <button onclick="clearAllHistory()" class="text-sm text-red-600 hover:text-red-800 w-full text-center py-2">
+        <div class="p-4 border-t border-gray-100 bg-gray-50">
+            <button onclick="clearAllHistory()"
+                class="text-sm text-red-600 hover:text-red-800 w-full text-center py-2 transition-colors">
                 <i class="fas fa-trash-alt mr-2"></i>Clear All History
             </button>
         </div>

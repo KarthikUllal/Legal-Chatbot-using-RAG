@@ -42,4 +42,3 @@ class VectorStore:
 
     def list_collections(self):
         return self.client.list_collections()
-

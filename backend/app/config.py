@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-exp:free")
     USE_OPENROUTER: bool = os.getenv("USE_OPENROUTER", "false").lower() == "true"
 
+    TAVILY_API_KEY: str = os.getenv("TAVILY_API_KEY", "")
+    USE_WEB_FALLBACK: bool = os.getenv("USE_WEB_FALLBACK", "true").lower() == "true"  # Default to enabled
+
     class Config:
         env_file = ".env"
         extra = "ignore"
